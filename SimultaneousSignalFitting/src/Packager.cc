@@ -142,14 +142,14 @@ void Packager::packageOutput(){
     effAccGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
     effAccGraph->GetYaxis()->SetTitle("efficiency #times acceptance");
     effAccGraph->Draw("AL");
-    canv->Print("plots/effAccCheck.pdf");
-    canv->Print("plots/effAccCheck.png");
+    canv->Print(Form("%s/effAccCheck.pdf",outDir_.c_str()));
+    canv->Print(Form("%s/effAccCheck.png",outDir_.c_str()));
     expEventsGraph->SetLineWidth(3);
     expEventsGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
     expEventsGraph->GetYaxis()->SetTitle(Form("Expected Events for %4.1ffb^{-1}",intLumi->getVal()/1000.));
     expEventsGraph->Draw("AL");
-    canv->Print("plots/expEventsCheck.pdf");
-    canv->Print("plots/expEventsCheck.png");
+    canv->Print(Form("%s/expEventsCheck.pdf",outDir_.c_str()));
+    canv->Print(Form("%s/expEventsCheck.png",outDir_.c_str()));
 		makePlots();
   }
 }
