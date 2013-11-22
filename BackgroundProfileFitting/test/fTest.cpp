@@ -113,19 +113,21 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
 	while (stat_n!=0){
 	  if (ntries>=3) break;
 	  RooFitResult *fitNull = pdfNull->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
-		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(1),RooFit::Hesse(0),RooFit::PrintLevel(-1));
 		//,RooFit::Optimize(0));
 
 	  nllNull = fitNull->minNll();
           stat_n = fitNull->status();
-	  if (stat_n!=0)params_null->assignValueOnly(fitNull->randomizePars());
+	  if (stat_n!=0) params_null->assignValueOnly(fitNull->randomizePars());
+	  
+	 
 	}
 	
 	ntries = 0;
 	while (stat_t!=0){
 	  if (ntries>=3) break;
 	  RooFitResult *fitTest = pdfTest->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
-		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(1),RooFit::Hesse(0),RooFit::PrintLevel(-1));
 	  nllTest = fitTest->minNll();
           stat_t = fitTest->status();
 	  if (stat_t!=0)params_test->assignValueOnly(fitTest->randomizePars());
@@ -207,7 +209,7 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
   // The first thing is to check if the number of entries in any bin is < 10 
   // if so, we don't rely on asymptotic approximations
  
-  if ((double)data->sumEntries()/nBinsForMass < 10 && 0 ){
+  if ((double)data->sumEntries()/nBinsForMass < 10 ){
 
     std::cout << "Running toys for GOF test " << std::endl;
     TCanvas *can = new TCanvas();
