@@ -38,7 +38,8 @@ int nCats_;
 float constraintValue_;
 int constraintValueMass_;
 bool spin_=false;
-bool splitVH_=false;
+vector<string> procs_;
+string procStr_;
 bool isCutBased_=false;
 bool is2011_=false;
 string massesToSkip_;
@@ -64,7 +65,7 @@ void OptionParser(int argc, char *argv[]){
     ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
     ("constraintValueMass,M", po::value<int>(&constraintValueMass_)->default_value(125),            "Constraint value mass")
     ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
-    ("splitVH",                                                                               			"Split VH into WH and ZH")
+		("procs", po::value<string>(&procStr_)->default_value("ggh,vbf,wh,zh,tth"),											"Processes (comma sep)")
     ("isCutBased",                                                                               		"Is this the cut based analysis")
     ("is2011",                                                                               				"Is this the 7TeV analysis")
 		("skipMasses", po::value<string>(&massesToSkip_)->default_value(""),														"Skip these mass points - used eg for the 7TeV where there's no mc at 145")
@@ -77,7 +78,6 @@ void OptionParser(int argc, char *argv[]){
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
   if (vm.count("spin"))                     spin_=true;
-  if (vm.count("splitVH"))                  splitVH_=true;
   if (vm.count("isCutBased"))               isCutBased_=true;
   if (vm.count("is2011"))               		is2011_=true;
   if (vm.count("runInitialFitsOnly"))       runInitialFitsOnly_=true;
@@ -97,6 +97,7 @@ void OptionParser(int argc, char *argv[]){
 		for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) cout << *it << " ";
 		cout << endl;
 	}
+	split(procs_,procStr_,boost::is_any_of(","));
 }
 
 void transferMacros(TFile *inFile, TFile *outFile){
@@ -263,7 +264,7 @@ int main(int argc, char *argv[]){
 		sw.Start();
 		cout << "Starting to combine fits..." << endl;
 		// this guy packages everything up
-		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,skipMasses_,is2011_,plotDir_);
+		Packager packager(outWS,procs_,nCats_,mhLow_,mhHigh_,skipMasses_,is2011_,plotDir_);
 		packager.packageOutput();
 		sw.Stop();
 		cout << "Combination complete." << endl;

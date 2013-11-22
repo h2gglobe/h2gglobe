@@ -40,7 +40,7 @@ class FinalModelConstruction {
     void setupSystematics();
     void getNormalization();
 
-		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name);
+		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name, bool isMH2=false, bool isMHSM=false);
 		RooAbsReal *getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name);
 		RooAbsReal *getRateWithPhotonSyst(string name);
     
@@ -87,10 +87,14 @@ class FinalModelConstruction {
     std::map<int,RooDataSet*> stdDatasets;
     
     RooRealVar *vertexNuisance;
-    RooSpline1D *rvFracFunc;
     RooRealVar *globalScale;
 		RooRealVar *r9barrelNuisance;
 		RooRealVar *r9mixedNuisance;
+    RooSpline1D *rvFracFunc;
+		// secondary models
+    RooSpline1D *rvFracFunc_SM;
+    RooSpline1D *rvFracFunc_2;
+    RooSpline1D *rvFracFunc_NW;
 		// these are for the old fashioned way
     //RooRealVar *categoryScale;
     //RooConstVar *categorySmear;
