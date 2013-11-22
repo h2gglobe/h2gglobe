@@ -4,6 +4,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-i","--inputfilename",help="Data workspace file from Globe")
 parser.add_option("-o","--outDir",default="plots",help="Out directory for plots default: %default")
+parser.add_option("-O","--Options",default="",help="Add options")
 parser.add_option("-d","--datfile",default="dat/fTest.dat",help="dat file for the output")
 parser.add_option("-s","--saveMultiPdf",default="",help="Save a multipdf workspace as this name")
 parser.add_option("-c","--cats",type="int",help="Number of categories to run")
@@ -26,6 +27,7 @@ for cat in range(options.cats):
 	f.write('cd %s\n'%os.getcwd())
 	f.write('eval `scramv1 runtime -sh`\n')	
 	execLine = './bin/fTest -i %s -D %s --singleCat %d '%(options.inputfilename,options.outDir,cat)
+        execLine+=" %s "%options.Options
 	if options.unblind:
 		execLine += ' --unblind'
 	if options.verbose:

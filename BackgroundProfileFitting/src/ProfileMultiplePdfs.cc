@@ -754,7 +754,7 @@ double ProfileMultiplePdfs::getPull(TGraph *nll, float trueVal, float stepsize, 
 
   double factor=1.;
   if (minP.first<trueVal) factor=-1.;
-  
+  if (fabs(minP.first-trueVal)<=2*stepsize )return 0;
   return TMath::Sqrt(truthNll-bestFitNll)*factor;
 
 }
