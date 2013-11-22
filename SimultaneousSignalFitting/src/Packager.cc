@@ -15,9 +15,9 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir):
+Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir):
   outWS(ws),
-  splitVH_(splitVH),
+  procs_(procs),
   nCats_(nCats),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
@@ -25,21 +25,10 @@ Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhH
 	outDir_(outDir),
 	skipMasses_(skipMasses)
 {
-  procs.push_back("ggh"); 
-  procs.push_back("vbf"); 
-  if (splitVH_){
-    procs.push_back("wh");
-    procs.push_back("zh");
-  }
-  else {
-    procs.push_back("wzh");
-  }
-  procs.push_back("tth");
 	if (is2011) sqrts_=7;
 	else sqrts_=8;
 	normalization = new Normalization_8TeV();
 	normalization->Init(sqrts_);
-
 }
 
 Packager::~Packager(){}
@@ -61,16 +50,16 @@ void Packager::packageOutput(){
     RooDataSet *allDataThisMass = 0;
     for (int cat=0; cat<nCats_; cat++) {
       RooDataSet *allDataThisCat = NULL;
-      for (vector<string>::iterator proc=procs.begin(); proc!=procs.end(); proc++){
+      for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
         RooDataSet *tempData = (RooDataSet*)outWS->data(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
         if (!tempData) {
           cerr << "WARNING -- dataset: " << Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat) << " not found. It will be skipped" << endl;
           expectedObjectsNotFound.push_back(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
           continue;
         }
-        if (cat==0 && proc==procs.begin()) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
+        if (cat==0 && proc==procs_.begin()) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
         else allDataThisMass->append(*tempData);
-        if (proc==procs.begin()) allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
+        if (proc==procs_.begin()) allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
         else allDataThisCat->append(*tempData);
       }
       if (!allDataThisCat) {
@@ -91,7 +80,7 @@ void Packager::packageOutput(){
   RooArgList *runningNormSum = new RooArgList();
   for (int cat=0; cat<nCats_; cat++){
     RooArgList *sumPdfsThisCat = new RooArgList();
-    for (vector<string>::iterator proc=procs.begin(); proc!=procs.end(); proc++){
+    for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
       
       // sum eA
       RooSpline1D *norm = (RooSpline1D*)outWS->function(Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat));

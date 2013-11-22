@@ -266,14 +266,30 @@ void FinalModelConstruction::getRvFractionFunc(string name){
     rvFracValues.push_back(rvF);
   }
   rvFracFunc = new RooSpline1D(name.c_str(),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+	if (doSecondaryModels){
+		rvFracFunc_SM = new RooSpline1D(Form("%s_SM",name.c_str()),name.c_str(),*MH_SM,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+		rvFracFunc_2 = new RooSpline1D(Form("%s_2",name.c_str()),name.c_str(),*MH_2,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+		rvFracFunc_NW = new RooSpline1D(Form("%s_NW",name.c_str()),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+	}
   rvFractionSet_=true;
 }
 
-RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
-	
+RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name, bool isMH2, bool isMHSM){
+
+	if (!doSecondaryModels && (isMH2 || isMHSM)) {
+		cout << "ERROR -- for some reason your asking for a dependence on MH_2 or MH_SM but are not running secondary models" << endl;
+		exit(1);
+	}
+	if (isMH2 && isMHSM) {
+		cout << "ERROR -- for some reason your asking for a dependence on MH_2 and MH_SM but both cannot be true" << endl;
+		exit(1);
+	}
+
 	string formula="(@0+@1)*(1.+@2";
 	RooArgList *dependents = new RooArgList();
-	dependents->add(*MH); // MH sits at @0
+	if (isMH2) dependents->add(*MH_2);
+	else if (isMHSM) dependents->add(*MH_SM);
+	else dependents->add(*MH); // MH sits at @0
 	dependents->add(*dm); // dm sits at @1
 	dependents->add(*globalScale); // sits at @2
 
@@ -458,9 +474,13 @@ void FinalModelConstruction::buildRvWvPdf(string name, int nGrv, int nGwv, bool 
   finalPdf = new RooAddPdf(Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[0],*wvPdfs[0]),RooArgList(*rvFraction));
   if (doSecondaryModels){
     assert(secondaryModelVarsSet);
-    finalPdf_SM = new RooAddPdf(Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[1],*wvPdfs[1]),RooArgList(*rvFraction));
-    finalPdf_2 = new RooAddPdf(Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[2],*wvPdfs[2]),RooArgList(*rvFraction));
-    finalPdf_NW = new RooAddPdf(Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[3],*wvPdfs[3]),RooArgList(*rvFraction));
+		RooFormulaVar *rvFraction_SM = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_SM));
+		RooFormulaVar *rvFraction_2 = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_2));
+		RooFormulaVar *rvFraction_NW = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_NW));
+		// buildNew Pdfs
+    finalPdf_SM = new RooAddPdf(Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[1],*wvPdfs[1]),RooArgList(*rvFraction_SM));
+    finalPdf_2 = new RooAddPdf(Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[2],*wvPdfs[2]),RooArgList(*rvFraction_2));
+    finalPdf_NW = new RooAddPdf(Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[3],*wvPdfs[3]),RooArgList(*rvFraction_NW));
   }
 }
 
@@ -501,7 +521,7 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
       // sm higgs as background
       RooAbsReal *dmSM = splines[Form("dm_g%d_SM",g)];
       dmSM->SetName(Form("dm_g%d_%s_SM",g,ext.c_str()));
-			RooAbsReal *meanSM = getMeanWithPhotonSyst(dmSM,Form("mean_g%d_%s_SM",g,ext.c_str()));
+			RooAbsReal *meanSM = getMeanWithPhotonSyst(dmSM,Form("mean_g%d_%s_SM",g,ext.c_str()),false,true);
       //RooAbsReal *meanSM = new RooFormulaVar(Form("mean_g%d_%s_SM",g,ext.c_str()),Form("mean_g%d_%s_SM",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_SM,*dmSM,*globalScale,*categoryScale));
       RooAbsReal *sig_fitSM = splines[Form("sigma_g%d_SM",g)];
       sig_fitSM->SetName(Form("sigma_g%d_%s_SM",g,ext.c_str()));
@@ -512,7 +532,7 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
       // second degen higgs
       RooAbsReal *dm2 = splines[Form("dm_g%d_2",g)];
       dm2->SetName(Form("dm_g%d_%s_2",g,ext.c_str()));
-			RooAbsReal *mean2 = getMeanWithPhotonSyst(dm2,Form("mean_g%d_%s_2",g,ext.c_str()));
+			RooAbsReal *mean2 = getMeanWithPhotonSyst(dm2,Form("mean_g%d_%s_2",g,ext.c_str()),true,false);
       //RooAbsReal *mean2 = new RooFormulaVar(Form("mean_g%d_%s_2",g,ext.c_str()),Form("mean_g%d_%s_2",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_2,*dm2,*globalScale,*categoryScale));
       RooAbsReal *sig_fit2 = splines[Form("sigma_g%d_2",g)];
       sig_fit2->SetName(Form("sigma_g%d_%s_2",g,ext.c_str()));
