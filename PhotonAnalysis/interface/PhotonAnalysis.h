@@ -240,6 +240,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool runStatAnalysis;
     TString puHist, puMap, puTarget;//name of pileup reweighting histogram
     std::vector<TString> puTargets; 
+    std::vector<float> puLumis; 
 
     enum BkgCategory{promptprompt,promptfake,fakefake};
     bool keepPP, keepPF, keepFF;
@@ -576,6 +577,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     std::map<int, vector<double> > weights;
     std::map<int, std::vector<vector<double> > > rd_weights;
+    std::map<int, std::vector<double > > rd_nevents;
     int trigCounter_;
 
     // MC smearing and correction machinery
