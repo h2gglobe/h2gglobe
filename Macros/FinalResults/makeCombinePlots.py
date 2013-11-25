@@ -25,6 +25,9 @@ parser.add_option("","--ybinning",dest="ybinning",type="string",help="force y bi
 parser.add_option("","--canv",dest="canv",type="string",default="700,700",help="Canvas size x,y")
 parser.add_option("","--chcompLine",dest="chcompLine",type="int",help="For ChannelComp plot put line here splitting two year")
 parser.add_option("","--chcompShift",dest="chcompShift",type="float",help="For ChannelComp Asimov - shift to this value")
+parser.add_option("","--chcomp1sig",dest="chcomp1sig",default=False,action="store_true",help="For ChannelComp plot only 1 sigma errors")
+parser.add_option("","--smoothNLL",dest="smoothNLL",default=False,action="store_true",help="Smooth 1D likelihood scans")
+parser.add_option("","--shiftNLL",dest="shiftNLL",type="float",help="Correct NLL to this value")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -86,6 +89,7 @@ lat.SetTextFont(42)
 def pvalPlot(allVals):
   
   canv.Clear()
+  canv.SetLeftMargin(0.1)
   if options.verbose: print 'Plotting pvalue...'
   canv.SetLogy(True)
   mg = r.TMultiGraph()
@@ -108,6 +112,7 @@ def pvalPlot(allVals):
  
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle('Local p-value')
+  dummyHist.GetYaxis().SetTitleOffset(0.95)
   mg.Draw("A")
   if not options.yaxis:
     dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
@@ -146,7 +151,7 @@ def pvalPlot(allVals):
 
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-  lat.DrawLatex(0.75,0.94,options.text)
+  lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
   leg.Draw()
@@ -227,7 +232,7 @@ def maxlhPlot(allVals):
   
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-  lat.DrawLatex(0.75,0.94,options.text)
+  lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
   leg.Draw()
@@ -342,7 +347,7 @@ def limitPlot(allVals):
 
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-  lat.DrawLatex(0.75,0.94,options.text)
+  lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
   leg.Draw()
@@ -424,7 +429,26 @@ def findQuantile(pts,cl):
 		max = y0+((cl-x0)*y1 - (cl-x0)*y0)/(x1-x0)
 
 	return min,max
-	
+
+def smoothNLL(gr,res):
+
+  minVal = min([re[0] for re in res])
+  maxVal = max([re[0] for re in res])
+  sp = r.TSpline3('sp_%s'%gr.GetName(),gr,"",minVal,maxVal)
+  for p in range(100):
+    x = minVal+p*((maxVal-minVal)/100.)
+    y = sp.Eval(x)
+    gr.SetPoint(p,x,y)
+
+def shiftNLL(gr,bf):
+  
+  shift = options.shiftNLL - bf
+  for p in range(gr.GetN()):
+    x = r.Double()
+    y = r.Double()
+    gr.GetPoint(p,x,y)
+    gr.SetPoint(p,x+shift,y)
+
 def plot1DNLL(returnErrors=False):
 
   if options.method=='mh':
@@ -463,7 +487,9 @@ def plot1DNLL(returnErrors=False):
     for i in range(tree.GetEntries()):
       tree.GetEntry(i)
       xv = getattr(tree,x)
-      res.append([xv,2.*tree.deltaNLL])
+      if tree.deltaNLL>=0:
+        if xv in [re[0] for re in res]: continue
+        else: res.append([xv,2.*tree.deltaNLL])
     res.sort()
     minNLL = min([re[1] for re in res])
     #for re in res: re[1]-=minNLL
@@ -474,11 +500,25 @@ def plot1DNLL(returnErrors=False):
       if options.verbose: print '\t', p, re, nll
       p+=1
 
-    clean_graphs.append(gr)
-
     m,m1 = findQuantile(res,0);
     l,h  = findQuantile(res,1);
     l2,h2  = findQuantile(res,4);
+
+    if options.shiftNLL:
+      shiftNLL(gr,m)
+      shift = options.shiftNLL - m
+      m += shift
+      m1 += shift
+      l += shift
+      l2 += shift
+      h += shift
+      h2 += shift
+
+    if options.smoothNLL:
+      smoothNLL(gr,res)
+      clean_graphs.append(gr)
+    else:
+      clean_graphs.append(gr)
 
     xmin = m
     eplus = h-m
@@ -496,6 +536,9 @@ def plot1DNLL(returnErrors=False):
       err = (abs(eplus)+abs(eminus))/2.
 
       axmin,axmax = findQuantile(res,6)
+      if options.xaxis:
+        axmin = float(options.xaxis.split(',')[0])
+        axmax = float(options.xaxis.split(',')[1])
       lines = [ r.TLine(axmin, 0, axmax, 0),
                 r.TLine(axmin, 1, axmax, 1), r.TLine(xmin-eminus,  0, xmin-eminus,  1), r.TLine(xmin+eplus,  0, xmin+eplus,  1), 
                 r.TLine(axmin, 4, axmax, 4), r.TLine(xmin-eminus2, 0, xmin-eminus2, 4), r.TLine(xmin+eplus2, 0, xmin+eplus2, 4) ]
@@ -533,7 +576,7 @@ def plot1DNLL(returnErrors=False):
   
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-  lat.DrawLatex(0.7,0.94,options.text)
+  lat.DrawLatex(0.67,0.94,options.text)
 
   # draw fit value
   lat2 = r.TLatex()
@@ -662,7 +705,7 @@ def OBSOLETEplot1DNLLOld(returnErrors=False):
   
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-  lat.DrawLatex(0.7,0.94,options.text)
+  lat.DrawLatex(0.67,0.94,options.text)
 
   # draw fit value
   lat2 = r.TLatex()
@@ -775,7 +818,7 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   # draw text
   if options.text:
     lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-    lat.DrawLatex(0.7,0.94,options.text)
+    lat.DrawLatex(0.67,0.94,options.text)
   
   canv.Modified()
   canv.Update()
@@ -797,7 +840,7 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   # draw text
   if options.text:
     lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-    lat.DrawLatex(0.7,0.94,options.text)
+    lat.DrawLatex(0.67,0.94,options.text)
   canv.Modified()
   canv.Update()
 
@@ -832,8 +875,12 @@ def plotMPdfChComp():
   rMax=-1000.
   r.gROOT.SetBatch(options.batch)
   for point in points:
-    if point[1]+point[4]>rMax: rMax=point[1]+point[4]
-    if point[1]-point[5]<rMin: rMin=point[1]-point[5]
+    if options.chcomp1sig:
+      if point[1]+point[2]>rMax: rMax=point[1]+point[2]
+      if point[1]-point[3]<rMin: rMin=point[1]-point[3]
+    else:
+      if point[1]+point[4]>rMax: rMax=point[1]+point[4]
+      if point[1]-point[5]<rMin: rMin=point[1]-point[5]
     if options.verbose:
       print point[0], ':', point[1:]
   
@@ -890,9 +937,9 @@ def plotMPdfChComp():
   else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
   leg.AddEntry(dummyHist,"Combined #pm 1#sigma","LF")
-  leg.AddEntry(dummyHist2,"Combined #pm 2#sigma","LF")
+  if not options.chcomp1sig: leg.AddEntry(dummyHist2,"Combined #pm 2#sigma","LF")
   leg.AddEntry(catGraph1sig,"Per category #pm 1#sigma","LEP");
-  leg.AddEntry(catGraph2sig,"Per category #pm 2#sigma","LEP");
+  if not options.chcomp1sig: leg.AddEntry(catGraph2sig,"Per category #pm 2#sigma","LEP");
 
   bestFitBand1 = r.TBox(bestFit[1]-bestFit[3],0.,bestFit[1]+bestFit[2],len(catFits))
   bestFitBand1.SetFillColor(r.kGreen+2)
@@ -917,11 +964,11 @@ def plotMPdfChComp():
   canv.SetGridy(False)
 
   dummyHist.Draw()
-  bestFitBand2.Draw()
+  if not options.chcomp1sig: bestFitBand2.Draw()
   bestFitBand1.Draw()
   bestFitLine.Draw()
 
-  catGraph2sig.Draw("EPsame")
+  if not options.chcomp1sig: catGraph2sig.Draw("EPsame")
   catGraph1sig.Draw("EPsame")
 
   if options.chcompLine:
@@ -949,7 +996,7 @@ def plotMPdfChComp():
   # draw text
   if options.text:
     lat.DrawLatex(0.12,0.92,"CMS Preliminary")
-    lat.DrawLatex(0.7,0.94,options.text)
+    lat.DrawLatex(0.72,0.94,options.text)
 
   canv.Modified()
   canv.Update()
