@@ -151,7 +151,9 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 	datfile.close();
 	for (vector<string>::iterator it=photonCats.begin(); it!=photonCats.end(); it++){
 		RooRealVar *varScale = new RooRealVar(Form("CMS_hgg_nuisance%sscale",it->c_str()),Form("CMS_hgg_nuisance%sscale",it->c_str()),0.,-5.,5.);
+		varScale->setConstant(true);
 		RooRealVar *varSmear = new RooRealVar(Form("CMS_hgg_nuisance%ssmear",it->c_str()),Form("CMS_hgg_nuisance%ssmear",it->c_str()),0.,-5.,5.);
+		varSmear->setConstant(true);
 		photonSystematics.insert(make_pair(varScale->GetName(),varScale));
 		photonSystematics.insert(make_pair(varSmear->GetName(),varSmear));
 	}
