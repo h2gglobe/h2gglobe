@@ -19,7 +19,8 @@ sigPointsToBook=105,110,115,120,121,123,125,130,135,140,150
 includeTTHhad=0
 leadEtTTHhadCut=60
 subleadEtTTHhadCut=25
-diphobdt_output_Cut_TTHhad=-0.3
+diphobdt_output_Cut_TTHhad=0.6
+diphobdt_output_Cut_TTHlep=0.6
 njets_tthHad_thresh=5
 ptJets_ttH_thresh=25.
 removeBtagtth=0
@@ -31,7 +32,7 @@ includeVHhad=1
 nVHhadEtaCategories=1
 leadEtVHhadCut=60
 subleadEtVHhadCut=25
-diphobdt_output_Cut_VHhad=0.2
+diphobdt_output_Cut_VHhad=0.6
 ptgg_0tag_cut=130.
 costhetastar_0tag_cut=0.50
 ptjet_0tag_cut=40.
@@ -41,7 +42,7 @@ includeVHhadBtag=0
 leadEtVHhadBtagCut=60
 subleadEtVHhadBtagCut=25
 ptjet_loosecut=25
-diphobdt_output_Cut_VHhadBtag=0.1
+diphobdt_output_Cut_VHhadBtag=0.6
 ptgg_btag_cut=120.
 costhetastar_btag_cut=0.55
 ptjet_btag_cut=25.
@@ -53,14 +54,14 @@ includeVHlepPlusMet=1
 leadEtVHlepCut=45
 nElectronCategories=1 
 nMuonCategories=1 
-diphobdt_output_Cut_VHLep=-0.6
+diphobdt_output_Cut_VHLep=0.1
 
 ## MET tag
 includeVHmet=1
 leadEtVHmetCut=45
 nMetCategories=1 
 moriond2013MetCorrection=0
-diphobdt_output_Cut_VHMet=0.
+diphobdt_output_Cut_VHMet=0.8
 
 ## Inputs for reweighing
 doKFactorSmear=1
