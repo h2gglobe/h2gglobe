@@ -354,7 +354,7 @@ void PhotonAnalysis::load2DPuWeights(int typid, TDirectory * puFile, std::vector
 	hweigh->Divide(targets[i], gen_pu, 1., 1./gen_pu->Integral());
 	rd_weights[typid][i].clear();
     rd_nevents[typid][i]=gen_pu->Integral();
-    ntots+=gen_pu->Integral();
+    ntots+=gen_pu->GetEntries();
 	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
 	    rd_weights[typid][i].push_back(hweigh->GetBinContent(ii));
 	}
@@ -364,13 +364,12 @@ void PhotonAnalysis::load2DPuWeights(int typid, TDirectory * puFile, std::vector
         rd_nevents[typid][i]/=ntots;
         std::cout << " : " <<rd_nevents[typid][i];
         }
+    //Normalize lumis x run
+    double tot= std::accumulate(puLumis.begin(),puLumis.end(),0);
+    for(unsigned int index=0;index<puLumis.size();index++)
+        puLumis[index]/=tot; 
+    
     std::cout<<std::endl;
-     //  int sidx=-1 ;
-     //   for(int i=0;i <l.sampleContainer.size();i++)
-     //       {
-     //       if( l.sampleContainer[i].itype == typid ) sidx=i;
-     //       }
-    //std::cout<<" NEvents = "<<l.sampleContainer[sidx].ntot<<endl;
     std::cout << "pile-up 2D weights: ["<<typid<<"]";
     //std::cout << targets.size() << std::endl;
     for (int i=0; i<targets.size(); i++) {
@@ -419,10 +418,10 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
 	    std::vector<double>& puweights = rd_weights[sample_type][index];
 //= lumi_period / lumi_tot * Nev_tot / Nev_period
         float lumiReWeight=1.;
-            if( ! puLumis.empty() && puLumis.size() == 3 )
+            if( ! puLumis.empty() ) //  if empty not do anything
                 {
-                float tot= puLumis[0]+puLumis[1]+puLumis[2];
-                lumiReWeight=puLumis[index]/tot; 
+                assert( puLumis.size() > index ) ;
+                lumiReWeight=puLumis[index];  //are normalized: sum to one
                 lumiReWeight/=rd_nevents[sample_type][index];
                 }
         std::cout<< " LUMI ReWeight="<<lumiReWeight<<endl;
