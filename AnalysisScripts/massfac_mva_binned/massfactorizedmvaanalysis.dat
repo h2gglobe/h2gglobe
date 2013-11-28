@@ -21,10 +21,15 @@ gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijetfull_jetcuts.root
 #multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
 #multiclassVbfCatBoundaries0=1.0,0.69,0.69,0.48
 #JIM
-multiclassVbfCatBoundaries0=1.0,0.64,0.64,0.48
+#multiclassVbfCatBoundaries0=1.0,0.64,0.64,0.48
+#JOSH
+multiclassVbfCatBoundaries0=1,-10,-10,-10
+
 
 #combined BDT
-multiclassVbfCatBoundaries1=1.0,0.915,0.85,0.52
+#multiclassVbfCatBoundaries1=1.0,0.915,0.85,0.52
+#JOSH
+multiclassVbfCatBoundaries1=1.0,0.94,0.82,0.14
 multiclassVbfCatBoundaries2=10.,-10.
 
 leadEtCut=40.0
@@ -65,10 +70,10 @@ photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
 photonLevel2013IDMVA_EB=aux/2013FinalPaper_PhotonID_Barrel_BDT_TrainRangePT15.weights.xml
 photonLevel2013IDMVA_EE=aux/2013FinalPaper_PhotonID_Endcap_BDT_TrainRangePT15.weights.xml
-photonLevel2012IDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-photonLevel2012IDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
-photonLevel2011IDMVA_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-photonLevel2011IDMVA_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+#photonLevel2012IDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
+#photonLevel2012IDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
+#photonLevel2011IDMVA_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+#photonLevel2011IDMVA_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct01_redqcdweightallsigevenbkg_BDTG.weights.xml
 
 useGbrDiphotonMva=0
@@ -90,7 +95,9 @@ phoidMvaCut=-0.2
 #legacy_v2
 #bdtCategoryBoundaries=1,0.915,0.75,0.52,0.1,-0.44 
 #JIM
-bdtCategoryBoundaries=1,0.915,0.75,0.52,0.1,-0.39
+#bdtCategoryBoundaries=1,0.915,0.75,0.52,0.1,-0.39
+#JOSH
+bdtCategoryBoundaries=1,0.76,0.36,0.00,-0.42,-0.78
 ## photonIDMVAShift_EB=0.
 ## photonIDMVAShift_EE=0.
 
