@@ -55,6 +55,8 @@ class ProfileMultiplePdfs {
     RooAbsPdf *getBestFitPdf(float var);
     double getGlobalMinNLL();
 
+    
+
   private:
     
     void addToResultMap(float var, float minNll, RooAbsPdf* pdf);
@@ -65,6 +67,7 @@ class ProfileMultiplePdfs {
     map<float,pair<float,RooAbsPdf*> > chosenPdfs;
     RooAbsPdf *bestFitPdf;
     double bestFitVal;
+    double bestFitErr;
     double globalMinNLL;
 
     static TGraph* getMinPoints(TGraph *graph);
