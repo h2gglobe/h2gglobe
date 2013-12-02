@@ -5,6 +5,7 @@ parser = OptionParser()
 parser.add_option("-i","--inputfilename",help="Data workspace file from Globe")
 parser.add_option("-o","--outDir",default="plots",help="Out directory for plots default: %default")
 parser.add_option("-O","--Options",default="",help="Add options")
+parser.add_option("-q","--queue",default="8nh",help="Batch queue")
 parser.add_option("-d","--datfile",default="dat/fTest.dat",help="dat file for the output")
 parser.add_option("-s","--saveMultiPdf",default="",help="Save a multipdf workspace as this name")
 parser.add_option("-c","--cats",type="int",help="Number of categories to run")
@@ -45,8 +46,8 @@ for cat in range(options.cats):
 	
 	os.system('chmod +x %s'%f.name)
 	if options.dryRun:
-		print 'bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name))
+		print 'bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name))
 	else:
-		os.system('bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name)))
+		os.system('bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name)))
 	
 	

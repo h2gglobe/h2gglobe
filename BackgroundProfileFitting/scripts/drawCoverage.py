@@ -19,19 +19,50 @@ coverageValues=[0.1,0.5,1.,2.]
 
 import ROOT as r
 outf = r.TFile('CoverageFinalPlots.root','RECREATE')
+def makePullPlot(h,ext,truth,usefit):
+	r.gROOT.SetBatch(1)
+	c=r.TCanvas("c","c",600,600)
+	r.gStyle.SetOptFit(1111)
+	h.SetMarkerStyle(20)
+	h.Sumw2()
+	h.SetMarkerSize(0.8)
+	h.Draw("p")
+	name = h.GetName()
+	if usefit: 
+		med = h.GetFunction("gaus").GetParameter(1)
+		up  = h.GetFunction("gaus").Eval(med)
+		l = r.TLine(med,0,med,up)
+		l.SetLineColor(2)
+		l.SetLineStyle(2)
+		l.SetLineWidth(2)
+		l.Draw()
+	lLow = r.TLine(-0.14,0,-0.14,h.GetMaximum())
+	lLow.SetLineColor(4)
+	lLow.SetLineWidth(4)
+	lHigh = r.TLine(0.14,0,0.14,h.GetMaximum())
+	lHigh.SetLineColor(4)
+	lHigh.SetLineWidth(4)
+	lLow.Draw()
+	lHigh.Draw()
+        h.SetTitle("")
+	h.GetXaxis().SetTitle("pull")
+	h.GetYaxis().SetTitle("# Toys")
+	h.GetYaxis().SetTitleOffset(1.2)
+        c.Print('%s/%s_%.1f_%.1f_%s_pull.pdf'%(options.outDir,ext,truth,options.injectVal,h.GetName()))
+    	c.Print('%s/%s_%.1f_%.1f_%s_pull.png'%(options.outDir,ext,truth,options.injectVal,h.GetName()))
 
 def makePlot():
   
   if options.runMasses:
     valerr = 5 
     valTitle = "m_{H} (GeV)"
-    ext = 'mass'
+    ext = 'mass_mu%.1f'%options.injectVal
     xlow = 105
     xhigh = 155
   else:
     valerr = 0.25
     valTitle = "#mu_{gen}"
-    ext = 'mu'
+    ext = 'mu_mass%.1f'%options.injectVal
     xlow = 0.
     xhigh = 2.
 
@@ -54,11 +85,15 @@ def makePlot():
   muPullBand.SetFillStyle(1001)
   muPullBand.SetMarkerColor(r.kGray)
 
-  scanTypes=['Fab','Paul','Chi2','AIC']
+  #scanTypes=['Fab','Paul','Chi2','AIC']
+  scanTypes = ['Fab','Chi2']
   graphCol=[r.kBlue,r.kRed,r.kGreen+1,r.kMagenta]
-  graphFil=[3144,3190,3002,3002]
-  label=['Hgg Nominal Pol','Envelope (no pen)','Envelope (1/dof pen)','Envelope (2/dof pen)']
+  graphFil=[1001,1001]
+  #graphFil=[3144,3190,3002,3002]
+  #label=['Hgg Nominal Pol','Envelope (no pen)','Envelope (1/dof pen)','Envelope (2/dof pen)']
+  label=['Bern',"Env"]
   plotTypes=['Coverage','Bias','Pull']
+  #plotTypes=['Pull']
 
   valToFileDict={}
   for i, expM in enumerate(options.expVals):
@@ -74,6 +109,8 @@ def makePlot():
   print truth_mods
 
   canv = r.TCanvas()
+  canv.SetGridy(1)
+  canv.SetGridx(1)
 
   siglines=[]
   sigboxes=[]
@@ -126,6 +163,7 @@ def makePlot():
           graphDict[ptype][stype].SetLineColor(graphCol[c])
           graphDict[ptype][stype].SetMarkerColor(graphCol[c])
           graphDict[ptype][stype].SetFillColor(graphCol[c])
+          graphDict[ptype][stype].SetLineColor(1)
           graphDict[ptype][stype].SetFillStyle(graphFil[c])
     
     val_arr = valToFileDict.keys()
@@ -134,28 +172,41 @@ def makePlot():
       f = r.TFile.Open(valToFileDict[val])
       for c, stype in enumerate(scanTypes):
         hist = f.Get('%s_mu%s'%(truth,stype))
+	if type(hist)!=type(r.TH1F()): continue
         if options.runMasses:
-          graphDict['Bias'][stype].SetPoint(p,val,(hist.GetMean()-options.injectVal)/hist.GetRMS())
-          graphDict['Bias'][stype].SetPointError(p,0,hist.GetMeanError()/hist.GetRMS())
+	  if hist.GetRMS()==0: rms = 999 
+	  else: rms=hist.GetRMS()
+          graphDict['Bias'][stype].SetPoint(p,val,(hist.GetMean()-options.injectVal)/rms)
+          graphDict['Bias'][stype].SetPointError(p,0,hist.GetMeanError()/rms)
         else:
-          graphDict['Bias'][stype].SetPoint(p,val,(hist.GetMean()-val)/hist.GetRMS())
-          graphDict['Bias'][stype].SetPointError(p,0,hist.GetMeanError()/hist.GetRMS())
+          graphDict['Bias'][stype].SetPoint(p,val,(hist.GetMean()-val)/hist.rms)
+          graphDict['Bias'][stype].SetPointError(p,0,hist.GetMeanError()/hist.rms)
         histPull = f.Get('%s_mu%sPull'%(truth,stype))
-        graphDict['Pull'][stype].SetPoint(p,val,histPull.GetMean())
-        graphDict['Pull'][stype].SetPointError(p,0,histPull.GetMeanError())
+	histPull.Fit("gaus","","Q",histPull.GetMean()-1.5,histPull.GetMean()+1.5)
+
+        if histPull.GetFunction("gaus"):
+	   makePullPlot(histPull,ext,val,1)
+	else: 
+	   makePullPlot(histPull,ext,val,0)
+
+        if histPull.GetFunction("gaus"):
+          graphDict['Pull'][stype].SetPoint(p,val,histPull.GetFunction("gaus").GetParameter(1))
+          graphDict['Pull'][stype].SetPointError(p,0,histPull.GetFunction("gaus").GetParError(1))
+	else:
+          graphDict['Pull'][stype].SetPoint(p,val,histPull.GetMean())
+          graphDict['Pull'][stype].SetPointError(p,0,histPull.GetMeanError())
+
         muBiasBand.SetPoint(p,val-5,0)
         muBiasBand.SetPointError(p,valerr,0.2)
         muPullBand.SetPoint(p,val-5,0)
         muPullBand.SetPointError(p,valerr,0.14)
+	"""
         for v, cov in enumerate(coverageValues):
           graph = f.Get('%s_mu%sCov%3.1f'%(truth,stype,cov))
           x = r.Double(0.)
           y = r.Double(0.)
-          graph.GetPoint(0,x,y)
-          yerr = graph.GetErrorY(0)
-          graphDict['Coverage'][stype][v].SetPoint(p,val,y)
-          graphDict['Coverage'][stype][v].SetPointError(p,valerr,yerr)
-   
+          #graphDict['Coverage'][stype][v].SetPointError(p,valerr,yerr)
+   	"""
     muBiasBand.SetPoint(len(options.expVals),155,0)
     muBiasBand.SetPointError(len(options.expVals),valerr,0.2)
     muPullBand.SetPoint(len(options.expVals),155,0)
@@ -182,8 +233,8 @@ def makePlot():
         else: graphDict['Coverage'][stype][v].SetName('%s_cat%d_mu_%s_%s_cov%3.1f_coverage'%(options.year,options.cat,truth,stype,cov))
         outf.cd()
         graphDict['Coverage'][stype][v].Write()
-    leg.Draw("same")
-    leg2.Draw("same")
+    if len(scanTypes)>1 :leg.Draw("same")
+    if len(scanTypes)>1: leg2.Draw("same")
     canv.Print('%s/%s_%s_coverage.pdf'%(options.outDir,ext,truth))
     canv.Print('%s/%s_%s_coverage.png'%(options.outDir,ext,truth))
     
@@ -194,12 +245,13 @@ def makePlot():
     dummyHist.Draw("AXISsame")
     for c, stype in enumerate(scanTypes):
       graphDict['Bias'][stype].Draw("E3same")
+      graphDict['Bias'][stype].Draw("Lsame")
       if options.runMasses: graphDict['Bias'][stype].SetName('%s_cat%d_mass_%s_%s_bias'%(options.year,options.cat,truth,stype))
       else: graphDict['Bias'][stype].SetName('%s_cat%d_mu_%s_%s_bias'%(options.year,options.cat,truth,stype))
       outf.cd()
       graphDict['Bias'][stype].Write()
-    leg.Draw("same")
-    leg2.Draw("same")
+    if len(scanTypes)>1 : leg.Draw("same")
+    if len(scanTypes)>1 : leg2.Draw("same")
     #canv.Print('%s/%s_%s_bias.pdf'%(options.outDir,ext,truth))
     #canv.Print('%s/%s_%s_bias.png'%(options.outDir,ext,truth))
   
@@ -209,12 +261,13 @@ def makePlot():
     dummyHist.Draw("AXISsame")
     for c, stype in enumerate(scanTypes):
       graphDict['Pull'][stype].Draw("E3same")
+      graphDict['Pull'][stype].Draw("Lsame")
       if options.runMasses: graphDict['Pull'][stype].SetName('%s_cat%d_mass_%s_%s_pull'%(options.year,options.cat,truth,stype))
       else: graphDict['Pull'][stype].SetName('%s_cat%d_mu_%s_%s_pull'%(options.year,options.cat,truth,stype))
       outf.cd()
       graphDict['Pull'][stype].Write()
-    leg.Draw("same")
-    leg2.Draw("same")
+    if len(scanTypes)>1:  leg.Draw("same")
+    if len(scanTypes)>1:   leg2.Draw("same")
     canv.Print('%s/%s_%s_pull.pdf'%(options.outDir,ext,truth))
     canv.Print('%s/%s_%s_pull.png'%(options.outDir,ext,truth))
   
@@ -222,28 +275,39 @@ if not options.datfile:
   makePlot()
 else:
   f = open(options.datfile)
-  for line in f.readlines():
-    if line.startswith('#') or line.startswith('\n'): continue
-    if line.startswith('year'): 
-      options.year = line.split('=')[1].strip('\n')
+  cats = []
+  for linet in f.readlines():
+    if linet.startswith('#') or linet.startswith('\n'): continue
+    if linet.startswith('year'): 
+      options.year = linet.split('=')[1].strip('\n')
       continue
-    opts = line.split()
-    if opts[0].split('=')[1]=='mu':
+    if "cats=" in linet:
+      vlist = (linet.split("="))[1]
+      cats = [int(v) for v in vlist.split(",")] 
+      continue
+
+    linestouse = []
+    if "{cat}" in linet :
+	for c in cats: linestouse.append(linet.replace("{cat}","%d"%c))
+    else: linestouse.append(linet)
+    for line in linestouse:
+     opts = line.split()
+     if opts[0].split('=')[1]=='mu':
       options.runMasses=False
-    elif opts[0].split('=')[1]=='mass':
+     elif opts[0].split('=')[1]=='mass':
       options.runMasses=True
-    else:
+     else:
       sys.exit('Invalid options')
-    options.cat = int(opts[1].split('=')[1])
-    options.outDir = opts[2].split('=')[1]
-    options.injectVal = float(opts[3].split('=')[1])
-    options.expVals=[]
-    options.files=[]
-    for val in opts[4].split('=')[1].split(','):
+     options.cat = int(opts[1].split('=')[1])
+     options.outDir = opts[2].split('=')[1]
+     options.injectVal = float(opts[3].split('=')[1])
+     options.expVals=[]
+     options.files=[]
+     for val in opts[4].split('=')[1].split(','):
       options.expVals.append(float(val))
-    for file in opts[5].split('=')[1].split(','):
+     for file in opts[5].split('=')[1].split(','):
       options.files.append(file)
-    makePlot()
+     makePlot()
 
 
   

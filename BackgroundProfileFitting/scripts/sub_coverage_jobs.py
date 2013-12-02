@@ -90,22 +90,37 @@ if not options.readFromDat:
 else:
   f = open(options.readFromDat)
   configDict={}
-  for line in f.readlines():
-    if line.startswith('#') or line.startswith(' ') or line.startswith('\n'): continue
-    if not line.startswith('cat'):
-      #configDict[line.split('=')[0]] = line.split('=')[1].strip('\n')
-      setattr(options,line.split('=')[0],line.split('=')[1].strip('\n'))
+  cats = []
+  for linet in f.readlines():
+    if linet.startswith('#') or linet.startswith(' ') or linet.startswith('\n'): continue
+    if not linet.startswith('cat'):
+      #configDict[linet.split('=')[0]] = linet.split('=')[1].strip('\n')
+      setattr(options,linet.split('=')[0],linet.split('=')[1].strip('\n'))
     else:
-      lineConfig = line.split()
-      cat = int(lineConfig[0].split('=')[1])
-      injectmu = float(lineConfig[1].split('=')[1])
-      mlow = float(lineConfig[2].split('=')[1])
-      mhigh = float(lineConfig[3].split('=')[1])
-      mstep = float(lineConfig[4].split('=')[1])
-      injectmass = int(lineConfig[5].split('=')[1])
-      storage_dir = '%s/cat%d_mu%3.1f_mass%d'%(options.outerDir,cat,injectmu,injectmass)
-      if options.eosPath:
-        os.system('cmsMkdir %s/%s'%(options.eosPath,storage_dir))
-      os.system('mkdir -p %s'%storage_dir)
-      writeSubScript(cat,mlow,mhigh,mstep,storage_dir,injectmu,injectmass)
+     
+      if "cats=" in linet:
+        vlist = (linet.split("="))[1]
+        cats = [int(v) for v in vlist.split(",")] 
+        continue
+
+      linestouse = []
+
+      if "{cat}" in linet :
+	for c in cats: linestouse.append(linet.replace("{cat}","%d"%c))
+      
+      else: linestouse.append(linet)
+
+      for line in linestouse:
+       lineConfig = line.split()
+       cat = int(lineConfig[0].split('=')[1])
+       injectmu = float(lineConfig[1].split('=')[1])
+       mlow = float(lineConfig[2].split('=')[1])
+       mhigh = float(lineConfig[3].split('=')[1])
+       mstep = float(lineConfig[4].split('=')[1])
+       injectmass = int(lineConfig[5].split('=')[1])
+       storage_dir = '%s/cat%d_mu%3.1f_mass%d'%(options.outerDir,cat,injectmu,injectmass)
+       if options.eosPath:
+         os.system('cmsMkdir %s/%s'%(options.eosPath,storage_dir))
+       os.system('mkdir -p %s'%storage_dir)
+       writeSubScript(cat,mlow,mhigh,mstep,storage_dir,injectmu,injectmass)
 
