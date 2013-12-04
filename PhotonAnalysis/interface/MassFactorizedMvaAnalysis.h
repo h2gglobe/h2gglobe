@@ -59,7 +59,6 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     float idMVASystSize;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
-    bool doPdfWeightSmear, doPdfWeightSyst;
     bool fillEscaleTrees;
     bool fillOptree;
     bool forceStdPlotsOnZee;
