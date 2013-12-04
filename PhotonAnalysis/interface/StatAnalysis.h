@@ -58,6 +58,7 @@ class StatAnalysis : public PhotonAnalysis
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPtSpinSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
 	doKFactorSmear, doPtSpinSmear, doInterferenceSmear, doCosThetaDependentInterferenceSmear;
+    bool doPdfWeightSmear, doPdfWeightSyst;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;

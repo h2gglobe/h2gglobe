@@ -53,6 +53,8 @@ StatAnalysis::StatAnalysis()  :
 
     doInterferenceSmear=false;
     doCosThetaDependentInterferenceSmear=false;
+    doPdfWeightSmear=false;
+    doPdfWeightSyst=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -267,6 +269,25 @@ void StatAnalysis::Init(LoopAll& l)
         ptSpinSmearer->name("ptSpin");
         ptSpinSmearer->init();
         genLevelSmearers_.push_back(ptSpinSmearer);
+    }
+    if(doPdfWeightSmear) {
+        // PdfWeights efficiency
+        // The first is up/down (which is QCD scale) 
+        std::cerr << __LINE__ << std::endl; 
+        pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,l.normalizer(),"up","down");
+        pdfWeightSmearer->name("pdfWeight_QCDscale");
+        pdfWeightSmearer->init();
+        genLevelSmearers_.push_back(pdfWeightSmearer);
+
+        // The rest are pdf set variations, 26 of them numbered up,down, up,down ....
+        std::cerr << __LINE__ << std::endl; 
+        for (int pdf_i=1;pdf_i<=26;pdf_i++){
+          int uid = 2*pdf_i-1; int did = 2*pdf_i;
+          pdfWeightSmearer_sets.push_back(new PdfWeightSmearer( pdfWeightHist,l.normalizer(),Form("PDF_%d",uid),Form("PDF_%d",did)));
+          (pdfWeightSmearer_sets.back())->name(Form("pdfWeight_pdfset%d",pdf_i));
+          (pdfWeightSmearer_sets.back())->init();
+          genLevelSmearers_.push_back((pdfWeightSmearer_sets.back()));
+        }
     }
     if(doInterferenceSmear || doCosThetaDependentInterferenceSmear) {
         // interference efficiency
