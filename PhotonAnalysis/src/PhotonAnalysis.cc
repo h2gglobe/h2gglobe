@@ -1275,7 +1275,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     eSmearPars.smearing_stocastic_sigma = tmp_smear_smearing[0].scale_stocastic_offset;
     eSmearPars.smearing_stocastic_sigma_error = tmp_smear_smearing[0].scale_stocastic_offset_error;
     eSmearPars.smearing_stocastic_pivot = tmp_smear_smearing[0].scale_stocastic_pivot;
-
+    
     // Energy resolution parameters used for diphotonBDT input
     if( ! mass_resol_file.empty() ) {
         EnergySmearer::energySmearingParameters::eScaleVector tmp_mres_smearing;
