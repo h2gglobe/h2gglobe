@@ -1253,54 +1253,58 @@ void PhotonAnalysis::Init(LoopAll& l)
     assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
     
     // Use the same format used for the run-dependent energy corrections
-    EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
-    EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
-    readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
-    readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
+    EnergySmearer::energySmearingParameters::eScaleVector tmp_smear_scale_offset, tmp_smear_smearing;
+    EnergySmearer::energySmearingParameters::phoCatVector tmp_smear_scale_cat, tmp_smear_smearing_cat;
+    readEnergyScaleOffsets(scale_offset_error_file, tmp_smear_scale_offset, tmp_smear_scale_cat,false);
+    readEnergyScaleOffsets(smearing_file, tmp_smear_smearing, tmp_smear_smearing_cat,false);
     
     // make sure that the scale correction and smearing info is as expected
-    assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
-    assert( ! tmp_smearing_cat.empty() );
-    /// assert( tmp_smearing_cat == tmp_scale_cat );
+    assert( tmp_smear_scale_offset.size() == 1); assert( tmp_smear_smearing.size() == 1 );
+    assert( ! tmp_smear_smearing_cat.empty() );
+    /// assert( tmp_smear_smearing_cat == tmp_smear_scale_cat );
     
     // copy the read info to the smarer parameters
     eSmearPars.categoryType = "Automagic";
     eSmearPars.byRun = false;
-    eSmearPars.n_categories = tmp_smearing_cat.size();
-    eSmearPars.photon_categories = tmp_smearing_cat;
+    eSmearPars.n_categories = tmp_smear_smearing_cat.size();
+    eSmearPars.photon_categories = tmp_smear_smearing_cat;
     
-    eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
-    eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
-    eSmearPars.scale_stocastic_offset = tmp_scale_offset[0].scale_stocastic_offset;
-    eSmearPars.scale_stocastic_offset_error = tmp_scale_offset[0].scale_stocastic_offset_error;
-    eSmearPars.scale_stocastic_pivot = tmp_scale_offset[0].scale_stocastic_pivot;
+    eSmearPars.scale_offset = tmp_smear_scale_offset[0].scale_offset;
+    eSmearPars.scale_offset_error = tmp_smear_scale_offset[0].scale_offset_error;
+    eSmearPars.scale_stocastic_offset = tmp_smear_scale_offset[0].scale_stocastic_offset;
+    eSmearPars.scale_stocastic_offset_error = tmp_smear_scale_offset[0].scale_stocastic_offset_error;
+    eSmearPars.scale_stocastic_pivot = tmp_smear_scale_offset[0].scale_stocastic_pivot;
     
-    eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
-    eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
-    eSmearPars.smearing_stocastic_sigma_error = tmp_smearing[0].scale_stocastic_offset_error;
-    eSmearPars.smearing_stocastic_pivot = tmp_smearing[0].scale_stocastic_pivot;
+    eSmearPars.smearing_sigma = tmp_smear_smearing[0].scale_offset;
+    eSmearPars.smearing_sigma_error = tmp_smear_smearing[0].scale_offset_error;
+    eSmearPars.smearing_stocastic_sigma = tmp_smear_smearing[0].scale_stocastic_offset;
+    eSmearPars.smearing_stocastic_sigma_error = tmp_smear_smearing[0].scale_stocastic_offset_error;
+    eSmearPars.smearing_stocastic_pivot = tmp_smear_smearing[0].scale_stocastic_pivot;
 
     // Energy resolution parameters used for diphotonBDT input
-    massResoPars = eSmearPars;
     if( ! mass_resol_file.empty() ) {
-        EnergySmearer::energySmearingParameters::eScaleVector tmp_smearing;
-        EnergySmearer::energySmearingParameters::phoCatVector tmp_smearing_cat;
-        readEnergyScaleOffsets(mass_resol_file, tmp_smearing, tmp_smearing_cat,false);
+        EnergySmearer::energySmearingParameters::eScaleVector tmp_mres_smearing;
+        EnergySmearer::energySmearingParameters::phoCatVector tmp_mres_smearing_cat;
+        readEnergyScaleOffsets(mass_resol_file, tmp_mres_smearing, tmp_mres_smearing_cat,false);
 
         // make sure that the scale correction and smearing info is as expected
-        assert( tmp_smearing.size() == 1 );
-        assert( ! tmp_smearing_cat.empty() );
+        assert( tmp_mres_smearing.size() == 1 );
+        assert( ! tmp_mres_smearing_cat.empty() );
 
         // copy the read info to the smarer parameters
         massResoPars.categoryType = "Automagic";
         massResoPars.byRun = false;
-        massResoPars.n_categories = tmp_smearing_cat.size();
-        massResoPars.photon_categories = tmp_smearing_cat;
+        massResoPars.n_categories = tmp_mres_smearing_cat.size();
+        massResoPars.photon_categories = tmp_mres_smearing_cat;
 
-        massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
-        massResoPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
-        massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+        massResoPars.smearing_sigma = tmp_mres_smearing[0].scale_offset;
+        massResoPars.smearing_stocastic_sigma = tmp_mres_smearing[0].scale_stocastic_offset;
+        massResoPars.smearing_sigma_error = tmp_mres_smearing[0].scale_offset_error;
+        massResoPars.smearing_stocastic_sigma = tmp_mres_smearing[0].scale_stocastic_offset;
+        massResoPars.smearing_stocastic_sigma_error = tmp_mres_smearing[0].scale_stocastic_offset_error;
+        massResoPars.smearing_stocastic_pivot = tmp_mres_smearing[0].scale_stocastic_pivot;
+    } else {
+        massResoPars = eSmearPars;
     }
 
     // energy scale systematics to MC
