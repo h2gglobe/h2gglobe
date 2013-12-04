@@ -9,12 +9,19 @@ jec = cms.PSet(
 			"aux/jec2012/FT_53_V21_AN4::All_L1FastJet_AK5PF.txt",
                        "aux/jec2012/FT_53_V21_AN4::All_L2Relative_AK5PF.txt",
                        "aux/jec2012/FT_53_V21_AN4::All_L3Absolute_AK5PF.txt",
-                       "aux/jec2012/FT_53_V21_AN4::All_L2L3Residual_AK5PF.txt",
+			#"aux/jec2012/2011ReRecoJEC_DATA_L1FastJet_AK5PF.txt",	
+			#"aux/jec2012/2011ReRecoJEC_DATA_L2Relative_AK5PF.txt",
+			#"aux/jec2012/2011ReRecoJEC_DATA_L3Absolute_AK5PF.txt",
+			"aux/jec2012/2011ReRecoJEC_DATA_L2L3Residual_AK5PF.txt"
                        ),
     mc   = cms.vstring(
 			"aux/jec2012/START53_V23::All_L1FastJet_AK5PF.txt",
                        "aux/jec2012/START53_V23::All_L2Relative_AK5PF.txt",
                        "aux/jec2012/START53_V23::All_L3Absolute_AK5PF.txt",
+			#"aux/jec2012/2011ReRecoJEC_MC_L1FastJet_AK5PF.txt",
+			#"aux/jec2012/2011ReRecoJEC_MC_L2Relative_AK5PF.txt",
+			#"aux/jec2012/2011ReRecoJEC_MC_L3Absolute_AK5PF.txt",
+			##"aux/jec2012/2011ReRecoJEC_MC_L2L3Residual_AK5PF.txt"
                        ),
     unc = cms.string("aux/jec2012/START53_V23::All_Uncertainty_AK5PF.txt")
     )
