@@ -1369,7 +1369,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    myVBFcombined=-999;   
 		}
 
-
+		
 		eventListText<<"\tdijetMVA:"<<myVBF_MVA
 			     <<"\tcombiMVA:"<<myVBFcombined;
 
