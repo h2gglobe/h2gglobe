@@ -1,5 +1,6 @@
 run7TeV4Xanalysis=0
 applyPtoverM=1
+nPtOverMCategories=2
 
 # beamspot emulation off in 2011 
 emulateBeamspot=0
@@ -49,4 +50,5 @@ efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
 
 # bkg pol orders 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3
-bkgPolOrderByCat = 3,3,3,3,3,3,3,3,4,4,3,3,3,2,3
+bkgPolOrderByCat=3,3,3,3,3,3,3,3,4,4,3,3,3,2,3
+

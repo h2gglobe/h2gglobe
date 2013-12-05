@@ -33,7 +33,8 @@ presel_maxeta=2.5
 ## useDefaultVertex=1
 
 applyPtoverM=1
-nPtOverMCategories=2 
+nPtOverMCategories=2
+
 doTriggerSelection=0
 puHist=auto
 puMap=
