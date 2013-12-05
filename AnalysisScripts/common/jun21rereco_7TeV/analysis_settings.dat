@@ -114,5 +114,9 @@ tmvaPerVtxMethod=BDTCat
 tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
 tmvaPerEvtMethod=evtBDTG
 
+#Jet
+jetHandlerCfg=jetHandler_Legacy7TeV.py
+recorrectJets=1
+
 doInterferenceSmear=1
 

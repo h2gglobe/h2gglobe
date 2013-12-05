@@ -1,4 +1,4 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/martina_legacy/cutbased/8TeV/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/8TeV/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Signal

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import ROOT
+ROOT.gROOT.SetBatch(1)
 from sys import argv
 from python.configProducer import *
 from python.lumi import *
@@ -19,7 +20,6 @@ ROOT.gSystem.Load("libCore.so");
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll.so");
 
-ROOT.gROOT.SetBatch(1)
 
 ROOT.gBenchmark.Start("Analysis");
 

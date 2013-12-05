@@ -59,4 +59,7 @@ efficiencyFile=aux/sig_reweighing_legacy_run2012ABCD_cutbased_v3.root
 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3
 #tth and vh added -10,2,3,3
-bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3
+#bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3
+#bkgPolOrderByCat=5,5,5,5,5,5,5,5,4,4,3,3,3,-10,2,3
+bkgPolOrderByCat=3,4,3,4,4,5,4,5,4,4,3,3,3,-10,2,3
+
