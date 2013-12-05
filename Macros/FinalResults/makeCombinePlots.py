@@ -28,6 +28,7 @@ parser.add_option("","--chcompShift",dest="chcompShift",type="float",help="For C
 parser.add_option("","--chcomp1sig",dest="chcomp1sig",default=False,action="store_true",help="For ChannelComp plot only 1 sigma errors")
 parser.add_option("","--smoothNLL",dest="smoothNLL",default=False,action="store_true",help="Smooth 1D likelihood scans")
 parser.add_option("","--shiftNLL",dest="shiftNLL",type="float",help="Correct NLL to this value")
+parser.add_option("","--correctNLL",dest="correctNLL",default=False,action="store_true",help="Correct NLL (occasionally required for failed jobs)")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -487,20 +488,25 @@ def plot1DNLL(returnErrors=False):
     for i in range(tree.GetEntries()):
       tree.GetEntry(i)
       xv = getattr(tree,x)
-      if tree.deltaNLL>=0:
-        if xv in [re[0] for re in res]: continue
-        else: res.append([xv,2.*tree.deltaNLL])
+      #if tree.deltaNLL>=0:
+      if xv in [re[0] for re in res]: continue
+      else: res.append([xv,2.*tree.deltaNLL])
     res.sort()
     minNLL = min([re[1] for re in res])
-    #for re in res: re[1]-=minNLL
+    for re in res: 
+      if options.correctNLL and re[1]==0.: re[1]=-1
+      re[1]-=minNLL
     
     p=0
     for re, nll in res: 
-      gr.SetPoint(p,re,nll)
-      if options.verbose: print '\t', p, re, nll
-      p+=1
+      if nll>=0.:
+        gr.SetPoint(p,re,nll)
+        if options.verbose: print '\t', p, re, nll
+        p+=1
 
     m,m1 = findQuantile(res,0);
+    #m = 1.
+    #m1 = 1.
     l,h  = findQuantile(res,1);
     l2,h2  = findQuantile(res,4);
 

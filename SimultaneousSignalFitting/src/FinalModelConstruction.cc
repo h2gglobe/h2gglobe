@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, vector<int> skipMasses, int verbosity, bool isCB, bool is2011):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, vector<int> skipMasses, int verbosity, bool isCB, bool is2011, bool quadraticSigmaSum):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -34,6 +34,7 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   doSecondaryModels(doSecMods),
   isCutBased_(isCB),
 	is2011_(is2011),
+	quadraticSigmaSum_(quadraticSigmaSum),
 	skipMasses_(skipMasses),
   verbosity_(verbosity),
   systematicsSet_(false),
@@ -337,6 +338,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 	string formula="@0*(1.";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*sig_fit); // sig_fit sits at @0
+	if (quadraticSigmaSum_) formula += "+TMath::Sqrt(0.";
 	
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
@@ -350,6 +352,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			dependents->add(*cvScale);
 			dependents->add(*nuisScale);
 			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			if (quadraticSigmaSum_) formula += Form("*@%d*@%d",formPlace,formPlace+1);
 			formPlace += 2;
 			hasEffect = true;
 		}
@@ -360,6 +363,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
 			RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
 			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			if (quadraticSigmaSum_) formula += Form("*@%d*@%d",formPlace,formPlace+1);
 			dependents->add(*cvSmear);
 			dependents->add(*nuisSmear);
 			hasEffect = true;
@@ -369,6 +373,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 				phoCat << " doesn't affect the signal model width." << std::endl; 
 		}
 	}
+	if (quadraticSigmaSum_) formula+=")";
 	formula+=")";
 	formula = Form("TMath::Max(%s,0.)",formula.c_str()); // consider smooth cutoff ? 
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);

@@ -46,6 +46,7 @@ string massesToSkip_;
 vector<int> skipMasses_;
 bool splitRVWV_=true;
 bool doSecondaryModels_=true;
+bool doQuadraticSigmaSum_=false;
 bool runInitialFitsOnly_=false;
 bool recursive_=true;
 int verbose_=0;
@@ -65,6 +66,7 @@ void OptionParser(int argc, char *argv[]){
     ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
     ("constraintValueMass,M", po::value<int>(&constraintValueMass_)->default_value(125),            "Constraint value mass")
     ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
+		("doQuadraticSigmaSum",																																					"Add sigma systematic terms in quadrature")
 		("procs", po::value<string>(&procStr_)->default_value("ggh,vbf,wh,zh,tth"),											"Processes (comma sep)")
     ("isCutBased",                                                                               		"Is this the cut based analysis")
     ("is2011",                                                                               				"Is this the 7TeV analysis")
@@ -82,6 +84,7 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("is2011"))               		is2011_=true;
   if (vm.count("runInitialFitsOnly"))       runInitialFitsOnly_=true;
   if (vm.count("nosplitRVWV"))              splitRVWV_=false;
+	if (vm.count("doQuadraticSigmaSum"))			doQuadraticSigmaSum_=true;
   if (vm.count("skipSecondaryModels"))      doSecondaryModels_=false;
   if (vm.count("recursive"))                recursive_=false;
 	if (vm.count("skipMasses")) {
@@ -234,7 +237,7 @@ int main(int argc, char *argv[]){
 			map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
 			// this guy constructs the final model with systematics, eff*acc etc.
-			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,skipMasses_,verbose_,isCutBased_,is2011_);
+			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,skipMasses_,verbose_,isCutBased_,is2011_,doQuadraticSigmaSum_);
 			finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
 			finalModel.setRVsplines(splinesRV);
 			finalModel.setWVsplines(splinesWV);
