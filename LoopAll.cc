@@ -13,6 +13,9 @@ using namespace std;
 
 #include "BaseAnalysis.h"
 
+#include "TSystem.h"
+#include "EventFilterFromListStandAlone.h"
+
 // ------------------------------------------------------------------------------------
 BaseAnalysis* LoopAll::AddAnalysis(BaseAnalysis* baseAnalysis) {
   
@@ -1478,7 +1481,14 @@ void LoopAll::FillCounter(std::string name, float weight, int category )
 
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
-{
+{ 
+  static const char * env = gSystem->Getenv("H2GGLOBE_RUNTIME");
+  static std::string globeRt = ( env != 0 ? env : H2GGLOBE_BASE "/AnalysisScripts");
+  static EventFilterFromListStandAlone hcalFilter(globeRt+"/aux/HCALLaser2012AllDatasets.txt.gz");
+  if( itype[current] == 0 && ! hcalFilter.filter(this->run,this->lumis,this->event) ) {
+	  return false;
+  }
+  
   if( (typerun == kReduce && current_sample_index > sampleContainer.size() ) ||
       ! sampleContainer[current_sample_index].hasLumiSelection ) {
     return true;
