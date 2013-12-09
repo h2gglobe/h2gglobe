@@ -540,7 +540,9 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
         
         int ieta, iphi;
         l.getIetaIPhi(ipho,ieta,iphi);
-        phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
+        phoInfo.addSmearingSeed( 1000*(UInt_t)(TMath::Abs(100.*phoInfo.caloPosition().Eta()))+
+                                 100000*(UInt_t)(TMath::Abs(100.*phoInfo.caloPosition().Phi()))+
+                                 + (UInt_t)l.run + (UInt_t)l.event + (UInt_t)l.lumis );
         phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
         
         // FIXME add seed to syst smearings
