@@ -870,6 +870,8 @@ void PhotonAnalysis::Init(LoopAll& l)
             l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
             l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
             l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
+            l.SetCutVariables("cut_VBFLeadJEta",  &myVBFLeadJEta);
+            l.SetCutVariables("cut_VBFSubJEta",  &myVBFSubJEta);
         }
         
         if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
