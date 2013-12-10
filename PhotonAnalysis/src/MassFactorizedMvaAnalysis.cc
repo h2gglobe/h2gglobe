@@ -1015,19 +1015,25 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		        pfchargedisobad03_2=(*(l.pho_pfiso_mycharged03))[diphoton_index.second][ivtx]>pfchargedisobad03_2?
                     (*(l.pho_pfiso_mycharged03))[diphoton_index.second][ivtx]:pfchargedisobad03_2;
 	        }
+		std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
 
 		eventListText 
 		    << "\trun:"                       <<  l.run
 		    << "\tlumi:"                      <<  l.lumis
 		    << "\tevent:"                     <<  l.event
+		    << "\tvertexId0:"                 <<  vtxlist[0]
+		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
+		    <<"\tprobmva:"                    <<l.vtx_std_evt_mva->at(diphoton_id)
 		    << "\tpho1_e:"                    <<  lead_p4.E()
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
 		    << "\tpho1_phi:"                  <<  lead_p4.Phi()
+		    << "\tpho1_r9:"                   <<  lead_r9
 		    << "\tpho2_e:"                    <<  sublead_p4.E()
 		    << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
+		    << "\tpho2_r9:"                   <<  sublead_r9
 		    << "\tmass:"                      <<  mass 		
 		    << "\tcat:"                       <<  category
 		    << "\tpho1_idMVA:"                <<  phoid_mvaout_lead
@@ -1311,6 +1317,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    if(myBJets.first>-1){
 			eventListText
 			    << "\tbjet_csv:"                      <<  l.jet_algoPF1_csvBtag[myBJets.first];
+		    }else{
+			eventListText
+			    << "\tbjet_csv:"                      <<  -999;
 		    }
 		}else{
 		    eventListText
