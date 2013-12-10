@@ -204,7 +204,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     do {
         int nread = 0;
         float minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0., stocastic_err=0., 
-            pivot=0.;
+            pivot=0., pivot_err=0.;
         int type;
         int  first, last;
         
@@ -212,11 +212,11 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
         if( line[0] == '#' ) { continue; }
         
         if( (nread == 0) && 
-            (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
-                            &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
-                            &stocastic, &stocastic_err ) ) != 15 ) {
+            (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f %f %f %f\n", &catname, &type, 
+                            &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &privot_err, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 16 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) && 
             (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
@@ -266,6 +266,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
         escaleOffset->scale_offset_error[catname] = err;
         escaleOffset->scale_stocastic_offset_error[catname] = stocastic_err;
         escaleOffset->scale_stocastic_pivot[catname] = pivot;
+        escaleOffset->scale_stocastic_pivot_err[catname] = pivot_err;
         
     } while( in );
     
