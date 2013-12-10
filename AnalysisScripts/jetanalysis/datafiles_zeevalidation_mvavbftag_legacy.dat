@@ -42,5 +42,4 @@ cuts jetanalysis/cuts_zee_vbfmva.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=0 
-
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=0 run7TeV4Xanalysis=0 photonLevel2011IDMVA_EB=  photonLevel2011IDMVA_EE=
