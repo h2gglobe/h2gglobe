@@ -14,3 +14,5 @@ cutname=cut_VBF_DiPhoPtOverM     ncat=18  dir=0  fin=1  val=0.        iread=1 pl
 cutname=cut_VBF_LeadPhoPtOverM   ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
 cutname=cut_VBF_SubPhoPtOverM    ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
 
+cutname=cut_VBFLeadJEta      ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=100 xmin=-5 xmax=5   xaxis=Leading@JetEta    yaxis=Events
+cutname=cut_VBFSubJEta   ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=100 xmin=-5 xmax=5   xaxis=SubLeading@JetEta    yaxis=Events
