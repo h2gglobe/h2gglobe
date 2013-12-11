@@ -6063,7 +6063,7 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
     if(dR_jet_PhoSubLead<0.5) continue;
     if(dR_jet_electron<0.5) continue;
     if(dR_jet_muon<0.5) continue;
-    if(p4_jet->Eta()>2.4) continue;
+    if(fabs(p4_jet->Eta())>2.4) continue;
     if(p4_jet->Pt()<20) continue;
     if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
     Njet_lepcat = Njet_lepcat + 1;
