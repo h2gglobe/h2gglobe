@@ -219,23 +219,30 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
                 err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) && 
+            (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f %f\n", &catname, &type, 
+                            &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &pivot_err, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 14 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0, pivot_err=0.;
+        }
+        if( (nread == 0) && 
             (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
                             &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
                             &stocastic, &stocastic_err ) ) != 13 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) &&
             ( nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f\n", &catname, &type, 
                              &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 12 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) &&
             ( nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
                              &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 10 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( nread == 0 ) { 
             continue; 
@@ -243,7 +250,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 	
         std::cout << "Energy scale (or smearing) by run " << nread  << " " << catname   << " " << type 
                   << " " << minet << "<E_T<" << maxet << " " << mineta << "<eta<" << maxeta    << " " << minr9 << "<r9<" << maxr9 
-                  << " " << first << "<run<" << last  << " " << pivot << " " << offset << "+-" << err 
+                  << " " << first << "<run<" << last  << " " << pivot << "+-" << pivot_err << " " << offset << "+-" << err 
                   << " " << stocastic << "+-" << stocastic_err << std::endl;
         
         assert( type>=0 && type<=2 );
