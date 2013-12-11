@@ -2,7 +2,7 @@ recomputeBetas=0
 recorrectJets=1
 rerunJetMva=0
 recomputeJetWp=1
-jetHandlerCfg=jetHandler_Legacy8TeV.py
+jetHandlerCfg=jetHandler_Legacy7TeV.py
 
 scale_offset_file=jun21rereco_7TeV/energy_scale_offsets.dat
 smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
@@ -12,3 +12,6 @@ regressionVersion=8
 energyCorrectionMethod=BendavidOTF
 doEcorrectionSmear=1
 doEcorrectionSyst=0
+
+tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtMethod=evtBDTG

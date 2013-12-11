@@ -106,7 +106,7 @@ reRunVtx=1
 rematchConversions=0
 
 ## vertex
-vtxAlgoParams jan16reload/vertex_selection.dat
+## vtxAlgoParams jan16reload/vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
 tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
