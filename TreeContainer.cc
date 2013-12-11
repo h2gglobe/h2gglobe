@@ -79,8 +79,10 @@ void TreeContainer::FillFloat(std::string name, float x){
   if (it!=float_branches.end()){
     (*it).second = x;
   } else {
-    std::cerr << "TreeContainer -- No Float Tree trying Double" << name << std::endl;
-    FillDouble(name,x);
+    std::map<std::string,double>::iterator jt = double_branches.find(name);
+    if (jt!=double_branches.end()) {
+      (*jt).second = x;
+    }
   }
 }
 
@@ -109,9 +111,11 @@ void TreeContainer::FillDouble(std::string name, double x){
   std::map<std::string,double>::iterator it = double_branches.find(name);
   if (it!=double_branches.end()){
     (*it).second = x;
-  } else {	
-    std::cerr << "TreeContainer -- No Double Tree trying Float " << name << std::endl;
-    FillFloat(name,x);
+  } else {
+    std::map<std::string,float>::iterator jt = float_branches.find(name);
+    if (jt!=float_branches.end()){
+      (*jt).second = x;
+    }
   }
 }
 
