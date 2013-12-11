@@ -129,11 +129,11 @@ float EnergySmearer::getSmearingSigma(const energySmearingParameters & myParamet
   }
   smearing_sigma           += syst_shift * err_sigma;
   smearing_stocastic_sigma += syst_shift * smearing_stocastic_sigma_error;
-  if( ipivot != myParameters.smearing_stocastic_pivot.end() ) {
+  if( ipivot != myParameters.smearing_stocastic_pivot.end() && ipivot->second > 0. ) {
 	  float phi = std::max((float)0.,std::min((float)(TMath::Pi()*0.5),smearing_stocastic_sigma));
 	  float rho = smearing_sigma;
-	  smearing_stocastic_sigma = rho*sqrt(ipivot->second)*sin(phi);
-	  smearing_sigma = rho * cos(phi);
+	  smearing_stocastic_sigma = rho*ipivot->second*cos(phi);
+	  smearing_sigma = rho*sin(phi);
   }
   smearing_stocastic_sigma = (smearing_stocastic_sigma * smearing_stocastic_sigma) / energy;
   smearing_sigma           = sqrt( smearing_sigma*smearing_sigma + smearing_stocastic_sigma );

@@ -204,7 +204,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     do {
         int nread = 0;
         float minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0., stocastic_err=0., 
-            pivot=0.;
+            pivot=0., pivot_err=0.;
         int type;
         int  first, last;
         
@@ -212,16 +212,22 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
         if( line[0] == '#' ) { continue; }
         
         if( (nread == 0) && 
-            (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
-                            &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
-                            &stocastic, &stocastic_err ) ) != 15 ) {
+            (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f %f %f %f\n", &catname, &type, 
+                            &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &pivot_err, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 16 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) && 
             (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
                             &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
                             &stocastic, &stocastic_err ) ) != 13 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0;
+        }
+        if( (nread == 0) &&
+            ( nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f\n", &catname, &type, 
+                             &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 12 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
                 err=0., pivot=0;
         }
@@ -260,6 +266,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
         escaleOffset->scale_offset_error[catname] = err;
         escaleOffset->scale_stocastic_offset_error[catname] = stocastic_err;
         escaleOffset->scale_stocastic_pivot[catname] = pivot;
+        escaleOffset->scale_stocastic_pivot_err[catname] = pivot_err;
         
     } while( in );
     
@@ -343,24 +350,34 @@ void PhotonAnalysis::load2DPuWeights(int typid, TDirectory * puFile, std::vector
     cout<<"Loading 2D pileup weights for typid " << typid << " for all run periods." << endl;
 
     rd_weights[typid].resize(targets.size());    
+    rd_nevents[typid].resize(targets.size());    
+    int ntots=0;
     for (unsigned int i=0; i<targets.size(); i++) {
-	std::cout<<targets[i]->GetName() << std::endl;
-	TH1* gen_pu = ((TH2F*)puFile->Get("pu_2D"))->ProjectionX("pileup", i+1, i+1);
-	assert( gen_pu != 0 );
-	TH1* hweigh =(TH1*)targets[i]->Clone();
-	hweigh->Reset("ICE");
-	hweigh->Divide(targets[i], gen_pu, 1., 1./gen_pu->Integral());
-	rd_weights[typid][i].clear();
-	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-	    rd_weights[typid][i].push_back(hweigh->GetBinContent(ii));
-	}
+        std::cout<<targets[i]->GetName() << std::endl;
+        TH1* gen_pu = ((TH2F*)puFile->Get("pu_2D"))->ProjectionX("pileup", i+1, i+1);
+        assert( gen_pu != 0 );
+        TH1* hweigh =(TH1*)targets[i]->Clone();
+        hweigh->Reset("ICE");
+        hweigh->Divide(targets[i], gen_pu, 1., 1./gen_pu->Integral());
+        rd_weights[typid][i].clear();
+        rd_nevents[typid][i]=gen_pu->Integral();
+        ntots+=gen_pu->GetEntries();
+        for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+            rd_weights[typid][i].push_back(hweigh->GetBinContent(ii));
+        }
     }
-
+    std::cout << "rd_nevents[i] = "<<ntots<<" -- ";
+    for (unsigned int i=0; i<targets.size(); i++) {
+        rd_nevents[typid][i]/=ntots;
+        std::cout << " : " <<rd_nevents[typid][i];
+    }
+    std::cout<<std::endl;
+    //Normalize lumis x run
     std::cout << "pile-up 2D weights: ["<<typid<<"]";
     //std::cout << targets.size() << std::endl;
     for (int i=0; i<targets.size(); i++) {
-	std::copy(rd_weights[typid][i].begin(),rd_weights[typid][i].end(), std::ostream_iterator<double>(std::cout,","));
-	std::cout << std::endl;
+        std::copy(rd_weights[typid][i].begin(),rd_weights[typid][i].end(), std::ostream_iterator<double>(std::cout,","));
+        std::cout << std::endl;
     }
 }
 
@@ -369,7 +386,7 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
 
     if ( sample_type !=0 && puHist != "") {
 
-        bool hasSpecificWeight = weights.find( sample_type ) != weights.end();
+    bool hasSpecificWeight = weights.find( sample_type ) != weights.end();
 	bool hasSpecificWeight2D = rd_weights.find(sample_type) != rd_weights.end();
 	
 	if(!hasSpecificWeight && !hasSpecificWeight2D && container != 0 && container->pileup != 0 ) {
@@ -377,47 +394,55 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
 	    TFile * samplePu = TFile::Open(container->pileup.c_str());
 	    TKey* key = samplePu->FindKey("pu_2D");
 	    if (key != 0 && !puTargets.empty()) {
-		load2DPuWeights(sample_type, samplePu, puTargetHists);
-		hasSpecificWeight2D = true;
+            load2DPuWeights(sample_type, samplePu, puTargetHists);
+            hasSpecificWeight2D = true;
 	    } else {
-		loadPuWeights(sample_type, samplePu, puTargetHist);
-		hasSpecificWeight = true;
+            loadPuWeights(sample_type, samplePu, puTargetHist);
+            hasSpecificWeight = true;
 	    }
 	    samplePu->Close();
 	} else if( sample_type < 0 && !hasSpecificWeight && !hasSpecificWeight2D && warnMe) {
-            std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
-        }
-
+        std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+    }
+    
 	if (hasSpecificWeight2D) {
 	    Int_t index = -1;
 	    
 	    if (run <= 197495)
-		index = 0;
+            index = 0;
 	    else if (run > 197495 && run <= 203767)
-		index = 1;
+            index = 1;
 	    else if (run > 203767)
-		index = 2;
+            index = 2;
 	    else {
-		std::cout << "ERROR: it is not possible to weight this event (unrecognized run " << run << ")" << std::endl;
-		abort();
+            std::cout << "ERROR: it is not possible to weight this event (unrecognized run " << run << ")" << std::endl;
+            abort();
 	    }
 	    std::vector<double>& puweights = rd_weights[sample_type][index];
+        //= lumi_period / lumi_tot * Nev_tot / Nev_period
+        float lumiReWeight=1.;
+        if( ! puLumis.empty() ) {  //  if empty not do anything
+            assert( puLumis.size() > index ) ;
+            lumiReWeight=puLumis[index];  //are normalized: sum to one
+            lumiReWeight/=rd_nevents[sample_type][index];
+        }
+        /// std::cout<< " LUMI ReWeight="<<lumiReWeight<<endl;
 	    if (n_pu < puweights.size()) {
-		return puweights[n_pu];
+            return puweights[n_pu] * lumiReWeight;
 	    }
 	} 
-
+    
 	if (hasSpecificWeight) {
 	    std::vector<double> & puweights = weights[sample_type];
-	    if(n_pu<puweights.size()){
-		return puweights[n_pu];
+	    if(n_pu<puweights.size()) {
+            return puweights[n_pu];
 	    }
 	    else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-		cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
+            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
 	    }
 	}
     }
-
+    
     return 1.;
 }
 
@@ -522,7 +547,9 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
         
         int ieta, iphi;
         l.getIetaIPhi(ipho,ieta,iphi);
-        phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
+        phoInfo.addSmearingSeed( 1000*(UInt_t)(TMath::Abs(100.*phoInfo.caloPosition().Eta()))+
+                                 100000*(UInt_t)(TMath::Abs(100.*phoInfo.caloPosition().Phi()))+
+                                 + (UInt_t)l.run + (UInt_t)l.event + (UInt_t)l.lumis );
         phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
         
         // FIXME add seed to syst smearings
@@ -690,143 +717,144 @@ void PhotonAnalysis::Init(LoopAll& l)
 
     /// // trigger
 
-    if (l.runZeeValidation) {
-
-	triggerSelections.push_back(TriggerSelection(1,-1));
-	if (useRunDTriggersForZee) {
-	    //use this if the validation includes runD
-	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	} else {
-	    //use this if the validation does not include runD
-	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	}
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
+    if (l.runZeeValidation && l.sqrtS != 7) {
+        
+        triggerSelections.push_back(TriggerSelection(1,-1));
+        if (useRunDTriggersForZee) {
+            //use this if the validation includes runD
+            triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        } else {
+            //use this if the validation does not include runD
+            triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        }
+        
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
     } else {
-
-	// /cdaq/physics/Run2011/5e32/v4.2/HLT/V2
-	triggerSelections.push_back(TriggerSelection(160404,161176));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-
-	// /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
-	triggerSelections.push_back(TriggerSelection(161216,165633));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(165970,166967));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(167039,173198));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(165970,166967));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V3
-	triggerSelections.push_back(TriggerSelection(167039,173198));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
-	triggerSelections.push_back(TriggerSelection(173236,178380));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
-	triggerSelections.push_back(TriggerSelection(178420,190455));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	triggerSelections.push_back(TriggerSelection(190456,194269));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
-
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
-
-	triggerSelections.push_back(TriggerSelection(194270,203767));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
-
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
-
-	triggerSelections.push_back(TriggerSelection(203768,-1));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        // /cdaq/physics/Run2011/5e32/v4.2/HLT/V2
+        triggerSelections.push_back(TriggerSelection(160404,161176));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        
+        // /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
+        triggerSelections.push_back(TriggerSelection(161216,165633));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(165970,166967));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(167039,173198));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(165970,166967));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V3
+        triggerSelections.push_back(TriggerSelection(167039,173198));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
+        triggerSelections.push_back(TriggerSelection(173236,178380));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
+        triggerSelections.push_back(TriggerSelection(178420,190455));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        triggerSelections.push_back(TriggerSelection(190456,194269));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
+        
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        triggerSelections.push_back(TriggerSelection(194270,203767));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
+        
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        triggerSelections.push_back(TriggerSelection(203768,-1));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
     }
-
+    
     if( l.typerun != l.kReduce ) {
         // n-1 plots for VBF tag 2011
         l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
@@ -851,6 +879,8 @@ void PhotonAnalysis::Init(LoopAll& l)
             l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
             l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
             l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
+            l.SetCutVariables("cut_VBFLeadJEta",  &myVBFLeadJEta);
+            l.SetCutVariables("cut_VBFSubJEta",  &myVBFSubJEta);
         }
         
         if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
@@ -907,7 +937,13 @@ void PhotonAnalysis::Init(LoopAll& l)
               if (!combinedmvaVbfSelection) {
                 tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
               } else {
-                tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
+                if(l.sqrtS==7){
+                  tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.9416)", &myVBFdPhiTrunc);
+                } else if(l.sqrtS==8){
+                  tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
+                } else {
+                  std::cout<<"sqrtS is not 7 or 8 but is "<<l.sqrtS<<std::endl;
+                }
               }
               tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
               tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
@@ -917,7 +953,13 @@ void PhotonAnalysis::Init(LoopAll& l)
               //tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
               //tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
               tmvaVbfDiphoReader_->AddVariable("dipho_mva",                       &myVBFDIPHObdt);
-              tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
+              if(l.sqrtS==7){
+                tmvaVbfDiphoReader_->AddVariable("bdt_dijet_7TeV_ptrewght",         &myVBF_MVA);
+              } else if(l.sqrtS==8){
+                tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
+              } else {
+                std::cout<<"sqrtS is not 7 or 8 but is "<<l.sqrtS<<std::endl;
+              }
               tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
               tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
             } else {
@@ -1217,54 +1259,58 @@ void PhotonAnalysis::Init(LoopAll& l)
     assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
     
     // Use the same format used for the run-dependent energy corrections
-    EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
-    EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
-    readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
-    readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
+    EnergySmearer::energySmearingParameters::eScaleVector tmp_smear_scale_offset, tmp_smear_smearing;
+    EnergySmearer::energySmearingParameters::phoCatVector tmp_smear_scale_cat, tmp_smear_smearing_cat;
+    readEnergyScaleOffsets(scale_offset_error_file, tmp_smear_scale_offset, tmp_smear_scale_cat,false);
+    readEnergyScaleOffsets(smearing_file, tmp_smear_smearing, tmp_smear_smearing_cat,false);
     
     // make sure that the scale correction and smearing info is as expected
-    assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
-    assert( ! tmp_smearing_cat.empty() );
-    /// assert( tmp_smearing_cat == tmp_scale_cat );
+    assert( tmp_smear_scale_offset.size() == 1); assert( tmp_smear_smearing.size() == 1 );
+    assert( ! tmp_smear_smearing_cat.empty() );
+    /// assert( tmp_smear_smearing_cat == tmp_smear_scale_cat );
     
     // copy the read info to the smarer parameters
     eSmearPars.categoryType = "Automagic";
     eSmearPars.byRun = false;
-    eSmearPars.n_categories = tmp_smearing_cat.size();
-    eSmearPars.photon_categories = tmp_smearing_cat;
+    eSmearPars.n_categories = tmp_smear_smearing_cat.size();
+    eSmearPars.photon_categories = tmp_smear_smearing_cat;
     
-    eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
-    eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
-    eSmearPars.scale_stocastic_offset = tmp_scale_offset[0].scale_stocastic_offset;
-    eSmearPars.scale_stocastic_offset_error = tmp_scale_offset[0].scale_stocastic_offset_error;
-    eSmearPars.scale_stocastic_pivot = tmp_scale_offset[0].scale_stocastic_pivot;
+    eSmearPars.scale_offset = tmp_smear_scale_offset[0].scale_offset;
+    eSmearPars.scale_offset_error = tmp_smear_scale_offset[0].scale_offset_error;
+    eSmearPars.scale_stocastic_offset = tmp_smear_scale_offset[0].scale_stocastic_offset;
+    eSmearPars.scale_stocastic_offset_error = tmp_smear_scale_offset[0].scale_stocastic_offset_error;
+    eSmearPars.scale_stocastic_pivot = tmp_smear_scale_offset[0].scale_stocastic_pivot;
     
-    eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
-    eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
-    eSmearPars.smearing_stocastic_sigma_error = tmp_smearing[0].scale_stocastic_offset_error;
-    eSmearPars.smearing_stocastic_pivot = tmp_smearing[0].scale_stocastic_pivot;
-
+    eSmearPars.smearing_sigma = tmp_smear_smearing[0].scale_offset;
+    eSmearPars.smearing_sigma_error = tmp_smear_smearing[0].scale_offset_error;
+    eSmearPars.smearing_stocastic_sigma = tmp_smear_smearing[0].scale_stocastic_offset;
+    eSmearPars.smearing_stocastic_sigma_error = tmp_smear_smearing[0].scale_stocastic_offset_error;
+    eSmearPars.smearing_stocastic_pivot = tmp_smear_smearing[0].scale_stocastic_pivot;
+    
     // Energy resolution parameters used for diphotonBDT input
-    massResoPars = eSmearPars;
     if( ! mass_resol_file.empty() ) {
-        EnergySmearer::energySmearingParameters::eScaleVector tmp_smearing;
-        EnergySmearer::energySmearingParameters::phoCatVector tmp_smearing_cat;
-        readEnergyScaleOffsets(mass_resol_file, tmp_smearing, tmp_smearing_cat,false);
+        EnergySmearer::energySmearingParameters::eScaleVector tmp_mres_smearing;
+        EnergySmearer::energySmearingParameters::phoCatVector tmp_mres_smearing_cat;
+        readEnergyScaleOffsets(mass_resol_file, tmp_mres_smearing, tmp_mres_smearing_cat,false);
 
         // make sure that the scale correction and smearing info is as expected
-        assert( tmp_smearing.size() == 1 );
-        assert( ! tmp_smearing_cat.empty() );
+        assert( tmp_mres_smearing.size() == 1 );
+        assert( ! tmp_mres_smearing_cat.empty() );
 
         // copy the read info to the smarer parameters
         massResoPars.categoryType = "Automagic";
         massResoPars.byRun = false;
-        massResoPars.n_categories = tmp_smearing_cat.size();
-        massResoPars.photon_categories = tmp_smearing_cat;
+        massResoPars.n_categories = tmp_mres_smearing_cat.size();
+        massResoPars.photon_categories = tmp_mres_smearing_cat;
 
-        massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
-        massResoPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
-        massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+        massResoPars.smearing_sigma = tmp_mres_smearing[0].scale_offset;
+        massResoPars.smearing_stocastic_sigma = tmp_mres_smearing[0].scale_stocastic_offset;
+        massResoPars.smearing_sigma_error = tmp_mres_smearing[0].scale_offset_error;
+        massResoPars.smearing_stocastic_sigma = tmp_mres_smearing[0].scale_stocastic_offset;
+        massResoPars.smearing_stocastic_sigma_error = tmp_mres_smearing[0].scale_stocastic_offset_error;
+        massResoPars.smearing_stocastic_pivot = tmp_mres_smearing[0].scale_stocastic_pivot;
+    } else {
+        massResoPars = eSmearPars;
     }
 
     // energy scale systematics to MC
@@ -1339,16 +1385,25 @@ void PhotonAnalysis::Init(LoopAll& l)
         if(PADEBUG)
             cout << "Opening PU file END"<<endl;
     } else if ( puHist == "auto" ) {
-	TFile * puTargetFile = TFile::Open( puTarget );
-	assert( puTargetFile != 0 );
-	puTargetHist = (TH1*)puTargetFile->Get("pileup");
-	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
-	puTargetHist = (TH1*)puTargetHist->Clone();
-	puTargetHist->SetDirectory(0);
-	puTargetHist->Scale( 1. / puTargetHist->Integral() );
-	puTargetFile->Close();
+        TFile * puTargetFile = TFile::Open( puTarget );
+        assert( puTargetFile != 0 );
+        puTargetHist = (TH1*)puTargetFile->Get("pileup");
+        if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+        puTargetHist = (TH1*)puTargetHist->Clone();
+        puTargetHist->SetDirectory(0);
+        puTargetHist->Scale( 1. / puTargetHist->Integral() );
+        puTargetFile->Close();
     }
-
+    // Per-run period luminosities
+    double tot= std::accumulate(puLumis.begin(),puLumis.end(),0.);
+    std::cout << "Per run-range lumi reweight tot: "<< tot;
+    for(unsigned int index=0;index<puLumis.size();index++) {
+        puLumis[index]/=tot; 
+        std::cout << " ["<<index<<"]" << puLumis[index];
+    }
+    std::cout<<std::endl;
+    
+    
     // Jet handling
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
 	|| l.typerun != l.kFill ) {
@@ -2332,8 +2387,8 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 
     // do not run trigger selection on MC
     int filetype = l.itype[l.current];
-    bool skipTrigger = !doTriggerSelection || ( filetype != 0 && !l.runZeeValidation ) || triggerSelections.empty();
-
+    bool skipTrigger = !doTriggerSelection || ( filetype != 0 && !l.runZeeValidation ) || triggerSelections.empty() || (l.sqrtS == 7 && filetype != 0);
+    
     if( ! skipTrigger ) {
         // get the trigger selection for this run
         l.b_run->GetEntry(jentry);
@@ -2344,20 +2399,20 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
         }
 
 	// get the trigger data
-	if( l.version < 13 ) {
-	    l.b_hlt1_bit->GetEntry(jentry);
-	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
-		return false;
-	    }
-	} else {
-	    l.b_hlt_bit->GetEntry(jentry);
-	    l.b_hlt_path_names_HLT->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
-		return false;
-	    }
-	}
-	//l.countersred[trigCounter_]++;
+        if( l.version < 13 ) {
+            l.b_hlt1_bit->GetEntry(jentry);
+            l.b_hlt_path_names_HLT1->GetEntry(jentry);
+            if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+                return false;
+            }
+        } else {
+            l.b_hlt_bit->GetEntry(jentry);
+            l.b_hlt_path_names_HLT->GetEntry(jentry);
+            if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+                return false;
+            }
+        }
+        //l.countersred[trigCounter_]++;
     }
 
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
@@ -3876,9 +3931,9 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
     myVBF_Mgg   = diphoton.M();
 
     if(nm1){
-        tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+        tag = l.ApplyCutsFill(0, 1, eventweight, myweight);
     } else {
-        tag = l.ApplyCuts(0,1);
+        tag = l.ApplyCuts(0, 1);
     }
 
     return tag;
@@ -4077,7 +4132,11 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     //    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, TMath::Pi() - 0.2 );
-    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.916);
+    if(l.sqrtS==7){
+        myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.9416);
+    } else if(l.sqrtS==8){
+        myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.916);
+    }
     myVBF_Mgg   = diphoton.M();
     myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
@@ -5581,6 +5640,13 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("sublead_py",sublead_p4.Py(),"spin_trees");
    l.FillTree("sublead_pz",sublead_p4.Pz(),"spin_trees");
    l.FillTree("sublead_E",sublead_p4.E(),"spin_trees");
+
+    std::vector<std::vector<bool> > ph_passcut;
+    int levelLead = l.PhotonCiCPFSelectionLevel(l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, 0);
+    int levelSublead = l.PhotonCiCPFSelectionLevel(l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, 0);
+   
+   l.FillTree("lead_cicLevel",levelLead,"spin_trees");
+   l.FillTree("sublead_cicLevel",levelSublead,"spin_trees");
 
    l.FillTree("gp_lead_px",genpho1.Px(),"spin_trees");
    l.FillTree("gp_lead_py",genpho1.Py(),"spin_trees");

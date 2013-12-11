@@ -1,0 +1,171 @@
+->
+File format:
+	<branc_name>[:<branch_type>] 
+where:
+	<branch_type> = 0 for branches to be always read
+	<branch_type> = 1 for branches to be read only for MC
+->
+
+->
+Counters
+->
+event
+lumis
+run
+bx
+
+->
+SuperClusters
+->
+pho_scind
+sc_xyz
+sc_sphi
+sc_seta
+sc_raw
+sc_pre
+sc_bcseedind
+bc_p4
+
+ecalhit_n
+ecalhit_p4
+ecalhit_detid
+
+
+->
+Photons 
+->
+pho_n
+pho_isEB
+pho_isEE
+pho_hasconvtks
+pho_isconv
+pho_p4
+pho_calopos
+pho_residCorrEnergy
+pho_residCorrResn
+pho_regr_energy
+pho_regr_energyerr
+pho_regr_energy_otf
+pho_regr_energyerr_otf
+
+->
+Jets for VBF
+->
+jet_algoPF1_n
+jet_algoPF1_p4
+jet_algoPF1_erescale
+
+
+->
+CiC inputs
+->
+pho_tkiso_badvtx_040_002_0000_10_01
+pho_tkiso_recvtx_030_002_0000_10_01
+pho_tkiso_badvtx_id
+pho_ecalsumetconedr03
+pho_ecalsumetconedr04
+pho_hcalsumetconedr03
+pho_hcalsumetconedr04
+pho_sieie
+pho_hoe
+pho_r9
+pho_drtotk_25_99
+pho_haspixseed
+
+->
+MIT Pre-selection
+->
+##skimmed pho_trksumptsolidconedr03
+pho_trksumpthollowconedr03
+
+->
+CiC
+->
+pho_cic4cutlevel_lead
+pho_cic4passcuts_lead
+pho_cic4cutlevel_sublead
+pho_cic4passcuts_sublead
+
+->
+Photon MVA ID inputs
+->
+pho_pfiso_mycharged04
+pho_pfiso_myphoton04
+pho_pfiso_mycharged03
+pho_pfiso_myphoton03
+pho_sieip
+pho_sipip
+pho_e5x5
+pho_e2x2
+pho_pfiso_myneutral03
+pho_sieip
+pho_etawidth
+sc_sphi
+pho_r9
+pho_lambdaratio
+pho_e2x2
+pho_e5x5
+rho_algo1
+sc_xyz
+pho_eseffsixix
+pho_eseffsiyiy
+
+
+#MC truth
+#gp_n:1
+#gp_p4:1
+#gp_status:1
+#gp_pdgid:1
+#gp_mother:1
+process_id:1
+weight:1
+pthat:1
+gv_n:1
+gv_pos:1
+pu_n:1
+
+#Vertex
+vtx_std_n
+vtx_std_xyz
+##skimmed vtx_std_ndof
+vtx_std_evt_mva
+
+
+#PU correction
+rho_algo1
+
+#Beam spot
+bs_xyz
+
+
+#Trigger
+hlt_bit
+hlt_n
+hlt_path_names_HLT
+
+#Vertex selection
+vtx_std_sel
+vtx_std_ranked_list
+
+->
+di-photons
+->
+dipho_n
+dipho_leadind
+dipho_subleadind
+dipho_vtxind
+
+
+->
+Temp inputs for vertexing
+->
+
+conv_n
+##skimmed conv_p4
+conv_ntracks
+##skimmed conv_pairinvmass
+##skimmed conv_paircotthetasep
+conv_eoverp
+conv_chi2_probability
+conv_vtx
+

@@ -184,6 +184,7 @@ int main(int argc, char* argv[]){
 
   if (!bkgWS || !sigWS){
     cerr << "ERROR - one of signal or background workspace is NULL" << endl;
+    cerr << " (looked for ) signal = " << sigWSName.c_str() << ", background = " << bkgWSName.c_str() <<endl;
     exit(1);
   }
 
@@ -232,11 +233,15 @@ int main(int argc, char* argv[]){
   //RooDataSet *data = (RooDataSet*)bkgWS->data(Form("data_cat%d_7TeV",cat));
   RooDataHist *dataBinned = new RooDataHist(Form("roohist_data_mass_cat%d",cat),Form("roohist_data_mass_cat%d",cat),RooArgSet(*mass),*data);
   RooDataSet *sigMC = (RooDataSet*)sigWS->data(Form("sig_ggh_mass_m%d_cat%d",expectSignalMass,cat));
-  RooDataSet *sigMC_vbf = (RooDataSet*)sigWS->data(Form("sig_wzh_mass_m%d_cat%d",expectSignalMass,cat));
-  RooDataSet *sigMC_wzh = (RooDataSet*)sigWS->data(Form("sig_vbf_mass_m%d_cat%d",expectSignalMass,cat));
+  RooDataSet *sigMC_vbf = (RooDataSet*)sigWS->data(Form("sig_vbf_mass_m%d_cat%d",expectSignalMass,cat));
+  RooDataSet *sigMC_wh = (RooDataSet*)sigWS->data(Form("sig_wh_mass_m%d_cat%d",expectSignalMass,cat));
+  RooDataSet *sigMC_zh = (RooDataSet*)sigWS->data(Form("sig_zh_mass_m%d_cat%d",expectSignalMass,cat));
   RooDataSet *sigMC_tth = (RooDataSet*)sigWS->data(Form("sig_tth_mass_m%d_cat%d",expectSignalMass,cat));
+  std::cout << "Signal Model Building " << std::endl; 
+  sigMC->Print(); sigMC_vbf->Print(); sigMC_wh->Print();sigMC_zh->Print();sigMC_tth->Print();
   sigMC->append(*sigMC_vbf);
-  sigMC->append(*sigMC_wzh);
+  sigMC->append(*sigMC_wh);
+  sigMC->append(*sigMC_zh);
   sigMC->append(*sigMC_tth);
   //RooExtendPdf *ggh_pdf = (RooExtendPdf*)sigWS->pdf(Form("sigpdfsmrel_cat%d_7TeV_ggh",cat));
   //RooExtendPdf *vbf_pdf = (RooExtendPdf*)sigWS->pdf(Form("sigpdfsmrel_cat%d_7TeV_vbf",cat));

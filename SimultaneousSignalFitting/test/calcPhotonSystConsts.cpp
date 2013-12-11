@@ -286,7 +286,7 @@ int main(int argc, char *argv[]){
 
 			TH1F *nominal = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat));
 			for (vector<string>::iterator phoCat=photonCats_.begin(); phoCat!=photonCats_.end(); phoCat++){
-\
+
 				TH1F *scaleUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 				TH1F *scaleDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 			
@@ -297,8 +297,9 @@ int main(int argc, char *argv[]){
 					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
 					outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
 				} else {
+					outfile << *phoCat+"scale";
 					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.);
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
 				}
 								
 				TH1F *smearUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
@@ -313,7 +314,7 @@ int main(int argc, char *argv[]){
 				} else {
 					outfile << *phoCat+"smear";
 					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.);
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
 				}
 
 			}

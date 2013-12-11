@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-
+import sys
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-D","--dir")
@@ -13,7 +13,7 @@ parser.add_option("--dryRun",default=False,action="store_true")
 
 os.system('mkdir -p %s'%options.dir)
 
-def writeSpec(i):
+def writeSpec(dat,i):
   f = open('%s/sub%d.sh'%(os.path.abspath(options.dir),i),'w')
   f.write('#!/bin/bash\n')
   f.write('rm -f %s.done\n'%(f.name))
@@ -24,11 +24,11 @@ def writeSpec(i):
   f.write('eval `scramv1 runtime -sh`\n')
   f.write('cd -\n')
   f.write('cp %s/scripts/make_hists_from_raw_files.py .\n'%os.getcwd())
-  f.write('cp %s .\n'%os.path.abspath(options.datfile))
+  f.write('cp %s .\n'%os.path.abspath(dat))
   f.write('mkdir lib\n')
   f.write('cp %s/lib/libBackgroundProfileFitting.so lib/\n'%os.getcwd())
   f.write('touch %s.run\n'%(f.name))
-  subline = './make_hists_from_raw_files.py -d %s --runSpecificFiles=%d'%(os.path.basename(options.datfile),i)
+  subline = './make_hists_from_raw_files.py -d %s --runSpecificFiles=%d'%(os.path.basename(dat),i)
   if options.eosWalk:
     subline += ' --eosWalk=%d'%options.eosWalk
   f.write('if ( %s ) then \n'%subline)
@@ -42,9 +42,29 @@ def writeSpec(i):
   if not options.dryRun: os.system('bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name))
   else: print 'bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name)
 
-df = open(options.datfile)
+
+def writeTmpDat(dat):
+ fi = open(dat)
+ nam = options.dir+"/"+(dat.split("/")[-1])+"_tempdat.dat"
+ tmp = open(nam,"w")
+ cats = []
+ for line in fi.readlines():
+  if line.startswith('#') or line=='' or line =='\n': continue
+  if "cats=" in line:
+    vlist = (line.split("="))[1]
+    cats = [int(v) for v in vlist.split(",")] 
+    continue
+  if "{cat}" in line :
+	for c in cats:
+	  tmp.write(line.replace("{cat}","%d"%c))
+  else: tmp.write(line)
+ return nam
+
+tmpdatfile = writeTmpDat(options.datfile)
+df = open(tmpdatfile)
+
 i=0
 for line in df.readlines():
   if line.startswith('#') or line=='' or line =='\n': continue
-  writeSpec(i)
+  writeSpec(tmpdatfile,i)
   i+=1

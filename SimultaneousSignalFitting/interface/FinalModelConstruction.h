@@ -25,7 +25,7 @@ class FinalModelConstruction {
 
   public:
     
-    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false, bool is2011=false);
+    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, bool doSecMods, std::string systematicsFileName, std::vector<int> skipMasses, int verbosity, bool isCB=false, bool is2011=false, bool quadraticSigmaSum=false);
     ~FinalModelConstruction();
 
 		void loadSignalSystematics(std::string filename);
@@ -40,7 +40,7 @@ class FinalModelConstruction {
     void setupSystematics();
     void getNormalization();
 
-		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name);
+		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name, bool isMH2=false, bool isMHSM=false);
 		RooAbsReal *getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name);
 		RooAbsReal *getRateWithPhotonSyst(string name);
     
@@ -72,8 +72,11 @@ class FinalModelConstruction {
     bool isCutBased_;
 		bool is2011_;
 		int sqrts_;
+		bool quadraticSigmaSum_;
+		std::vector<int> skipMasses_;
     std::vector<int> allMH_;
     std::vector<int> getAllMH();
+		bool skipMass(int mh);
     int verbosity_;
     Normalization_8TeV *norm;
 
@@ -85,10 +88,14 @@ class FinalModelConstruction {
     std::map<int,RooDataSet*> stdDatasets;
     
     RooRealVar *vertexNuisance;
-    RooSpline1D *rvFracFunc;
     RooRealVar *globalScale;
 		RooRealVar *r9barrelNuisance;
 		RooRealVar *r9mixedNuisance;
+    RooSpline1D *rvFracFunc;
+		// secondary models
+    RooSpline1D *rvFracFunc_SM;
+    RooSpline1D *rvFracFunc_2;
+    RooSpline1D *rvFracFunc_NW;
 		// these are for the old fashioned way
     //RooRealVar *categoryScale;
     //RooConstVar *categorySmear;

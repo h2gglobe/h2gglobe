@@ -39,8 +39,8 @@ pt2 = r.TPaveText(0.55,0.91,0.9,0.99,"NDC");
 pt2.SetTextAlign(32);
 pt2.SetTextSize(0.04);
 pt2.SetFillColor(0);
-#pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.051 fb^{-1}; #sqrt{s} = 8 TeV, L = 30.0 fb^{-1}");
-pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.1 fb^{-1}; #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+#pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
 pt2.SetBorderSize(0);
 
 def doChannelCompatiblity():

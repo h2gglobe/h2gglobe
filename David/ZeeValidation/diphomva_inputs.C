@@ -486,20 +486,20 @@ void diphomva_inputs(bool passMVAcut=false, bool equalArea=true) {
   c_bdtin_2->Divide(4,3);
   c_bdtin_2->cd(1);
 
-  sf = sigmaMOverM_cat0_Data->Integral()/sigmaMOverM_cat0_DYJetsToLL->Integral();
-  sigmaMOverM_cat0_DYJetsToLL->Scale(sf);
-  sigmaMOverM_cat0_Data->Draw("e");
-  sigmaMOverM_cat0_DYJetsToLL->Draw("hist,same");
-  sigmaMOverM_cat0_Data->Draw("e,same");
+  sf = sigmaMOverM_EE_cat0_Data->Integral()/sigmaMOverM_EE_cat0_DYJetsToLL->Integral();
+  sigmaMOverM_EE_cat0_DYJetsToLL->Scale(sf);
+  sigmaMOverM_EE_cat0_Data->Draw("e");
+  sigmaMOverM_EE_cat0_DYJetsToLL->Draw("hist,same");
+  sigmaMOverM_EE_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
 
   c_bdtin_2->cd(2);
-  sf = sigmaMOverM_wrongVtx_cat0_Data->Integral()/sigmaMOverM_wrongVtx_cat0_DYJetsToLL->Integral();
-  sigmaMOverM_wrongVtx_cat0_DYJetsToLL->Scale(sf);
-  sigmaMOverM_wrongVtx_cat0_Data->Draw("e");
-  sigmaMOverM_wrongVtx_cat0_DYJetsToLL->Draw("hist,same");
-  sigmaMOverM_wrongVtx_cat0_Data->Draw("e,same");
+  sf = sigmaMOverM_wrongVtx_EE_cat0_Data->Integral()/sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL->Integral();
+  sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL->Scale(sf);
+  sigmaMOverM_wrongVtx_EE_cat0_Data->Draw("e");
+  sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL->Draw("hist,same");
+  sigmaMOverM_wrongVtx_EE_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg2->Draw();
 
@@ -525,17 +525,17 @@ void diphomva_inputs(bool passMVAcut=false, bool equalArea=true) {
 
   c_bdtin_2->cd(5);
   gPad->SetLogy();
-  sigmaMOverM_cat0_Data->Draw("e");
-  sigmaMOverM_cat0_DYJetsToLL->Draw("hist,same");
-  sigmaMOverM_cat0_Data->Draw("e,same");
+  sigmaMOverM_EE_cat0_Data->Draw("e");
+  sigmaMOverM_EE_cat0_DYJetsToLL->Draw("hist,same");
+  sigmaMOverM_EE_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
 
   c_bdtin_2->cd(6);
   gPad->SetLogy();
-  sigmaMOverM_wrongVtx_cat0_Data->Draw("e");
-  sigmaMOverM_wrongVtx_cat0_DYJetsToLL->Draw("hist,same");
-  sigmaMOverM_wrongVtx_cat0_Data->Draw("e,same");
+  sigmaMOverM_wrongVtx_EE_cat0_Data->Draw("e");
+  sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL->Draw("hist,same");
+  sigmaMOverM_wrongVtx_EE_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
 
   c_bdtin_2->cd(7);
@@ -555,14 +555,14 @@ void diphomva_inputs(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
 
   c_bdtin_2->cd(9);
-  plotRatio(sigmaMOverM_cat0_Data,sigmaMOverM_cat0_DYJetsToLL);
+  plotRatio(sigmaMOverM_EE_cat0_Data,sigmaMOverM_EE_cat0_DYJetsToLL);
   line3 = (TLine*)line->Clone();
   line3->SetX1(0.);
   line3->SetX2(0.06);
   line3->Draw();
 
   c_bdtin_2->cd(10);
-  plotRatio(sigmaMOverM_wrongVtx_cat0_Data,sigmaMOverM_wrongVtx_cat0_DYJetsToLL);
+  plotRatio(sigmaMOverM_wrongVtx_EE_cat0_Data,sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL);
   line3->Draw();
 
   c_bdtin_2->cd(11);

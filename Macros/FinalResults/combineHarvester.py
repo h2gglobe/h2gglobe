@@ -56,7 +56,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','ProfileLikelihood','ChannelCompatibilityCheck','MHScan','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
 
 def checkValidMethod():
 	if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
@@ -73,6 +73,33 @@ def configureMassFromNJobs():
 					opts.masses_per_job[j].append(masses[0])
 					masses = numpy.delete(masses,0)
 		if len(opts.masses_per_job)!=opts.jobs: sys.exit('ERROR - len job config (%d) not equal to njobs (%d)'%(len(opts.masses_per_job),opts.jobs))
+
+def getSortedCats():
+	cats = set()
+	f = open(opts.datacard)
+	for l in f.readlines():
+		if l.startswith('bin'):
+			els = l.split()[1:]
+			for el in els: 
+				cats.add(el)
+			break
+	
+	myarr = sorted(cats, key=lambda x: (x[:3],int(x.split('cat')[1].split('_')[0])), reverse=True)
+	if opts.verbose: print myarr
+	return myarr
+
+def removeRelevantDiscreteNuisances():
+	newCard = open('tempcard.txt','w')
+	card = open(opts.datacard)
+	for line in card.readlines():
+		if 'discrete' in line:
+			for cat in opts.splitChannels:
+				catString = '_'+cat.split('cat')[1]
+				if catString in line: newCard.write(line)
+		else: newCard.write(line)
+	card.close()
+	newCard.close()
+	os.system('mv %s %s'%(newCard.name,card.name))
 
 def splitCard():
 	if not opts.splitChannels: sys.exit('Channel splitting options not specified')
@@ -91,8 +118,40 @@ def splitCard():
 	splitCardName = opts.datacard.replace('.txt','')
 	for cat in opts.splitChannels: splitCardName += '_'+cat
 	splitCardName += '.txt'
+	if opts.verbose: print 'combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName)
 	os.system('combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName))
 	opts.datacard = splitCardName
+	removeRelevantDiscreteNuisances()
+
+def makeStatOnlyCard():
+	
+	assert(opts.datacard.endswith('.txt'))
+	newcardname = opts.datacard.replace('.txt','_statonly.txt') 
+	outf = open(newcardname,'w')
+	inf = open(opts.datacard)
+	for line in inf.readlines():
+		line_els = line.split()
+		if line.startswith('kmax'): line = line.replace(line_els[1],'*')
+		if len(line_els)>1 and (line_els[1]=='lnN' or line_els[1]=='param'): continue
+		else: outf.write(line)
+	inf.close()
+	outf.close()
+	opts.datacard = newcardname 
+
+def makeNoGlobCard():
+	
+	assert(opts.datacard.endswith('.txt'))
+	newcardname = opts.datacard.replace('.txt','_noglob.txt') 
+	outf = open(newcardname,'w')
+	inf = open(opts.datacard)
+	for line in inf.readlines():
+		line_els = line.split()
+		if line.startswith('kmax'): line = line.replace(line_els[1],'*')
+		if line.startswith('CMS_hgg_globalscale'): continue
+		else: outf.write(line)
+	inf.close()
+	outf.close()
+	opts.datacard = newcardname 
 
 def writePreamble(sub_file):
 	sub_file.write('#!/bin/bash\n')
@@ -142,6 +201,41 @@ def writeAsymptotic():
 			if mass!=mass_set[-1]: exec_line += ' && '
 		writePostamble(file,exec_line)
 
+def writeAsymptoticGrid():
+	print 'Writing AsymptoticGrid'
+	
+	if not os.path.exists(os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py')):
+		sys.exit('ERROR - CombinedLimit package must be installed')
+	
+	try:
+		assert(opts.masses_per_job)
+	except AssertionError:
+		sys.exit('No masses have been defined')
+	
+	# create specialised limit grid workspace
+	if not opts.skipWorkspace:
+		print 'Creating workspace for %s...'%opts.method
+		ws_exec_line = 'text2workspace.py %s -o %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt','.root')) 
+		if opts.verbose: print '\t', ws_exec_line 
+		os.system(ws_exec_line)
+	opts.datacard = opts.datacard.replace('.txt','.root')
+
+	# sub jobs through combine
+	for j, mass_set in enumerate(opts.masses_per_job):
+		for mass in mass_set:
+			os.system('python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py -w %s -m %6.2f -n 10 -r %3.1f %3.1f --runLimit --nCPU=3 -d %s'%(opts.datacard,mass,opts.muLow,opts.muHigh,os.path.abspath(opts.outDir)))
+			sub_file_name = os.path.abspath(opts.outDir+'/limitgrid_%5.1f.sh'%(mass))
+			if opts.verbose:
+				print 'bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name))
+			if not opts.dryRun and opts.queue:
+				os.system('rm -f %s.log'%os.path.abspath(sub_file_name))
+				os.system('bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name)))
+			if opts.runLocal:
+				os.system('bash %s'%os.path.abspath(sub_file_name))
+
+	# switch back
+	opts.datacard = opts.datacard.replace('.root','.txt')
+
 def writeProfileLikelhood():
 
 	print 'Writing ProfileLikelihood'
@@ -179,51 +273,79 @@ def writeChannelCompatibility():
 	exec_line = 'combine %s -M ChannelCompatibilityCheck -m %6.2f --rMin=-25. --saveFitResult --cminDefaultMinimizerType=Minuit2'%(opts.datacard,opts.mh)
 	writePostamble(file,exec_line)
 
+def writeMultiPdfChannelCompatibility():
+	
+	print 'Writing MultiPdfChannelCompatibility'
+	backupcard = opts.datacard
+	backupdir = opts.outDir
+	cats = getSortedCats()
+	for cat in cats:
+		if opts.verbose: print cat
+		opts.splitChannels = [cat]
+		splitCard()
+		opts.outDir += '/'+cat
+		os.system('mkdir -p %s'%opts.outDir)
+		opts.method = 'MuScan'
+		writeMultiDimFit()
+		opts.datacard = backupcard
+		opts.outDir = backupdir
+	
 def writeMultiDimFit():
 
 	print 'Writing MultiDim Scan'
-	ws_args = { "RVRFScan" 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RVScan"	 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RVpRFScan"	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RFScan"	 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RFpRVScan"	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"MuScan"		 : "",
-							"CVCFScan"	 : "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
-							"MHScan"		 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
-							"MuMHScan"	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass"
+	ws_args = { "RVRFScan" 	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RVScan"	 	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RVnpRFScan" 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RFScan"	 	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RFnpRVScan" 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"MuScan"		 		: "",
+							"CVCFScan"	 		: "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
+							"MHScan"		 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
+							"MHScanStat" 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
+							"MHScanNoGlob"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
+							"MuMHScan"	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass"
 						}
 	
-	combine_args = { "RVRFScan" 	 : "-P RV -P RF" ,
-                   "RVScan"	 	 	 : "--floatOtherPOIs=0 -P RV" ,
-                   "RVpRFScan"	 : "--floatOtherPOIs=1 -P RV" ,
-                   "RFScan"	 	 	 : "--floatOtherPOIs=0 -P RF" ,
-                   "RFpRVScan"	 : "--floatOtherPOIs=1 -P RF" ,
-                   "MuScan"		 	 : "-P r",
-                   "CVCFScan"	 	 : "-P CV -P CF",
-                   "MHScan"		 	 : "-P MH",
-                   "MuMHScan"	 	 : "-P r -P MH"
+	combine_args = { "RVRFScan" 	 		: "-P RV -P RF" ,
+                   "RVScan"	 	 	 		: "--floatOtherPOIs=1 -P RV" ,
+                   "RVnpRFScan"	 		: "--floatOtherPOIs=0 -P RV" ,
+                   "RFScan"	 	 	 		: "--floatOtherPOIs=1 -P RF" ,
+                   "RFnpRVScan"	 		: "--floatOtherPOIs=0 -P RF" ,
+                   "MuScan"		 	 		: "-P r",
+                   "CVCFScan"	 	 		: "-P CV -P CF",
+                   "MHScan"		 	 		: "--floatOtherPOIs=1 -P MH",
+                   "MHScanStat"			: "--floatOtherPOIs=1 -P MH",
+                   "MHScanNoGlob"		: "--floatOtherPOIs=1 -P MH",
+                   "MuMHScan"	 	 		: "-P r -P MH"
 								 }
 	par_ranges = {}
 	if opts.rvLow!=None and opts.rvHigh!=None and opts.rfLow!=None and opts.rfHigh!=None:
-		par_ranges["RVRFScan"]		= "RV=%4.2f,%4.2f:RF=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh,opts.rfLow,opts.rfHigh)
+		par_ranges["RVRFScan"]				= "RV=%4.2f,%4.2f:RF=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh,opts.rfLow,opts.rfHigh)
 	if opts.rvLow!=None and opts.rvHigh!=None:
-		par_ranges["RVScan"]			= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh) 
+		par_ranges["RVScan"]					= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh) 
 	if opts.rvLow!=None and opts.rvHigh!=None:
-		par_ranges["RVpRFScan"]		= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh)
+		par_ranges["RVnpRFScan"]			= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh)
 	if opts.rfLow!=None and opts.rfHigh!=None:
-		par_ranges["RFScan"]			= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
+		par_ranges["RFScan"]					= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
 	if opts.rfLow!=None and opts.rfHigh!=None:
-		par_ranges["RFpRVScan"]		= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
+		par_ranges["RFnpRVScan"]			= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
 	if opts.muLow!=None and opts.muHigh!=None:
-		par_ranges["MuScan"]			= "r=%4.2f,%4.2f"%(opts.muLow,opts.muHigh) 
+		par_ranges["MuScan"]					= "r=%4.2f,%4.2f"%(opts.muLow,opts.muHigh) 
 	if opts.cvLow!=None and opts.cvHigh!=None and opts.cfLow!=None and opts.cfHigh!=None:
-		par_ranges["CVCFScan"]		= "CV=%4.2f,%4.2f:CF=%4.2f,%4.2f"%(opts.cvLow,opts.cvHigh,opts.cfLow,opts.cfHigh)
+		par_ranges["CVCFScan"]				= "CV=%4.2f,%4.2f:CF=%4.2f,%4.2f"%(opts.cvLow,opts.cvHigh,opts.cfLow,opts.cfHigh)
 	if opts.mhLow!=None and opts.mhHigh!=None:
-		par_ranges["MHScan"]			= "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
+		par_ranges["MHScan"]					= "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
+		par_ranges["MHScanStat"]			= "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
+		par_ranges["MHScanNoGlob"]		= "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
 	if opts.muLow!=None and opts.muHigh!=None and opts.mhLow!=None and opts.mhHigh!=None:
-		par_ranges["MuMHScan"]		= "r=%4.2f,%4.2f:MH=%6.2f,%6.2f"%(opts.muLow,opts.muHigh,opts.mhLow,opts.mhHigh)
+		par_ranges["MuMHScan"]				= "r=%4.2f,%4.2f:MH=%6.2f,%6.2f"%(opts.muLow,opts.muHigh,opts.mhLow,opts.mhHigh)
 
 	# create specialised MultiDimFit workspace
+	backupcard = opts.datacard
+	if opts.method=='MHScanStat':
+		makeStatOnlyCard()
+	if opts.method=='MHScanNoGlob':
+		makeNoGlobCard()
 	if not opts.skipWorkspace:
 		print 'Creating workspace for %s...'%opts.method
 		ws_exec_line = 'text2workspace.py %s -o %s %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt',opts.method+'.root'),ws_args[opts.method]) 
@@ -244,20 +366,24 @@ def writeMultiDimFit():
 		if opts.verbose: print '\t', exec_line
 		writePostamble(file,exec_line)
 
-	opts.datacard = opts.datacard.replace(opts.method+'.root','.txt')
+	opts.datacard = backupcard 
 
 def run():
 	os.system('mkdir -p %s'%opts.outDir)
 	if opts.verbose: print 'Made directory', opts.outDir
 	checkValidMethod()
-	if opts.method=='Asymptotic' or opts.method=='ProfileLikelihood':
+	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
 	if opts.method=='Asymptotic':
 		writeAsymptotic()
+	elif opts.method=='AsymptoticGrid':
+		writeAsymptoticGrid()
 	elif opts.method=='ProfileLikelihood':
 		writeProfileLikelhood()
 	elif opts.method=='ChannelCompatibilityCheck':
 		writeChannelCompatibility()
+	elif opts.method=='MultiPdfChannelCompatibility':
+		writeMultiPdfChannelCompatibility()
 	else:
 		writeMultiDimFit()
 

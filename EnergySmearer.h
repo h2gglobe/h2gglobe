@@ -26,6 +26,7 @@ public:
 	std::map<std::string,float> scale_stocastic_offset; // used for stocastic term smearing. Can also be reused in case of energy-dependend corrections
 	std::map<std::string,float> scale_stocastic_offset_error;
 	std::map<std::string,float> scale_stocastic_pivot;
+	std::map<std::string,float> scale_stocastic_pivot_err;
 };
 
 class PhotonCategory {
@@ -105,6 +106,7 @@ public:
 	  std::map<std::string,float> scale_stocastic_offset;
 	  std::map<std::string,float> scale_stocastic_offset_error;
 	  std::map<std::string,float> scale_stocastic_pivot;
+	  std::map<std::string,float> scale_stocastic_pivot_err;
 
 	  std::map<std::string,float> smearing_sigma;
 	  std::map<std::string,float> smearing_stocastic_sigma;

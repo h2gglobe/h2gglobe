@@ -1,4 +1,5 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/amarini_legacy/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/massfac/8TeV/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=8
+#intL=19715. histfile=test_CMS-HGG.root output=eventsList.txt sqrtS=8
 #intL=19715. histfile=/store/user/amarini/CMS-HGG/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
@@ -147,5 +148,5 @@ treevariables massfac_mva_binned/fullmvatrees.dat treevariables_optree.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=0  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1 fillOptTree=1
 

@@ -299,6 +299,7 @@ double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsDat
 		// because these are envelope nll curves this algorithm can get stuck in local minima
 		// hacked get out is just to start trying again
 		if (nIts>20) {
+			return guess;
 			lowPoint = TMath::Max(0.,lowPoint-20);
 			highPoint += 20;
 			nIts=0;

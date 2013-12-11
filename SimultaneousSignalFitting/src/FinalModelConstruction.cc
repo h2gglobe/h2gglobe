@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB, bool is2011):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, vector<int> skipMasses, int verbosity, bool isCB, bool is2011, bool quadraticSigmaSum):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -34,6 +34,8 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   doSecondaryModels(doSecMods),
   isCutBased_(isCB),
 	is2011_(is2011),
+	quadraticSigmaSum_(quadraticSigmaSum),
+	skipMasses_(skipMasses),
   verbosity_(verbosity),
   systematicsSet_(false),
   rvFractionSet_(false)
@@ -150,7 +152,9 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 	datfile.close();
 	for (vector<string>::iterator it=photonCats.begin(); it!=photonCats.end(); it++){
 		RooRealVar *varScale = new RooRealVar(Form("CMS_hgg_nuisance%sscale",it->c_str()),Form("CMS_hgg_nuisance%sscale",it->c_str()),0.,-5.,5.);
+		varScale->setConstant(true);
 		RooRealVar *varSmear = new RooRealVar(Form("CMS_hgg_nuisance%ssmear",it->c_str()),Form("CMS_hgg_nuisance%ssmear",it->c_str()),0.,-5.,5.);
+		varSmear->setConstant(true);
 		photonSystematics.insert(make_pair(varScale->GetName(),varScale));
 		photonSystematics.insert(make_pair(varSmear->GetName(),varSmear));
 	}
@@ -209,9 +213,17 @@ void FinalModelConstruction::addToSystMap(map<string,map<int,map<string,double> 
 	}
 }
 
+bool FinalModelConstruction::skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
+}
+
 vector<int> FinalModelConstruction::getAllMH(){
   vector<int> result;
   for (int m=mhLow_; m<=mhHigh_; m+=5){
+		if (skipMass(m)) continue;
     if (verbosity_>=1) cout << "FinalModelConstruction - Adding mass: " << m << endl;
     result.push_back(m);
   }
@@ -257,14 +269,30 @@ void FinalModelConstruction::getRvFractionFunc(string name){
     rvFracValues.push_back(rvF);
   }
   rvFracFunc = new RooSpline1D(name.c_str(),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+	if (doSecondaryModels){
+		rvFracFunc_SM = new RooSpline1D(Form("%s_SM",name.c_str()),name.c_str(),*MH_SM,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+		rvFracFunc_2 = new RooSpline1D(Form("%s_2",name.c_str()),name.c_str(),*MH_2,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+		rvFracFunc_NW = new RooSpline1D(Form("%s_NW",name.c_str()),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
+	}
   rvFractionSet_=true;
 }
 
-RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
-	
+RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name, bool isMH2, bool isMHSM){
+
+	if (!doSecondaryModels && (isMH2 || isMHSM)) {
+		cout << "ERROR -- for some reason your asking for a dependence on MH_2 or MH_SM but are not running secondary models" << endl;
+		exit(1);
+	}
+	if (isMH2 && isMHSM) {
+		cout << "ERROR -- for some reason your asking for a dependence on MH_2 and MH_SM but both cannot be true" << endl;
+		exit(1);
+	}
+
 	string formula="(@0+@1)*(1.+@2";
 	RooArgList *dependents = new RooArgList();
-	dependents->add(*MH); // MH sits at @0
+	if (isMH2) dependents->add(*MH_2);
+	else if (isMHSM) dependents->add(*MH_SM);
+	else dependents->add(*MH); // MH sits at @0
 	dependents->add(*dm); // dm sits at @1
 	dependents->add(*globalScale); // sits at @2
 
@@ -296,8 +324,8 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << phoCat 
-				  << " don't affect the signal model scale." << std::endl; 
+			std::cerr << "WARNING: Photon category systematic " << phoCat 
+				  << " doesn't affect the signal model scale." << std::endl; 
 		}
 	}
 	formula+=")";
@@ -310,6 +338,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 	string formula="@0*(1.";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*sig_fit); // sig_fit sits at @0
+	if (quadraticSigmaSum_) formula += "+TMath::Sqrt(0.";
 	
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
@@ -323,6 +352,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			dependents->add(*cvScale);
 			dependents->add(*nuisScale);
 			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			if (quadraticSigmaSum_) formula += Form("*@%d*@%d",formPlace,formPlace+1);
 			formPlace += 2;
 			hasEffect = true;
 		}
@@ -333,15 +363,17 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
 			RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
 			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			if (quadraticSigmaSum_) formula += Form("*@%d*@%d",formPlace,formPlace+1);
 			dependents->add(*cvSmear);
 			dependents->add(*nuisSmear);
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << 
-				phoCat << " don't affect the signal model width." << std::endl; 
+			std::cerr << "WARNING: Photon category systematic " << 
+				phoCat << " doesn't affect the signal model width." << std::endl; 
 		}
 	}
+	if (quadraticSigmaSum_) formula+=")";
 	formula+=")";
 	formula = Form("TMath::Max(%s,0.)",formula.c_str()); // consider smooth cutoff ? 
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
@@ -380,7 +412,7 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << 
+			std::cerr << "WARNING: Photon category systematic " << 
 				phoCat << " don't affect the signal normalization." << std::endl; 
 		}
 	}
@@ -449,9 +481,13 @@ void FinalModelConstruction::buildRvWvPdf(string name, int nGrv, int nGwv, bool 
   finalPdf = new RooAddPdf(Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[0],*wvPdfs[0]),RooArgList(*rvFraction));
   if (doSecondaryModels){
     assert(secondaryModelVarsSet);
-    finalPdf_SM = new RooAddPdf(Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[1],*wvPdfs[1]),RooArgList(*rvFraction));
-    finalPdf_2 = new RooAddPdf(Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[2],*wvPdfs[2]),RooArgList(*rvFraction));
-    finalPdf_NW = new RooAddPdf(Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[3],*wvPdfs[3]),RooArgList(*rvFraction));
+		RooFormulaVar *rvFraction_SM = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_SM));
+		RooFormulaVar *rvFraction_2 = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_2));
+		RooFormulaVar *rvFraction_NW = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc_NW));
+		// buildNew Pdfs
+    finalPdf_SM = new RooAddPdf(Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_SM",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[1],*wvPdfs[1]),RooArgList(*rvFraction_SM));
+    finalPdf_2 = new RooAddPdf(Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_2",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[2],*wvPdfs[2]),RooArgList(*rvFraction_2));
+    finalPdf_NW = new RooAddPdf(Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_NW",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[3],*wvPdfs[3]),RooArgList(*rvFraction_NW));
   }
 }
 
@@ -492,7 +528,7 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
       // sm higgs as background
       RooAbsReal *dmSM = splines[Form("dm_g%d_SM",g)];
       dmSM->SetName(Form("dm_g%d_%s_SM",g,ext.c_str()));
-			RooAbsReal *meanSM = getMeanWithPhotonSyst(dmSM,Form("mean_g%d_%s_SM",g,ext.c_str()));
+			RooAbsReal *meanSM = getMeanWithPhotonSyst(dmSM,Form("mean_g%d_%s_SM",g,ext.c_str()),false,true);
       //RooAbsReal *meanSM = new RooFormulaVar(Form("mean_g%d_%s_SM",g,ext.c_str()),Form("mean_g%d_%s_SM",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_SM,*dmSM,*globalScale,*categoryScale));
       RooAbsReal *sig_fitSM = splines[Form("sigma_g%d_SM",g)];
       sig_fitSM->SetName(Form("sigma_g%d_%s_SM",g,ext.c_str()));
@@ -503,7 +539,7 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
       // second degen higgs
       RooAbsReal *dm2 = splines[Form("dm_g%d_2",g)];
       dm2->SetName(Form("dm_g%d_%s_2",g,ext.c_str()));
-			RooAbsReal *mean2 = getMeanWithPhotonSyst(dm2,Form("mean_g%d_%s_2",g,ext.c_str()));
+			RooAbsReal *mean2 = getMeanWithPhotonSyst(dm2,Form("mean_g%d_%s_2",g,ext.c_str()),true,false);
       //RooAbsReal *mean2 = new RooFormulaVar(Form("mean_g%d_%s_2",g,ext.c_str()),Form("mean_g%d_%s_2",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_2,*dm2,*globalScale,*categoryScale));
       RooAbsReal *sig_fit2 = splines[Form("sigma_g%d_2",g)];
       sig_fit2->SetName(Form("sigma_g%d_%s_2",g,ext.c_str()));

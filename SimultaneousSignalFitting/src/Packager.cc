@@ -15,33 +15,30 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011, string outDir):
+Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir):
   outWS(ws),
-  splitVH_(splitVH),
+  procs_(procs),
   nCats_(nCats),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
 	is2011_(is2011),
-	outDir_(outDir)
+	outDir_(outDir),
+	skipMasses_(skipMasses)
 {
-  procs.push_back("ggh"); 
-  procs.push_back("vbf"); 
-  if (splitVH_){
-    procs.push_back("wh");
-    procs.push_back("zh");
-  }
-  else {
-    procs.push_back("wzh");
-  }
-  procs.push_back("tth");
 	if (is2011) sqrts_=7;
 	else sqrts_=8;
 	normalization = new Normalization_8TeV();
 	normalization->Init(sqrts_);
-
 }
 
 Packager::~Packager(){}
+
+bool Packager::skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
+}
 
 void Packager::packageOutput(){
 
@@ -49,19 +46,20 @@ void Packager::packageOutput(){
 
   // sum datasets first
   for (int mh=mhLow_; mh<=mhHigh_; mh+=5){
+		if (skipMass(mh)) continue;
     RooDataSet *allDataThisMass = 0;
     for (int cat=0; cat<nCats_; cat++) {
       RooDataSet *allDataThisCat = NULL;
-      for (vector<string>::iterator proc=procs.begin(); proc!=procs.end(); proc++){
+      for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
         RooDataSet *tempData = (RooDataSet*)outWS->data(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
         if (!tempData) {
           cerr << "WARNING -- dataset: " << Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat) << " not found. It will be skipped" << endl;
           expectedObjectsNotFound.push_back(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
           continue;
         }
-        if (cat==0 && proc==procs.begin()) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
+        if (cat==0 && proc==procs_.begin()) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
         else allDataThisMass->append(*tempData);
-        if (proc==procs.begin()) allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
+        if (proc==procs_.begin()) allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
         else allDataThisCat->append(*tempData);
       }
       if (!allDataThisCat) {
@@ -82,7 +80,7 @@ void Packager::packageOutput(){
   RooArgList *runningNormSum = new RooArgList();
   for (int cat=0; cat<nCats_; cat++){
     RooArgList *sumPdfsThisCat = new RooArgList();
-    for (vector<string>::iterator proc=procs.begin(); proc!=procs.end(); proc++){
+    for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
       
       // sum eA
       RooSpline1D *norm = (RooSpline1D*)outWS->function(Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat));
@@ -144,14 +142,14 @@ void Packager::packageOutput(){
     effAccGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
     effAccGraph->GetYaxis()->SetTitle("efficiency #times acceptance");
     effAccGraph->Draw("AL");
-    canv->Print("plots/effAccCheck.pdf");
-    canv->Print("plots/effAccCheck.png");
+    canv->Print(Form("%s/effAccCheck.pdf",outDir_.c_str()));
+    canv->Print(Form("%s/effAccCheck.png",outDir_.c_str()));
     expEventsGraph->SetLineWidth(3);
     expEventsGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
     expEventsGraph->GetYaxis()->SetTitle(Form("Expected Events for %4.1ffb^{-1}",intLumi->getVal()/1000.));
     expEventsGraph->Draw("AL");
-    canv->Print("plots/expEventsCheck.pdf");
-    canv->Print("plots/expEventsCheck.png");
+    canv->Print(Form("%s/expEventsCheck.pdf",outDir_.c_str()));
+    canv->Print(Form("%s/expEventsCheck.png",outDir_.c_str()));
 		makePlots();
   }
 }
@@ -162,6 +160,7 @@ void Packager::makePlots(){
 	RooAddPdf *sumPdfsAllCats = (RooAddPdf*)outWS->pdf("sigpdfrelAllCats_allProcs");
 	map<int,RooDataSet*> dataSets;
 	for (int m=mhLow_; m<=mhHigh_; m+=5){
+		if (skipMass(m)) continue;
 		RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_AllCats",m));
 		dataSets.insert(make_pair(m,data));
 	}
@@ -171,6 +170,7 @@ void Packager::makePlots(){
 		RooAddPdf *sumPdfsCat = (RooAddPdf*)outWS->pdf(Form("sigpdfrelcat%d_allProcs",cat));
 		map<int,RooDataSet*> dataSetsCat;
 		for (int m=mhLow_; m<=mhHigh_; m+=5){
+			if (skipMass(m)) continue;
 			RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_cat%d",m,cat));
 			dataSetsCat.insert(make_pair(m,data));
 		}

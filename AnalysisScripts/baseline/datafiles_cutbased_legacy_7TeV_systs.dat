@@ -1,4 +1,4 @@
-intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/martina_legacy/cutbased/7TeV/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=7
+intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/7TeV/systematics/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=7
 
 
 #
@@ -18,7 +18,7 @@ inputBranches minimal_statanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 inputBranches TTVH_analysis_input.dat
 
-Treevariables common/unbinned_datacard_trees.dat
+treevariables common/unbinned_datacard_trees.dat
 cuts jetanalysis/cuts_vbfcutb.dat
 
 ## define analyses to run
@@ -28,4 +28,4 @@ cuts jetanalysis/cuts_vbfcutb.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat baseline/analysis_settings_7TeV.dat scaleClusterShapes=1 scaleR9Only=1 scaleR9ForCicOnly=1 splitEscaleSyst=1 splitEresolSyst=1
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat baseline/analysis_settings_7TeV.dat systs_settings.dat scaleClusterShapes=1 scaleR9Only=1 scaleR9ForCicOnly=1 splitEscaleSyst=1 splitEresolSyst=1

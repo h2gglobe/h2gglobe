@@ -178,8 +178,8 @@ for line in relevantLines:
 vtxF = r.TFile(options.vertexFile)
 for cat in range(options.nDiphoCats):
         for typ in ['fail','pass']:
-		copy = vtxF.Get('scaleFactor').Clone('ratioVertex_cat%d_%s'%(cat,typ))
-                #copy = vtxF.Get('ratioVertex_cat%d_%s'%(cat,typ))
+		#copy = vtxF.Get('scaleFactor').Clone('ratioVertex_cat%d_%s'%(cat,typ))
+                copy = vtxF.Get('ratioVertex_cat%d_%s'%(cat,typ))
                 if copy:
                         if options.draw:
                                 copy.Draw("ALP")

@@ -5,8 +5,8 @@ parser=OptionParser()
 parser.add_option("-D","--readFromDat",dest="readFromDat",type="str",help="Read these run options from datfile")
 parser.add_option("-s","--sigfilename",dest="sigfilename",type="str",help="Input signal workspace file")
 parser.add_option("-b","--bkgfilename",dest="bkgfilename",type="str",help="Input background/data workspace file")
-parser.add_option("-w","--sigwsname",dest="sigwsname",type="str",help="Input signal workspace name")
-parser.add_option("-B","--bkgwsname",dest="bkgwsname",type="str",help="Input background/data workspace name")
+parser.add_option("-w","--sigwsname",dest="sigwsname",type="str",help="Input signal workspace name",default="cms_hgg_workspace")
+parser.add_option("-B","--bkgwsname",dest="bkgwsname",type="str",help="Input background/data workspace name",default="cms_hgg_workspace")
 parser.add_option("-d","--datfile",dest="datfile",type="str",help="Config datfile")
 parser.add_option("-o","--outerDir",dest="outerDir",help="Dir name")
 parser.add_option("-c","--cats",dest="cats",default=[],action="append")
@@ -29,10 +29,12 @@ import os
 if options.eosPath:
   if '/eos/cms' in options.eosPath:
     options.eosPath = options.eosPath.split('/eos/cms')[1]
-  os.system('cmsMkdir %s',options.eosPath)
+  os.system('cmsMkdir %s'%options.eosPath)
 
 def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
-
+  cat = int(cat)
+  muInject=float(muInject)
+  massInject=float(massInject)
   subline = './BiasStudy -s %s -b %s --sigwsname %s --bkgwsname %s -d %s -c %d -L %3.1f -H %3.1f -S %5.3f -t %d -D %s --expectSignal=%3.1f --expectSignalMass=%3d'%(os.path.basename(options.sigfilename),os.path.basename(options.bkgfilename),options.sigwsname,options.bkgwsname,os.path.basename(options.datfile),cat,mlow,mhigh,mstep,options.toysperjob,os.path.abspath(outdir),muInject,massInject)
 
   if options.skipPlots: subline += ' --skipPlots'
@@ -51,8 +53,9 @@ def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
     f.write('cp %s .\n'%os.path.abspath(options.bkgfilename))
     f.write('cp %s .\n'%os.path.abspath(options.datfile))
     f.write('cp %s/bin/BiasStudy .\n'%(os.getcwd()))
-    for sandbox_file in options.takeOtherFiles.split(','):
-      f.write('cp %s . \n'%os.path.abspath(sandbox_file))
+    if options.takeOtherFiles:
+     for sandbox_file in options.takeOtherFiles.split(','):
+       f.write('cp %s . \n'%os.path.abspath(sandbox_file))
     f.write('touch %s.run\n'%(f.name))
     execline = subline + ' -j %d -o BiasStudyOut_cat%d_job%d.root'%(j,cat,j)
     f.write('if ( %s ) then \n'%execline)
@@ -75,7 +78,9 @@ def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
 
 if not options.readFromDat:
   for cat in options.cats:
+    cat = int(cat)
     for i, mu in enumerate(options.expectSignals):
+      mu=float(mu)
       storage_dir = '%s/cat%d_mu%3.1f'%(options.outerDir,cat,mu)
       if options.eosPath:
         os.system('cmsMkdir %s/%s'%(options.eosPath,storage_dir))
@@ -85,22 +90,37 @@ if not options.readFromDat:
 else:
   f = open(options.readFromDat)
   configDict={}
-  for line in f.readlines():
-    if line.startswith('#') or line.startswith(' ') or line.startswith('\n'): continue
-    if not line.startswith('cat'):
-      #configDict[line.split('=')[0]] = line.split('=')[1].strip('\n')
-      setattr(options,line.split('=')[0],line.split('=')[1].strip('\n'))
+  cats = []
+  for linet in f.readlines():
+    if linet.startswith('#') or linet.startswith(' ') or linet.startswith('\n'): continue
+    if not linet.startswith('cat'):
+      #configDict[linet.split('=')[0]] = linet.split('=')[1].strip('\n')
+      setattr(options,linet.split('=')[0],linet.split('=')[1].strip('\n'))
     else:
-      lineConfig = line.split()
-      cat = int(lineConfig[0].split('=')[1])
-      injectmu = float(lineConfig[1].split('=')[1])
-      mlow = float(lineConfig[2].split('=')[1])
-      mhigh = float(lineConfig[3].split('=')[1])
-      mstep = float(lineConfig[4].split('=')[1])
-      injectmass = int(lineConfig[5].split('=')[1])
-      storage_dir = '%s/cat%d_mu%3.1f_mass%d'%(options.outerDir,cat,injectmu,injectmass)
-      if options.eosPath:
-        os.system('cmsMkdir %s/%s'%(options.eosPath,storage_dir))
-      os.system('mkdir -p %s'%storage_dir)
-      writeSubScript(cat,mlow,mhigh,mstep,storage_dir,injectmu,injectmass)
+     
+      if "cats=" in linet:
+        vlist = (linet.split("="))[1]
+        cats = [int(v) for v in vlist.split(",")] 
+        continue
+
+      linestouse = []
+
+      if "{cat}" in linet :
+	for c in cats: linestouse.append(linet.replace("{cat}","%d"%c))
+      
+      else: linestouse.append(linet)
+
+      for line in linestouse:
+       lineConfig = line.split()
+       cat = int(lineConfig[0].split('=')[1])
+       injectmu = float(lineConfig[1].split('=')[1])
+       mlow = float(lineConfig[2].split('=')[1])
+       mhigh = float(lineConfig[3].split('=')[1])
+       mstep = float(lineConfig[4].split('=')[1])
+       injectmass = int(lineConfig[5].split('=')[1])
+       storage_dir = '%s/cat%d_mu%3.1f_mass%d'%(options.outerDir,cat,injectmu,injectmass)
+       if options.eosPath:
+         os.system('cmsMkdir %s/%s'%(options.eosPath,storage_dir))
+       os.system('mkdir -p %s'%storage_dir)
+       writeSubScript(cat,mlow,mhigh,mstep,storage_dir,injectmu,injectmass)
 

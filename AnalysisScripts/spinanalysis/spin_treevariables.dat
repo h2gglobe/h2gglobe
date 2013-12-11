@@ -23,6 +23,9 @@ type=3 name=sublead_py
 type=3 name=sublead_pz
 type=3 name=sublead_E
 
+type=0 name=lead_cicLevel
+type=0 name=sublead_cicLevel
+
 type=3 name=gp_lead_px
 type=3 name=gp_lead_py
 type=3 name=gp_lead_pz

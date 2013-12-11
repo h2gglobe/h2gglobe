@@ -5,12 +5,14 @@ from CMGTools.External.pujetidproducer_cfi import simple, full, cutbased
 
 ### ## JEC
 jec = cms.PSet(
-    data = cms.vstring("aux/jec2012/FT_53_V21_AN4::All_L1FastJet_AK5PF.txt",
+    data = cms.vstring(
+			"aux/jec2012/FT_53_V21_AN4::All_L1FastJet_AK5PF.txt",
                        "aux/jec2012/FT_53_V21_AN4::All_L2Relative_AK5PF.txt",
                        "aux/jec2012/FT_53_V21_AN4::All_L3Absolute_AK5PF.txt",
                        "aux/jec2012/FT_53_V21_AN4::All_L2L3Residual_AK5PF.txt",
                        ),
-    mc   = cms.vstring("aux/jec2012/START53_V23::All_L1FastJet_AK5PF.txt",
+    mc   = cms.vstring(
+			"aux/jec2012/START53_V23::All_L1FastJet_AK5PF.txt",
                        "aux/jec2012/START53_V23::All_L2Relative_AK5PF.txt",
                        "aux/jec2012/START53_V23::All_L3Absolute_AK5PF.txt",
                        ),

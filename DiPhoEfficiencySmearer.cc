@@ -88,7 +88,7 @@ bool DiPhoEfficiencySmearer::init()
       smearing_eff_graph_[cat+"_fail"]=(TGraphAsymmErrors*) theDiPhoEfficiencyFile_->Get((effName_+"_"+cat+"_fail").c_str())->Clone();
       std::cerr << "DiPhoEfficiencySmearerc " << cat+"_pass" << std::endl;
     } else {
-      // std::cout << "GF cloning: " << ( (effName_+"_"+cat).c_str() ) << std::endl;
+      //std::cout << "GF cloning: " << ( (effName_+"_"+cat).c_str() ) << std::endl;
       smearing_eff_graph_[cat]=(TGraphAsymmErrors*) theDiPhoEfficiencyFile_->Get((effName_+"_"+cat).c_str())->Clone();
     }
   }

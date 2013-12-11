@@ -281,7 +281,7 @@ class GitHelper:
         else:
             print
             print "Checking out tag to be pushed"
-            run("git fetch fork_%s" % user, "" )
+            run("git fetch --tags fork_%s" % user, "" )
             run("git checkout %s" % (tagname), "" )
         
             print
