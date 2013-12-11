@@ -108,7 +108,9 @@ doEcorrectionSmear=1
 doEcorrectionSyst=1
 
 ## energy scale adjustement and errors
-scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc.dat
+#scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc.dat
+# Et Dependent
+scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc_etdep.dat
 scale_offset_error_file=energy_scale_errors.dat
 
 ## uncorrelated part of the uncertainties
