@@ -149,5 +149,6 @@ fillEscaleTrees=0
 
 effPhotonCategoryType=3CatR9_EBEE
 effPhotonNCat=6
-efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_mva_v2.root
+#efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_mva_v2.root
+efficiencyFileMVA=aux/sig_reweighing_legacy_mva_8TeV.root
 

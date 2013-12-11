@@ -46,7 +46,8 @@ tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xm
 tmvaPerEvtMethod=evtBDTG
 
 # efficiecny scale factors
-efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+#efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+efficiencyFile=aux/sig_reweighing_legacy_cic_7TeV.root
 
 # bkg pol orders 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3
