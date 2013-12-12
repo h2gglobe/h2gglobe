@@ -1479,7 +1479,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 			TLorentzVector* mysc_1 = (TLorentzVector*) l.el_std_sc->At(el_ind_1);
 			elVtx_1 = l.FindElectronVertex(el_ind_1);
 			std::vector<bool> veto_indices; veto_indices.clear();
-			l.PhotonsToVeto(mysc_1, 0.5, veto_indices, true);
+			l.PhotonsToVeto(mysc_1, drSC_lep, veto_indices, true);
 			if(!(l.ElectronMVACuts(el_ind_1, elVtx_1))){
 			    el_ind_1=-1;
 			}
