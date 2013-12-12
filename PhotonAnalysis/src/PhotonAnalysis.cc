@@ -4826,7 +4826,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
     if(muonInd != -1 && diphotonTTHlep_id !=1){
 	mu_tag= (TLorentzVector*) l.mu_glo_p4->At(muonInd);
-	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_lep);
+	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,0.5);
     }
 
     if((elInd==-1) && (muonInd==-1))return tag;
