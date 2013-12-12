@@ -110,7 +110,9 @@ void ProfileMultiplePdfs::setValues(map<string,double> vals, RooArgSet *params){
 pair<double,map<string,TGraph*> > ProfileMultiplePdfs::profileLikelihood(RooAbsData *data, RooRealVar *obs_var, RooRealVar *var, float low, float high, float stepsize){
  
   if (chosenPdfs.size()>0)chosenPdfs.clear();
-  var->setConstant(false);
+  var->setConstant(false); 
+  // For initial fit, we use the values passed
+  var->setRange(low,high);
   //var->setVal(0.);
   map<string,TGraph*> minNlls;
   globalMinNLL=1.e6;
@@ -123,11 +125,13 @@ pair<double,map<string,TGraph*> > ProfileMultiplePdfs::profileLikelihood(RooAbsD
     RooArgSet *params = pdf->getParameters(*obs_var);
     saveValues(mapOfValues,params);
     if (2*nom->minNll()+params->getSize()<globalMinNLL){
-      globalMinNLL = 2*nom->minNll()+params->getSize();
-      bestFitVal = var->getVal();
-      bestFitErr = var->getError();
-      bestFitPdf = pdf;
-      fitOk = (bestFitVal>low && bestFitVal < high && bestFitErr >0.001 && bestFitErr < 99.) ;// nom->status();
+      fitOk = (var->getVal()>low && var->getVal() < high && var->getError() >0.0001 && bestFitErr < 99.) ;// nom->status();
+      if (fitOk){
+        bestFitVal = var->getVal();
+        bestFitErr = var->getError();
+        bestFitPdf = pdf;
+      	globalMinNLL = 2*nom->minNll();
+      }
     }
   }
   cout << "Best fit at:" << endl;
@@ -286,6 +290,8 @@ map<string,TGraph*> ProfileMultiplePdfs::profileLikelihoodEnvelope(RooAbsData *d
   
   if (chosenPdfs.size()>0)chosenPdfs.clear();
   var->setConstant(false);
+  // For initial fit, we use the values passed
+  var->setRange(low,high);
   var->setVal(0.);
   map<string,TGraph*> minNlls;
   TGraph *globalNLL = new TGraph();
@@ -297,11 +303,13 @@ map<string,TGraph*> ProfileMultiplePdfs::profileLikelihoodEnvelope(RooAbsData *d
     float penalty = m->second.second;
     RooFitResult *nom = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
     if (2*nom->minNll()+penalty<globalMinNLL){
-      globalMinNLL = 2*nom->minNll()+penalty;
-      bestFitVal = var->getVal();
-      bestFitErr = var->getError();
-      bestFitPdf = pdf;
-      fitOk = (bestFitVal>low && bestFitVal < high && bestFitErr >0.01 && bestFitErr < 99.) ;// nom->status();
+      fitOk = (var->getVal()>low && var->getVal() < high && var->getError() >0.0001 && bestFitErr < 99.) ;// nom->status();
+      if (fitOk){
+        bestFitVal = var->getVal();
+        bestFitErr = var->getError();
+        bestFitPdf = pdf;
+      	globalMinNLL = 2*nom->minNll()+penalty;
+      }
     }
   }
   cout << "Best fit at:" << endl;
