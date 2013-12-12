@@ -4249,7 +4249,9 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int& diphotonVHhad_id, float*
     //jet selection
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4406,7 +4408,9 @@ bool PhotonAnalysis::VHhadronicTag2012(LoopAll& l, int& diphotonVHhad_id, float*
     //jet selection
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
         TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-        if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+        if(usePUjetveto){
+            if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+        }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
         
         bool isJet_LeadPho = false;
@@ -4552,7 +4556,9 @@ bool PhotonAnalysis::VHhadronicBtag2012(LoopAll& l, int& diphotonVHhadBtag_id, f
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4687,7 +4693,9 @@ bool PhotonAnalysis::TTHhadronicTag2012(LoopAll& l, int& diphotonTTHhad_id, floa
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4948,7 +4956,9 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
         bool isJet_LeadPho = false;
 	bool isJet_SubLeadPho = false;
@@ -6072,7 +6082,9 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
     if(dR_jet_muon<0.5) continue;
     if(fabs(p4_jet->Eta())>2.4) continue;
     if(p4_jet->Pt()<20) continue;
-    if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
+    if(usePUjetveto){
+        if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
+    }
     Njet_lepcat = Njet_lepcat + 1;
   }
 
@@ -6508,7 +6520,9 @@ std::pair<int, int> PhotonAnalysis::SelectBtaggedAndHighestPtJets(LoopAll& l,int
     std::vector<int> index_selected_btagloose;
     for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
         j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
-        if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
+        if(usePUjetveto){
+            if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
+        }
         if(fabs(j1p4->Eta()) > 2.4) continue;
         if(j1p4->DeltaR(leadpho) < dr2pho) continue;
         if(j1p4->DeltaR(subleadpho) < dr2pho) continue;

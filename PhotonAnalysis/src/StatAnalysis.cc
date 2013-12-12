@@ -1624,7 +1624,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
   
 		for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 		    TLorentzVector * j1p4 = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-		    if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    if(usePUjetveto){
+			if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    }
 		    if(fabs(j1p4->Eta()) > 4.7) continue;
 		
 		    bool isJet_LeadPho = false;
@@ -1767,25 +1769,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		    }
 		}
 		eventListText <<"\tcosThetaStar:"<<abs_cosThetaStar;
-
-		//dijetmva
-		if(myVBF_MVA<-1.9 && myJets.first>-1 && myJets.second>-1){
-		    if( j1p4->Pt()>30. && j2p4->Pt()>20. && (*j1p4+*j2p4).M()>250.){
-			myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
-			myVBFcombined   = (useGbrVbfMva ? gbrVbfDiphoReader_->eval() : tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod) );
-		    }
-		}
-	    
-		if(myVBF_MVA<-1.9){
-		    myVBF_MVA=-999;   
-		    myVBFcombined=-999;   
-		}
-
-		
-		eventListText<<"\tdijetMVA:"<<myVBF_MVA
-			     <<"\tcombiMVA:"<<myVBFcombined;
-
-            
                 eventListText << endl;
         }
 

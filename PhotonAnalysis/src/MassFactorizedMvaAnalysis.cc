@@ -1221,7 +1221,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
   
 		for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 		    TLorentzVector * j1p4 = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-		    if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    if(usePUjetveto){
+			if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    }
 		    if(fabs(j1p4->Eta()) > 4.7) continue;
 		
 		    bool isJet_LeadPho = false;

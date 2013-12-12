@@ -4995,6 +4995,7 @@ void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int &
       if(el_ind_2!=-1){
 	TLorentzVector* myel_2 = (TLorentzVector*) el_std_p4->At(el_ind_2);
 	TLorentzVector* mysc_2 = (TLorentzVector*) el_std_sc->At(el_ind_2);
+	float drSC_lep=1.0;
 	if(myel_2->DeltaR(lead_p4_1)>drSC_lep && myel_2->DeltaR(sublead_p4_1)>drSC_lep && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70){
 	  VHlep1event=true;
 	  VHlep2event=false;
