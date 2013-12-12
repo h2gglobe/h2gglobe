@@ -1,0 +1,13 @@
+run7TeV4Xanalysis=0
+applyPtoverM=1
+nPtOverMCategories=2
+
+# efficiecny scale factors
+#efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+efficiencyFile=aux/sig_reweighing_legacy_cic_7TeV.root
+
+# bkg pol orders 
+#bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3
+#bkgPolOrderByCat=3,3,3,3,3,3,3,3,4,4,3,3,3,2,3
+#From Bias Studies Cic 7TeV
+bkgPolOrderByCat=4,4,4,4,4,4,4,4,4,4,3,3,3,2,3

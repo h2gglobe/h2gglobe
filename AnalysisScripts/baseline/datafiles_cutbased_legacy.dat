@@ -1,15 +1,14 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/8TeV/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/8TeV/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=8
 
 #
 # Data
 #
 
 
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/Photon_Run2012A_22Jan2013-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012B-22Jan2013-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012C-22Jan2013-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012D-22Jan2013-v1_v3
-
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v6/data/Photon_Run2012A_22Jan2013-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v6/data/DoublePhoton_Run2012B-22Jan2013-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v6/data/DoublePhoton_Run2012C-22Jan2013-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v6/data/DoublePhoton_Run2012D-22Jan2013-v1_v3
 
 
 #
@@ -36,7 +35,7 @@ split typ=-1 ind=2 draw=1   Nam=vbf_m135_8TeV   CaDir=/store/group/phys_higgs/cm
 split typ=-1 ind=4 draw=1   Nam=wzh_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/WH_ZH_HToGG_M-135_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-1 ind=3 draw=1   Nam=tth_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/TTH_HToGG_M-135_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 
-split typ=-1 ind=1 draw=1   Nam=ggh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/GluGluToHToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-1 ind=1 draw=1   Nam=ggh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/GluGluToHToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-1 ind=2 draw=1   Nam=vbf_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/VBF_HToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-1 ind=4 draw=1   Nam=wzh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/WH_ZH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-1 ind=3 draw=1   Nam=tth_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/TTH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
