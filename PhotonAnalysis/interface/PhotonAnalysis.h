@@ -163,7 +163,8 @@ class PhotonAnalysis : public BaseAnalysis
     int njets_tthHad_thresh;
     bool doDrGsfTrackCut;
 
-    float drSC_lep;
+    float drSC_ele;
+    float drSC_muon;
     float    drGsf_lep;
     int isLep_ele,isLep_mu;
     int eleIndex,muIndex;

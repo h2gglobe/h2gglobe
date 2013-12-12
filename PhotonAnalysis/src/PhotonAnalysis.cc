@@ -119,7 +119,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     doDrGsfTrackCut=false;
     ptjet_loosecut=25.;
 
-    drSC_lep=0.;
+    drSC_ele=0.;
+    drSC_muon=0.;
     drGsf_lep=0.;
 
 
@@ -4805,7 +4806,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 	TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(elInd);
 	TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(elInd);
 
-    float drtoveto = drSC_lep;
+    float drtoveto = drSC_ele;
     float drgsftoveto = drGsf_lep;
 
     l.PhotonsToVeto(myelsc, drtoveto,veto_indices, true, drgsftoveto);
@@ -4834,7 +4835,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
     if(muonInd != -1 && diphotonTTHlep_id !=1){
 	mu_tag= (TLorentzVector*) l.mu_glo_p4->At(muonInd);
-	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,0.5);
+	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_muon);
     }
 
     if((elInd==-1) && (muonInd==-1))return tag;

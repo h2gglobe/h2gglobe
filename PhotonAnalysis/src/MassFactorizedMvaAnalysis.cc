@@ -1104,7 +1104,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		if(el_ind_2!=-1){
 		    myel_2 = (TLorentzVector*) l.el_std_p4->At(el_ind_2);
 		    TLorentzVector* mysc_2 = (TLorentzVector*) l.el_std_sc->At(el_ind_2);
-		    if(!(myel_2->DeltaR(lead_p4)>0.5 && myel_2->DeltaR(sublead_p4)>0.5 && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70)){
+		    if(!(myel_2->DeltaR(lead_p4)>drSC_ele && myel_2->DeltaR(sublead_p4)>drSC_ele && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70)){
 			el_ind_2=-1;
 		    }
 		}

@@ -43,7 +43,8 @@ diphobdt_output_Cut_TTHlep=-0.6
 deltaRPholep_cut=0
 doMinvCut=0
 doDrGsfTrackCut=1
-drSC_lep=1.
+drSC_ele=1.
+drSC_mu=0.5
 drGsf_lep=1.
 doApplyEleVeto=0 
 
