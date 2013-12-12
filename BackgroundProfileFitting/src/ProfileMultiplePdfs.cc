@@ -2,6 +2,7 @@
 
 #include "TCanvas.h"
 #include "TMath.h"
+#include "TLatex.h"
 #include "RooPlot.h"
 #include "RooFitResult.h"
 #include "TF1.h"
@@ -50,6 +51,7 @@ void ProfileMultiplePdfs::plotNominalFits(RooAbsData *data, RooRealVar *var, int
     RooPlot *plot = var->frame();
     data->plotOn(plot,Binning(binning));
     pdf->plotOn(plot);
+    pdf->paramOn(plot,RooFit::Layout(0.34,0.96,0.89),RooFit::Format("NEA",AutoPrecision(1)));
     plot->SetTitle(Form("%s_to_%s",pdf->GetName(),data->GetName()));
     plot->Draw();
     canv->Print(Form("%s_%s_to_%s.pdf",fname.c_str(),pdf->GetName(),data->GetName()));
@@ -107,38 +109,51 @@ void ProfileMultiplePdfs::setValues(map<string,double> vals, RooArgSet *params){
 // no penalty
 pair<double,map<string,TGraph*> > ProfileMultiplePdfs::profileLikelihood(RooAbsData *data, RooRealVar *obs_var, RooRealVar *var, float low, float high, float stepsize){
  
-  chosenPdfs.clear();
+  if (chosenPdfs.size()>0)chosenPdfs.clear();
   var->setConstant(false);
   //var->setVal(0.);
   map<string,TGraph*> minNlls;
   globalMinNLL=1.e6;
   // first find global minNll for reference point
   map<string,double> mapOfValues;
+  bool fitOk = true;
   for (map<string,pair<RooAbsPdf*,float> >::iterator m=listOfPdfs.begin(); m!=listOfPdfs.end(); m++) { 
     RooAbsPdf *pdf = m->second.first;
     RooFitResult *nom = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
     RooArgSet *params = pdf->getParameters(*obs_var);
     saveValues(mapOfValues,params);
-    if (2*nom->minNll()<globalMinNLL){
-      globalMinNLL = 2*nom->minNll();
+    if (2*nom->minNll()+params->getSize()<globalMinNLL){
+      globalMinNLL = 2*nom->minNll()+params->getSize();
       bestFitVal = var->getVal();
       bestFitErr = var->getError();
       bestFitPdf = pdf;
+      fitOk = (bestFitVal>low && bestFitVal < high && bestFitErr >0.001 && bestFitErr < 99.) ;// nom->status();
     }
   }
   cout << "Best fit at:" << endl;
   cout << "\tnll = " << globalMinNLL << endl;
   cout << "\tmu  = " << bestFitVal << endl;
+  cout << "\terr  = "<< bestFitErr << endl;
   cout << "\tpdf = " << bestFitPdf->GetName() << endl;
-
-  low  = bestFitVal-2.5*bestFitErr;
-  high = bestFitVal+2.5*bestFitErr;
-  std::vector<float> scanValues;
+ 
   stepsize=stepsize*bestFitErr;
+  if (!fitOk){
+	low = -1*high;
+	high = high;
+	stepsize = (high-low)/3;
+  } else {
+   low  = bestFitVal-2.5*bestFitErr;
+   high = bestFitVal+2.5*bestFitErr;
+  }
+  std::vector<float> scanValues;
   for (float v=low; v<(high+stepsize); v+=stepsize){
     scanValues.push_back(v);	
-    if (v<bestFitVal && v+stepsize>bestFitVal) scanValues.push_back((float)bestFitVal);
+    if (fitOk && v<bestFitVal && v+stepsize>(bestFitVal+stepsize/10.)){ // dont add it if its very close since 
+	scanValues.push_back((float)bestFitVal);
+    }
   }
+  std::cout << "N Points to scan == " << scanValues.size() <<std::endl;
+  var->setRange(low-0.5*fabs(low),high+0.5*fabs(high));
   // now perform the scan
   cout << "Scanning...." << endl;
   for (map<string,pair<RooAbsPdf*,float> >::iterator m=listOfPdfs.begin(); m!=listOfPdfs.end(); m++) { 
@@ -154,11 +169,16 @@ pair<double,map<string,TGraph*> > ProfileMultiplePdfs::profileLikelihood(RooAbsD
       var->setConstant(false);
       var->setVal(v);
       var->setConstant(true);
-      RooFitResult *scan = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
-      thisNLL->SetPoint(p,v,TMath::Min(25.,(2*scan->minNll()-globalMinNLL)));
-      addToResultMap(v,TMath::Min(25.,(2*scan->minNll()-globalMinNLL)),pdf);
+      if (fitOk){
+         RooFitResult *scan = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
+         thisNLL->SetPoint(p,v,TMath::Min(25.,(2*scan->minNll()-globalMinNLL)));
+         addToResultMap(v,TMath::Min(25.,(2*scan->minNll()-globalMinNLL)),pdf);
+         delete scan;
+      } else {
+         thisNLL->SetPoint(p,v,25);
+         addToResultMap(v,25.,pdf);
+      }
       p++;
-      delete scan;
     }
     cout << endl;
     thisNLL->SetName(Form("minnll_%s_%s",pdf->GetName(),data->GetName()));
@@ -256,6 +276,7 @@ pair<double,map<string,TGraph*> > ProfileMultiplePdfs::computeEnvelope(pair<doub
   envelopeNLL->SetTitle(bestFitPdf.c_str());
 	
   correctedMinNlls.insert(pair<string,TGraph*>("envelope",envelopeNLL));
+  std::cout << " Returning NLL Profile " << std::endl;
   return pair<double,map<string,TGraph*> >(envelopeMin,correctedMinNlls);
 
 }
@@ -263,12 +284,14 @@ pair<double,map<string,TGraph*> > ProfileMultiplePdfs::computeEnvelope(pair<doub
 // can include penalty here and will give envelope
 map<string,TGraph*> ProfileMultiplePdfs::profileLikelihoodEnvelope(RooAbsData *data, RooRealVar *var, float low, float high, float stepsize){
   
+  if (chosenPdfs.size()>0)chosenPdfs.clear();
   var->setConstant(false);
   var->setVal(0.);
   map<string,TGraph*> minNlls;
   TGraph *globalNLL = new TGraph();
   globalMinNLL=1.e6;
   // first find global minNll for reference point
+  bool fitOk = true;
   for (map<string,pair<RooAbsPdf*,float> >::iterator m=listOfPdfs.begin(); m!=listOfPdfs.end(); m++) { 
     RooAbsPdf *pdf = m->second.first;
     float penalty = m->second.second;
@@ -278,21 +301,33 @@ map<string,TGraph*> ProfileMultiplePdfs::profileLikelihoodEnvelope(RooAbsData *d
       bestFitVal = var->getVal();
       bestFitErr = var->getError();
       bestFitPdf = pdf;
+      fitOk = (bestFitVal>low && bestFitVal < high && bestFitErr >0.01 && bestFitErr < 99.) ;// nom->status();
     }
   }
   cout << "Best fit at:" << endl;
   cout << "\tnll = " << globalMinNLL << endl;
   cout << "\tmu  = " << bestFitVal << endl;
+  cout << "\terr  = "<< bestFitErr << endl;
   cout << "\tpdf = " << bestFitPdf->GetName() << endl;
 
-  low  = bestFitVal-2.5*bestFitErr;
-  high = bestFitVal+2.5*bestFitErr;
-  std::vector<float> scanValues;
   stepsize=stepsize*bestFitErr;
+
+  if (!fitOk){
+	low = -1*high;
+	high = high;
+	stepsize = (high-low)/3;
+  } else {
+   low  = bestFitVal-2.5*bestFitErr;
+   high = bestFitVal+2.5*bestFitErr;
+  }
+  std::vector<float> scanValues;
+  std::cout << "N Points to scan == " << (high-low) /stepsize <<std::endl;
+
   for (float v=low; v<(high+stepsize); v+=stepsize){
     scanValues.push_back(v);
-    if (v<bestFitVal && v+stepsize>bestFitVal) scanValues.push_back((float)bestFitVal);
+    if (fitOk && v<bestFitVal && v+stepsize>bestFitVal) scanValues.push_back((float)bestFitVal);
   }
+  var->setRange(low-0.5*fabs(low),high+0.5*fabs(high));
   // now perform the scan
   for (map<string,pair<RooAbsPdf*,float> >::iterator m=listOfPdfs.begin(); m!=listOfPdfs.end(); m++) { 
     RooAbsPdf *pdf = m->second.first;
@@ -304,14 +339,19 @@ map<string,TGraph*> ProfileMultiplePdfs::profileLikelihoodEnvelope(RooAbsData *d
       var->setConstant(false);
       var->setVal(v);
       var->setConstant(true);
-      RooFitResult *scan = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
+      if (fitOk) {
+	 RooFitResult *scan = pdf->fitTo(*data,PrintLevel(-1),PrintEvalErrors(-1),Warnings(false),Save(true));
       //RooFitResult *scan = pdf->fitTo(*data,Save(true));
-      thisNLL->SetPoint(p,v,(2*scan->minNll()-globalMinNLL+penalty));
-      addToResultMap(v,2*scan->minNll()-globalMinNLL+penalty,pdf);
+      	  thisNLL->SetPoint(p,v,(2*scan->minNll()-globalMinNLL+penalty));
+      	  addToResultMap(v,2*scan->minNll()-globalMinNLL+penalty,pdf);
+          delete scan;
+      } else {
+      	  thisNLL->SetPoint(p,v,(2*999));
+      	  addToResultMap(v,2*999,pdf);
+      }
       //thisNLL->SetPoint(p,v,(scan->minNll()+penalty));
       //addToResultMap(v,scan->minNll()+penalty,pdf);
       p++;
-      delete scan;
     }
     thisNLL->SetName(Form("minnll_%s_%s",pdf->GetName(),data->GetName()));
     minNlls.insert(pair<string,TGraph*>(thisNLL->GetName(),thisNLL));
@@ -352,15 +392,28 @@ void ProfileMultiplePdfs::plot(map<string,TGraph*> minNlls, string fname){
     envelope->SetLineWidth(2);
     envelope->SetLineColor(kRed);
     envelope->Draw("ALP");
+
+    TLatex *lat = new TLatex();
+    lat->SetTextSize(0.015);
+    lat->SetTextAngle(75.);
+
     for (map<string,TGraph*>::iterator it=minNlls.begin(); it!=minNlls.end(); it++){
       if (it->first!="envelope"){
         it->second->SetLineColor(kBlue+1);
         it->second->SetLineStyle(kDashed);
         it->second->Draw("LPsame");
+
+	TGraph *gr = getMinPoints(it->second);
+	double xx,yy;
+	if (gr) {
+		 gr->GetPoint(1,xx,yy);
+	         lat->DrawLatex(xx,yy,(it->first).c_str());
+	}
       }
     }
     canv->Print(Form("%s.pdf",fname.c_str()));
     delete canv;
+    delete lat;
   }
 
 }
@@ -597,39 +650,75 @@ pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndErrorLinear(TGra
 	// min
 	double miny=1.e8;
 	double x,y,minx;
+	int minP=0;
 	for (int p=0; p<graph->GetN(); p++){
 		graph->GetPoint(p,x,y);
 		if (y<miny){
 			miny=y;
 			minx=x;
+			minP=p;
 		}
 	}
+	if (minP==0 || minP==graph->GetN()) minx=failedResult.first;
+	//failedResult.first = minx;
 
   TGraph *lowPoints = getCrossingPointLow(graph,nll_crossing);
   TGraph *highPoints = getCrossingPointHigh(graph,nll_crossing);
-
+  
   if (!lowPoints || !highPoints) {
-    if (safemode) return failedResult;
-    else {	
+    //if (safemode) return failedResult;
+    if (!safemode){ //else {	
 			cout << "There aren't enough points" << endl;
 			exit(1);
 		}
   }
-
-	// low err
-	for (int p=0; p<lowPoints->GetN(); p++){
+	double eLow=0;
+	double eHigh=0;
+	double x0,x1;
+	double y0,y1;
+	double x2;
+	double y2;
+	if (lowPoints){
+	  // low err
+	  // Swap the order for EVALS	
+	  for (int p=0; p<lowPoints->GetN(); p++){
 		lowPoints->GetPoint(p,x,y);
 		lowPoints->SetPoint(p,y,x);
-	}
-	double eLow = lowPoints->Eval(nll_crossing);
+	  }
+	  lowPoints->GetPoint(0,x0,y0);
+	  lowPoints->GetPoint(1,x1,y1);
 
-	// high err
-	for (int p=0; p<highPoints->GetN(); p++){
+	  if (fabs(x0-x1) > 1){
+		double nsigma = TMath::Sqrt(x1);
+		eLow = minx-(minx-y1)/nsigma;
+	  } else {
+		eLow = lowPoints->Eval(nll_crossing);
+	  }
+	} else {
+		eLow = ((failedResult.second).first);
+	}
+
+	if (highPoints){
+	  // high err
+	  for (int p=0; p<highPoints->GetN(); p++){
 		highPoints->GetPoint(p,x,y);
 		highPoints->SetPoint(p,y,x);
+	  }
+	  highPoints->GetPoint(2,x2,y2);
+	  highPoints->GetPoint(1,x1,y1);
+	  //std::cout << "Points x ... " << x0 <<", " << x1 <<", "<< x2 <<std::endl;
+	  //std::cout << " y  " << y0 << ", " << ", " << y1 << ", " << y2 <<std::endl;
+	  if (fabs(x2-x1) > 1){
+	  	double nsigma = TMath::Sqrt(x1);
+		eHigh = minx+(y1-minx)/nsigma;
+	  } else {
+		eHigh = highPoints->Eval(nll_crossing);
+	  }
+	} else {
+		eHigh = ((failedResult.second).second);
+	
 	}
-	double eHigh = highPoints->Eval(nll_crossing);
-
+	  //std::cout << "Results min,low,high = " << minx << ", "<<eLow << ", " << eHigh << std::endl;
 	return make_pair(minx,make_pair(eLow,eHigh));
 }
 
@@ -669,6 +758,13 @@ pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndError(TGraph *gr
   TGraph *minPoints = getMinPoints(graph);
   TGraph *lowPoints = getCrossingPointLow(graph,nll_crossing);
   TGraph *highPoints = getCrossingPointHigh(graph,nll_crossing);
+  
+  if (minPoints) { 
+	double x,y;
+	minPoints->GetPoint(1,x,y);
+	failedResult.first =x;
+  
+  }
 
   if (!minPoints || !lowPoints || !highPoints) {
     if (safemode) return failedResult;
@@ -696,6 +792,15 @@ pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndErrorAsymm(TGrap
 vector<double> ProfileMultiplePdfs::getMinAndErrorAsymmVec(TGraph *graph, float sigma, float stepsize, bool safemode){
   
   pair<double,pair<double,double> > info = getMinAndError(graph,sigma,stepsize,safemode);
+  vector<double> res;
+  res.push_back(info.first);
+  res.push_back(info.first-info.second.first);
+  res.push_back(info.second.second-info.first);
+  return res;
+}
+vector<double> ProfileMultiplePdfs::getMinAndErrorLinearAsymmVec(TGraph *graph, float sigma, float stepsize, bool safemode){
+  
+  pair<double,pair<double,double> > info = getMinAndErrorLinear(graph,sigma,safemode);
   vector<double> res;
   res.push_back(info.first);
   res.push_back(info.first-info.second.first);
@@ -772,9 +877,14 @@ double ProfileMultiplePdfs::getPull(TGraph *nll, float trueVal, float stepsize, 
     else exit(1);
   }
 
-  pair<double,double> minP = quadInterpMin(minPoints,stepsize);
+  //pair<double,double> minP = quadInterpMin(minPoints,stepsize);
+  // Use linear for minimum
+   
+  double x,y;
+  minPoints->GetPoint(1,x,y);
   double truthNll = nll->Eval(trueVal);
-  double bestFitNll = minP.second;
+  double bestFitNll = y;
+  double bestFit    = x;
   
   if (truthNll<bestFitNll) {
     if (safemode) return 999.;
@@ -782,8 +892,18 @@ double ProfileMultiplePdfs::getPull(TGraph *nll, float trueVal, float stepsize, 
   }
 
   double factor=1.;
-  if (minP.first<trueVal) factor=-1.;
-  if (fabs(minP.first-trueVal)<=2*stepsize )return 0;
-  return TMath::Sqrt(truthNll-bestFitNll)*factor;
+  if (bestFit<trueVal) factor=-1.;
+  //if (fabs(x-trueVal)<=2*stepsize )return 0;
+  minPoints->GetPoint(0,x,y);
+  double nll0 = y;
+  minPoints->GetPoint(2,x,y);
+  double nll2 = y;
+  double nearestDist=0;
+  if (bestFit<trueVal) nearestDist = fabs(nll0-bestFitNll);
+  else  nearestDist = fabs(nll2-bestFitNll);
+
+  if ( (truthNll-bestFitNll) < nearestDist ) truthNll = minPoints->Eval(trueVal);//factor = 0;
+  if ( fabs(bestFit-trueVal)< 0.001) return 0;
+  return TMath::Sqrt(fabs(truthNll))*factor;  //always assume best fit is at 0 since by definition it is
 
 }
