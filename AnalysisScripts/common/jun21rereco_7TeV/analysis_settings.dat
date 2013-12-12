@@ -72,6 +72,8 @@ kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
 puTarget=aux/nov08_rereco.json.68000.pileup.root
+puTargets=
+puLumis=
 
 # ggh scale uncertainties (mva analyses)
 pdfWeightHist=aux/GF_mvasys.root
