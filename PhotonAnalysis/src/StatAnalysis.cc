@@ -1431,11 +1431,13 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
 		    <<"\tprobmva:"                    <<l.vtx_std_evt_mva->at(diphoton_id)
 		    << "\tpho1_e:"                    <<  lead_p4.E()
+		    << "\tpho1_EnScale:"               <<  lead_p4.E()/((TLorentzVector*)l.pho_p4->At(l.dipho_leadind[diphoton_id]))->Energy()
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
 		    << "\tpho1_phi:"                  <<  lead_p4.Phi()
 		    << "\tpho1_r9:"                   <<  lead_r9
 		    << "\tpho2_e:"                    <<  sublead_p4.E()
+		    << "\tpho2_EnScale:"               << sublead_p4.E()/ ((TLorentzVector*)l.pho_p4->At(l.dipho_subleadind[diphoton_id]))->Energy()
 		    << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
@@ -1479,7 +1481,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 			TLorentzVector* mysc_1 = (TLorentzVector*) l.el_std_sc->At(el_ind_1);
 			elVtx_1 = l.FindElectronVertex(el_ind_1);
 			std::vector<bool> veto_indices; veto_indices.clear();
-			l.PhotonsToVeto(mysc_1, 0.5, veto_indices, true);
+			l.PhotonsToVeto(mysc_1, drSC_ele, veto_indices, true);
 			if(!(l.ElectronMVACuts(el_ind_1, elVtx_1))){
 			    el_ind_1=-1;
 			}
@@ -1624,7 +1626,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
   
 		for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 		    TLorentzVector * j1p4 = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-		    if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    if(usePUjetveto){
+			if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    }
 		    if(fabs(j1p4->Eta()) > 4.7) continue;
 		
 		    bool isJet_LeadPho = false;
@@ -1748,6 +1752,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 
 		//costhetaStar
+		float vhHad_mass_dijet=-999;
 		float abs_cosThetaStar = -999;
 		if(category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories+nVHhadBtagCategories){
 		    if(myJets.first>-1 && myJets.second>-1){
@@ -1766,26 +1771,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 			abs_cosThetaStar = fabs(cosThetaStar);
 		    }
 		}
+		eventListText <<"\tvhHad_mass_dijet:"<<vhHad_mass_dijet;
 		eventListText <<"\tcosThetaStar:"<<abs_cosThetaStar;
-
-		//dijetmva
-		if(myVBF_MVA<-1.9 && myJets.first>-1 && myJets.second>-1){
-		    if( j1p4->Pt()>30. && j2p4->Pt()>20. && (*j1p4+*j2p4).M()>250.){
-			myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
-			myVBFcombined   = (useGbrVbfMva ? gbrVbfDiphoReader_->eval() : tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod) );
-		    }
-		}
-	    
-		if(myVBF_MVA<-1.9){
-		    myVBF_MVA=-999;   
-		    myVBFcombined=-999;   
-		}
-
-		
-		eventListText<<"\tdijetMVA:"<<myVBF_MVA
-			     <<"\tcombiMVA:"<<myVBFcombined;
-
-            
                 eventListText << endl;
         }
 

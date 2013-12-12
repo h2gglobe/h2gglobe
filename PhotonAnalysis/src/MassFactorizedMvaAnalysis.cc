@@ -1025,11 +1025,13 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
 		    <<"\tprobmva:"                    <<l.vtx_std_evt_mva->at(diphoton_id)
 		    << "\tpho1_e:"                    <<  lead_p4.E()
+		    << "\tpho1_EnScale:"               <<  lead_p4.E()/((TLorentzVector*)l.pho_p4->At(l.dipho_leadind[diphoton_id]))->Energy()
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
 		    << "\tpho1_phi:"                  <<  lead_p4.Phi()
 		    << "\tpho1_r9:"                   <<  lead_r9
 		    << "\tpho2_e:"                    <<  sublead_p4.E()
+		    << "\tpho2_EnScale:"               << sublead_p4.E()/ ((TLorentzVector*)l.pho_p4->At(l.dipho_subleadind[diphoton_id]))->Energy()
 		    << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
@@ -1101,10 +1103,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
 		TLorentzVector* myel_2;
 
-		if(el_ind_2!=-1){
+		if(el_ind_2!=-1 && el_ind_1 != -1){
 		    myel_2 = (TLorentzVector*) l.el_std_p4->At(el_ind_2);
 		    TLorentzVector* mysc_2 = (TLorentzVector*) l.el_std_sc->At(el_ind_2);
-		    if(!(myel_2->DeltaR(lead_p4)>0.5 && myel_2->DeltaR(sublead_p4)>0.5 && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70)){
+		    if(!(myel_2->DeltaR(lead_p4)>drSC_ele && myel_2->DeltaR(sublead_p4)>drSC_ele && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70)){
 			el_ind_2=-1;
 		    }
 		}
@@ -1221,7 +1223,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
   
 		for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 		    TLorentzVector * j1p4 = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-		    if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    if(usePUjetveto){
+			if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+		    }
 		    if(fabs(j1p4->Eta()) > 4.7) continue;
 		
 		    bool isJet_LeadPho = false;
@@ -1345,6 +1349,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
 
 		//costhetaStar
+		float vhHad_mass_dijet=-999;
 		float abs_cosThetaStar = -999;
 		if(category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories+nVHhadBtagCategories){
 		    if(myJets.first>-1 && myJets.second>-1){
@@ -1361,8 +1366,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    
 			float cosThetaStar = -H_Vstar.CosTheta();
 			abs_cosThetaStar = fabs(cosThetaStar);
+			vhHad_mass_dijet=dijet.M();
 		    }
 		}
+		eventListText <<"\tvhHad_mass_dijet:"<<vhHad_mass_dijet;
 		eventListText <<"\tcosThetaStar:"<<abs_cosThetaStar;
 
 		//dijetmva
