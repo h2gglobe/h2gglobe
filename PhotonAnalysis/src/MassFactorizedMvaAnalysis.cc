@@ -1130,17 +1130,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			<< "\tele1_phi:"                      << -999;
 		}
 	
-		if(el_ind_2!=-1) {
-		    eventListText
-			<< "\tele2_pt:"                      <<  myel_2->Pt()
-			<< "\tele2_eta:"                      <<  myel_2->Eta()
-			<< "\tele2_phi:"                      <<  myel_2->Phi();
-		}else{
-		    eventListText
-			<< "\tele2_pt:"                      <<  -999
-			<< "\tele2_eta:"                      << -999
-			<< "\tele2_phi:"                      << -999;
-		}
+		//if(el_ind_2!=-1 ) {
+		//    eventListText
+		//	<< "\tele2_pt:"                      <<  myel_2->Pt()
+		//	<< "\tele2_eta:"                      <<  myel_2->Eta()
+		//	<< "\tele2_phi:"                      <<  myel_2->Phi();
+		//}else{
+		//    eventListText
+		//	<< "\tele2_pt:"                      <<  -999
+		//	<< "\tele2_eta:"                      << -999
+		//	<< "\tele2_phi:"                      << -999;
+		//}
 
 		//muon selection
 		TLorentzVector* mymu_1;
