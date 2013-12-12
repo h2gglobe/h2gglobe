@@ -102,7 +102,7 @@ recorrectJets=0
 rerunJetMva=0
 recomputeJetWp=0
 
-reRunVtx=1
+reRunVtx=0
 rematchConversions=0
 
 ## vertex
@@ -116,7 +116,7 @@ tmvaPerEvtMethod=evtBDTG
 
 #Jet
 jetHandlerCfg=jetHandler_Legacy7TeV.py
-recorrectJets=1
+recorrectJets=0
 
 doInterferenceSmear=1
 

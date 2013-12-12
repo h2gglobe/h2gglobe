@@ -106,4 +106,4 @@ cuts jetanalysis/cuts_vbfcutb.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat baseline/analysis_settings_7TeV.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 scaleClusterShapes=1 scaleR9Only=1 scaleR9ForCicOnly=1
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat jun21rereco_7TeV/analysis_settings.dat jun21rereco_7TeV/statanalysis.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 scaleClusterShapes=1 scaleR9Only=1 scaleR9ForCicOnly=1
