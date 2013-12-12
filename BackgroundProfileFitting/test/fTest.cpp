@@ -218,12 +218,12 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
 double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooDataSet *data, std::string name){
 
   double prob;
-  int ntoys = 1000;
+  int ntoys = 500;
 
   // Routine to calculate the goodness of fit. 
   name+="_gofTest.pdf";
   RooRealVar norm("norm","norm",data->sumEntries(),0,10E6);
-  norm.removeRange();
+  //norm.removeRange();
 
   RooExtendPdf *pdf = new RooExtendPdf("ext","ext",*mpdf,norm);
 
@@ -237,10 +237,10 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooDataSet *data, std
   double chi2 = plot_chi2->chiSquare("pdf","data",np);
   std::cout << "Calculating GOF for pdf " << pdf->GetName() << ", using " <<np << " fitted parameters" <<std::endl;
 
-  // The first thing is to check if the number of entries in any bin is < 10 
+  // The first thing is to check if the number of entries in any bin is < 5 
   // if so, we don't rely on asymptotic approximations
  
-  if ((double)data->sumEntries()/nBinsForMass < 10 ){
+  if ((double)data->sumEntries()/nBinsForMass < 5 ){
 
     std::cout << "Running toys for GOF test " << std::endl;
     // store pre-fit params 
@@ -252,10 +252,11 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooDataSet *data, std
     int npass =0;
     std::vector<double> toy_chi2;
     for (int itoy = 0 ; itoy < ntoys ; itoy++){
+      std::cout << Form("\t.. %.1f %% complete\r",100*float(itoy)/ntoys) << std::flush;
       params->assignValueOnly(preParams);
       int nToyEvents = RandomGen->Poisson(ndata);
       RooDataHist *binnedtoy = pdf->generateBinned(RooArgSet(*mass),nToyEvents,0,1);
-      pdf->fitTo(*binnedtoy,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+      pdf->fitTo(*binnedtoy,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1),RooFit::Strategy(0));
 
       RooPlot *plot_t = mass->frame();
       binnedtoy->plotOn(plot_t);
@@ -264,8 +265,9 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooDataSet *data, std
       double chi2_t = plot_t->chiSquare(np);
       if( chi2_t>=chi2) npass++;
       toy_chi2.push_back(chi2_t*(nBinsForMass-np));
+      delete plot_t;
     }
-
+    std::cout << "complete" << std::endl;
     prob = (double)npass / ntoys;
 
     TCanvas *can = new TCanvas();

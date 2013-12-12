@@ -110,7 +110,8 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
     for mod in truth_models:
       histMap[type][mod] = r.TH1F('%s_mu%s'%(mod,type),'%s_mu%s'%(mod,type),meanB,meanL,meanH)
       histErrMap[type][mod] = r.TH1F('%s_mu%sErr'%(mod,type),'%s_mu%sErr'%(mod,type),errB,errL,errH)
-      histPullMap[type][mod] = r.TH1F('%s_mu%sPull'%(mod,type),'%s_mu%sPull'%(mod,type),pullB,pullL,pullH)
+      bWidth = (pullH-pullL)/pullB # so we can center at 0
+      histPullMap[type][mod] = r.TH1F('%s_mu%sPull'%(mod,type),'%s_mu%sPull'%(mod,type),pullB,pullL-bWidth/2,pullH-bWidth/2)
       histTypeMap[type][mod] = {}
       graphCovMap[type][mod] = []
       counterCovMap[type][mod] = []
@@ -142,27 +143,39 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
       type = graph.GetName().split('Envelope')[0]
       mytype = util[type]
      
+        
+      #muInfo = profiler.getMinAndErrorAsymmVec(graph,1.)
+      muInfo = profiler.getMinAndErrorLinearAsymmVec(graph,1.)
+      muVal = muInfo.at(0)
+      err_low = muInfo.at(1)
+      err_high  = muInfo.at(2)
+
+      # symmetric error
+      if abs(err_low)<99 and abs(err_high) <99 : sym_err = (err_low+err_high)/2.
+      elif abs(err_low)<99 : sym_err = err_low
+      elif abs(err_high)<99 : sym_err = err_high
+      else: sym_err = 9999
+
+      #if  sym_err <0.01 or ( abs(muVal-options.expectSignal) > 2*sym_err):
+      pull = profiler.getPull(graph,options.expectSignal) ## need to fit best fit and truth for this
+
+      """
+      if abs(pull)<0.25 :# doesnt work so well
+      #else: taken from L.Lyons but "seems odd" since distribution of mu should follow assymmetry of LH curve
+      if muVal<options.expectSignal : err = err_high 
+      else : err =  err_low
+      if err > 0: pull = (muVal-options.expectSignal)/err
+      else: pull=0
+      """
+	
+      if muVal>=99. or sym_err>=99.: continue# or abs(err_low)>99. or abs(err_high)>99.: continue
+
       # first find which pdf gave the best fit
       bfname = graph.GetTitle()
       if bfname in histTypeMap[mytype][truth].keys():
 	histTypeMap[mytype][truth][bfname]+=1
-      else :
+      elif bfname:
 	histTypeMap[mytype][truth][bfname]=1
-        
-      muInfo = profiler.getMinAndErrorAsymmVec(graph,1.)
-      muVal = muInfo.at(0)
-      err_low = muInfo.at(1)
-      err_high  = muInfo.at(2)
-      sym_err = (err_low+err_high)/2.
-
-      if muVal<options.expectSignal: pull = (muVal-options.expectSignal)/err_high	
-      else: pull = (muVal-options.expectSignal)/err_low
-
-      #pull = profiler.getPull(graph,options.expectSignal) ## need to fit best fit and truth for this
-	
-      #print truth, mytype, '%4.2f  %4.2f  %4.2f  %4.2f'%(muVal,err_low,err_high,sym_err)
-      
-      if muVal>=999. or sym_err>=999. or sym_err<0.001: continue
 
       histMap[mytype][truth].Fill(muVal)
       histErrMap[mytype][truth].Fill(sym_err)
@@ -202,8 +215,10 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
       for c, covCounter in enumerate(covArray):
         nPass = float(covCounter[0])
         nTotal = float(covCounter[1])
-        covVal = nPass/nTotal
-        covErr = r.TMath.Sqrt((covVal*(1.-covVal))/nTotal)
+	if nTotal!=0:        covVal = nPass/nTotal
+	else: covVal = 0
+        if nTotal!=0: covErr = r.TMath.Sqrt((covVal*(1.-covVal))/nTotal)
+	else :covErr = 0
         graphCovMap[type][truth][c].SetPoint(0,options.expectSignal,covVal)
         graphCovMap[type][truth][c].SetPointError(0,0.5,covErr)
         graphCovMap[type][truth][c].Write()
