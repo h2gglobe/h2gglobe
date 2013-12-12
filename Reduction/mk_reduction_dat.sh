@@ -59,15 +59,15 @@
 ## rm mc_Summer12_RD1/*.dat
 ## ./AnalysisScripts/mk_reduction_dat.py - ${storedir}/mc/Summer12_RD1 mc_Summer12_RD1.txt
 ## 
-rm data2012_RERECO/*.dat
-./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/data data2012_RERECO.txt
+## rm data2012_RERECO/*.dat
+## ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/data data2012_RERECO.txt
 
-## ## Jun21 7TeV re-reco 
-## rm mc_7TeV/*.dat
-## ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_11/mc/ReReco2011 ${storedir}/mc mc_7TeV.txt
-## 
-## rm data_7TeV/*.dat
-## ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_11/data ${storedir}/data data_7TeV.txt
+## Jun21 7TeV re-reco 
+rm mc_7TeV/*.dat
+./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_11/mc/ReReco2011 ${storedir}/mc mc_7TeV.txt
+
+rm data_7TeV/*.dat
+./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_11/data ${storedir}/data data_7TeV.txt
 
 wd=$PWD
 cd AnalysisScripts

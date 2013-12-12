@@ -6154,7 +6154,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV7(LoopAll &l, int ipho,
     double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
     _vals[9] = bcpos->Eta()-sc->Eta();
-    _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[10] = bcpos->DeltaPhi(*sc);
     _vals[11] = bcE/l.sc_raw[sc_index];
     _vals[12] = be3x3/be5x5;
     _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -6261,7 +6261,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
     _vals[10] = bcpos->Eta()-sc->Eta();
-    _vals[11] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[11] = bcpos->DeltaPhi(*sc);
     _vals[12] = bcE/l.sc_raw[sc_index];
     _vals[13] = be3x3/be5x5;
     _vals[14] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -6292,7 +6292,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     _vals[31] = (bieta-1*std::abs(bieta)/bieta)%5;; //submodule boundary eta symmetry
     _vals[32] = (biphi-1)%2; //submodule boundary phi symmetry
     _vals[33] = (TMath::Abs(bieta)<=25)*((bieta-1*TMath::Abs(bieta)/bieta)%25) + (TMath::Abs(bieta)>25)*((bieta-26*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
-    _vals[34] = biphi%20; //module boundary phi symmetry
+    _vals[34] = (biphi-1)%20; //module boundary phi symmetry
     _vals[35] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
     _vals[36] = l.pho_phicry[ipho];//bphicry;
 
