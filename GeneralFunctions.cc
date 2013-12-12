@@ -4947,7 +4947,7 @@ void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & dip
       }
       if(mu_ind_2!=-1){
 	TLorentzVector* mymu_2 = (TLorentzVector*) mu_glo_p4->At(mu_ind_2);
-	if(MuonPhotonCuts2012B(lead_p4_1,sublead_p4_1,mymu_2,deltaRcut) && (*mymu_1+*mymu_2).M()<110 && (*mymu_1+*mymu_2).M()>70){
+	if(MuonPhotonCuts2012B(lead_p4_1,sublead_p4_1,mymu_1,deltaRcut) && MuonPhotonCuts2012B(lead_p4_1,sublead_p4_1,mymu_2,deltaRcut) && (*mymu_1+*mymu_2).M()<110 && (*mymu_1+*mymu_2).M()>70){
 	  VHlep1event=true;
 	  VHlep2event=false;
 	  diphotonVHlep_id = diphotonVHlep_id_1;
@@ -4995,7 +4995,7 @@ void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int &
       if(el_ind_2!=-1){
 	TLorentzVector* myel_2 = (TLorentzVector*) el_std_p4->At(el_ind_2);
 	TLorentzVector* mysc_2 = (TLorentzVector*) el_std_sc->At(el_ind_2);
-	if(ElectronPhotonCuts2012B(lead_p4_1,sublead_p4_1,*myel_2,true,deltaRcut) && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70){
+	if(ElectronPhotonCuts2012B(lead_p4_1,sublead_p4_1,*myel_1,true,deltaRcut) && ElectronPhotonCuts2012B(lead_p4_1,sublead_p4_1,*myel_2,true,deltaRcut) && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70){
 	  VHlep1event=true;
 	  VHlep2event=false;
 	  diphotonVHlep_id = diphotonVHlep_id_1;
