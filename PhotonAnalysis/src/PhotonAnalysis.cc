@@ -3300,9 +3300,9 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     //}
     //l.vtx_std_ranked_list->insert(l.vtx_std_ranked_list->begin(),elVtx);
     float vtx_mva = -0.9;// vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back()  );
-    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     // easy to calculate vertex probability from vtx mva output
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
@@ -3538,9 +3538,9 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     //}
     //l.vtx_std_ranked_list->insert(l.vtx_std_ranked_list->begin(),elVtx);
     float vtx_mva = -0.9;// vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back()  );
-    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     // easy to calculate vertex probability from vtx mva output
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
@@ -5550,8 +5550,8 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
     MassResolution tempMassRes;
 
     tempMassRes.Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
-    double sigMright = tempMassRes.massResolutionEonlyNoSmear();
-    double sigMwrong = tempMassRes.massResolutionWrongVtxNoSmear();
+    double sigMright = tempMassRes.relMassResolutionEonlyNoSmear();
+    double sigMwrong = tempMassRes.relMassResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
     return result;
 }
@@ -5988,9 +5988,9 @@ float PhotonAnalysis::getDiphoBDTOutput(LoopAll &l,int diphoton_id, TLorentzVect
     massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphoton_id]],&photonInfoCollection[l.dipho_subleadind[diphoton_id]],0,//default vertex
 				    massResoPars,nR9Categories,nEtaCategories,beamspotSigma,true);
 
-    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionCorrVtx();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     
     //diphoton mva                                                                                                                                                     
     float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             

@@ -972,14 +972,20 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // save trees for unbinned datacards
         int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.normalizer()->GetMass(cur_type))<0.001) {
-            saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,GetSignalLabel(cur_type,l),sigmaMrv,sigmaMwv,sigmaMrv,vtxProb,bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+            saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],
+			    lead_p4,sublead_p4,false,GetSignalLabel(cur_type,l),
+			    sigmaMrv,sigmaMwv,sigmaMrv,vtxProb,bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
+			    phoid_mvaout_lead,phoid_mvaout_sublead);
         }
 
         // save trees for IC spin analysis
         if (!isSyst && saveSpinTrees_) {
-            saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
+            saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,
+			 massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),
+			 massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),
+			 vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
         }
-
+	
         // save trees for VBF
         if (!isSyst && cur_type<0 && saveVBFTrees_) {
             saveVBFTree(l, category, evweight, diphobdt_output);
@@ -2314,8 +2320,8 @@ void MassFactorizedMvaAnalysis::ComputeDiphoMvaInputs(LoopAll &l, float &phoid_m
                                     diphoton_id,massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
     
     float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
-    sigmaMrv = massResolutionCalculator->massResolutionEonly();
-    sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+    sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+    sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
     
     vtxAna_.setPairID(diphoton_id); 
     vtxProb = vtxAna_.vertexProbability(vtx_mva);

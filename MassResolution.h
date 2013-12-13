@@ -68,23 +68,29 @@ class MassResolution {
 
     double beamspotSigma;
 
-   // double massResolution();
-    double massResolutionCorrVtx();
-    double massResolutionWrongVtx();
-    double massResolutionEonly();
-    double massResolutionAonly();
-    double massResolutionEonlyNoSmear();
-    double massResolutionCorrVtxNoSmear();
-    double massResolutionWrongVtxNoSmear();
+   // double relMassResolution();
+    double relMassResolutionCorrVtx();
+    double relMassResolutionWrongVtx();
+    double relMassResolutionEonly();
+    double relMassResolutionAonly();
+    double relMassResolutionEonlyNoSmear();
+    double relMassResolutionCorrVtxNoSmear();
+    double relMassResolutionWrongVtxNoSmear();
 
-    double leadPhotonResolution();
-    double subleadPhotonResolution();
+    double leadRelPhotonResolution();
+    double subleadRelPhotonResolution();
     
-    double leadPhotonResolutionNoSmear();
-    double subleadPhotonResolutionNoSmear();
+    double leadRelPhotonResolutionNoSmear();
+    double subleadRelPhotonResolutionNoSmear();
+
+    double leadPhotonResolution() { return leadRelPhotonResolution() * leadPhoton->corrEnergy(); };
+    double subleadPhotonResolution() { return subleadRelPhotonResolution() * subleadPhoton->corrEnergy(); };
+    
+    double leadPhotonResolutionNoSmear() { return leadRelPhotonResolutionNoSmear() * leadPhoton->corrEnergy(); };
+    double subleadPhotonResolutionNoSmear() { return subleadRelPhotonResolutionNoSmear() * subleadPhoton->corrEnergy(); };
   
   private:
-    double getPhotonResolution(double,double, const PhotonReducedInfo &);
+    double getRelPhotonResolution(double, const PhotonReducedInfo &);
     
     double angleResolution();
     double angleResolutionCorrVtx();

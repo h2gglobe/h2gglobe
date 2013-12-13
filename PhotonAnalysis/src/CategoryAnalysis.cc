@@ -456,9 +456,9 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 
       massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
       float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
-      float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-      float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-      float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+      float sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+      float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+      float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
       // easy to calculate vertex probability from vtx mva output
       float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
