@@ -25,8 +25,8 @@ void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReduce
   //lead_sc_pos    = leadPhoton->caloPosition();
   //sublead_sc_pos = subleadPhoton->caloPosition();
 
-  lead_Eres    = leadPhoton->corrEnergyErr();
-  sublead_Eres = subleadPhoton->corrEnergyErr();
+  lead_Eres    = leadPhoton->corrEnergyErr() / leadPhoton->corrEnergy();
+  sublead_Eres = subleadPhoton->corrEnergyErr() / subleadPhoton->corrEnergy();
 
   lead_r9      = leadPhoton->r9();
   sublead_r9   = subleadPhoton->r9();
@@ -40,16 +40,6 @@ void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReduce
   higgsMass=(lead_p4+sublead_p4).M();
   _eSmearPars=eSmearPars;
 
-/*  std::cout << "Inside the mmassreso calc -- E1 - " <<leadPhoton->energy() <<std::endl;
-  std::cout << "Inside the mmassreso calc -- E2 - " <<subleadPhoton->energy() <<std::endl;
-  std::cout << "Inside the mmassreso calc -- r91 - " <<lead_r9 <<std::endl;
-  std::cout << "Inside the mmassreso calc -- r92 - " <<sublead_r9 <<std::endl;
-  std::cout << "Inside the mmassreso calc -- mass - " <<higgsMass <<std::endl;
-  std::cout << "Inside the mmassreso calc -- calopos Eta1 - " <<leadPhoton->caloPosition().Eta() <<std::endl;
-  std::cout << "Inside the mmassreso calc -- calopos Eta2 - " <<subleadPhoton->caloPosition().Eta() <<std::endl;
-*/
-
-
 }
 
 
@@ -59,89 +49,72 @@ void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReduce
 
 }
 // return the mass resolution given correct vertex
-double MassResolution::massResolutionCorrVtx(){
+double MassResolution::relMassResolutionCorrVtx(){
 
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
-  double lead_E = lead_p4.E();
-  double sublead_E = sublead_p4.E();
   double alpha = lead_p4.Angle(sublead_p4.Vect());
-  double lead_sig = leadPhotonResolution();
-  double sublead_sig = subleadPhotonResolution();
+  double lead_sig = leadRelPhotonResolution();
+  double sublead_sig = subleadRelPhotonResolution();
   double alpha_sig = angleResolutionCorrVtx();
   
-  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+  return 0.5*TMath::Sqrt((lead_sig*lead_sig)+(sublead_sig*sublead_sig)
+			 +((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
 }
 
-double MassResolution::massResolutionCorrVtxNoSmear(){
+double MassResolution::relMassResolutionCorrVtxNoSmear(){
 
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
-  double lead_E = lead_p4.E();
-  double sublead_E = sublead_p4.E();
   double alpha = lead_p4.Angle(sublead_p4.Vect());
-  double lead_sig = leadPhotonResolutionNoSmear();
-  double sublead_sig = subleadPhotonResolutionNoSmear();
+  double lead_sig = leadRelPhotonResolutionNoSmear();
+  double sublead_sig = subleadRelPhotonResolutionNoSmear();
   double alpha_sig = angleResolutionCorrVtx();
   
-  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+  return 0.5*TMath::Sqrt((lead_sig*lead_sig)+(sublead_sig*sublead_sig)
+			 +((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
 }
 // return the mass resolution wrong vertex
-double MassResolution::massResolutionWrongVtx(){
+double MassResolution::relMassResolutionWrongVtx(){
   
-//  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
-//  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
-
-//  double lead_E = lead_p4.E();
-//  double sublead_E = sublead_p4.E();
-//  double alpha = lead_p4.Angle(sublead_p4.Vect());
-//  double lead_sig = leadPhotonResolution();
-//  double sublead_sig = subleadPhotonResolution();
-  double alpha_sig = higgsMass*0.5*angleResolutionWrongVtx();
+  double alpha_sig = 0.5*angleResolutionWrongVtx();
   
-   double sigmaM = massResolutionEonly();
-//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)));
+  double sigmaM = relMassResolutionEonly();
   return TMath::Sqrt((sigmaM*sigmaM)+(alpha_sig*alpha_sig));
-
 }
 
-double MassResolution::massResolutionWrongVtxNoSmear(){
-  double alpha_sig = higgsMass*0.5*angleResolutionWrongVtx();
+double MassResolution::relMassResolutionWrongVtxNoSmear(){
+  double alpha_sig = 0.5*angleResolutionWrongVtx();
   
-   double sigmaM = massResolutionEonlyNoSmear();
-//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)));
+  double sigmaM = relMassResolutionEonlyNoSmear();
   return TMath::Sqrt((sigmaM*sigmaM)+(alpha_sig*alpha_sig));
 }
 
 // return energy contribution to mass resolution only
-double MassResolution::massResolutionEonly() {
+double MassResolution::relMassResolutionEonly() {
 
-  double lead_E = leadPhoton->energy();
-  double sublead_E = subleadPhoton->energy();
-  double lead_sig = leadPhotonResolution();
-  double sublead_sig = subleadPhotonResolution();
+  double lead_sig = leadRelPhotonResolution();
+  double sublead_sig = subleadRelPhotonResolution();
 
-  return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
+  return 0.5*TMath::Sqrt((lead_sig*lead_sig)+(sublead_sig*sublead_sig));
 }
 
-double MassResolution::massResolutionEonlyNoSmear(){
+double MassResolution::relMassResolutionEonlyNoSmear(){
   
-  double lead_E = leadPhoton->energy();
-  double sublead_E = subleadPhoton->energy();
-  double lead_sig = leadPhotonResolutionNoSmear();
-  double sublead_sig = subleadPhotonResolutionNoSmear();
+  double lead_sig = leadRelPhotonResolutionNoSmear();
+  double sublead_sig = subleadRelPhotonResolutionNoSmear();
 
-  return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
+  return 0.5*TMath::Sqrt((lead_sig*lead_sig)+(sublead_sig*sublead_sig));
 
 }
 
-double MassResolution::massResolutionAonly(){
-	double aRes = angleResolution();
-	return 0.5*higgsMass*aRes;
+double MassResolution::relMassResolutionAonly(){
+  double aRes = angleResolution();
+  return 0.5*aRes;
 }
 
 
@@ -160,36 +133,32 @@ double MassResolution::angleResolution() {
   return propagateDz(dzResolution());
 }
 // return lead photon resolution without smearing
-double MassResolution::leadPhotonResolutionNoSmear() {
+double MassResolution::leadRelPhotonResolutionNoSmear() {
   return lead_Eres;
 }
 // return sublead photon resolution without smearing
-double MassResolution::subleadPhotonResolutionNoSmear() {
+double MassResolution::subleadRelPhotonResolutionNoSmear() {
   return sublead_Eres;
 }
 // return lead photon resolution 
-double MassResolution::leadPhotonResolution() {
-  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+double MassResolution::leadRelPhotonResolution() {
   bool sphericalLeadPhoton_=leadPhoton->isSphericalPhoton();
-//  std::cout << " MassResolution -- Lead special ? " << sphericalLeadPhoton_ <<std::endl;
-  return getPhotonResolution(lead_p4.E(),lead_Eres, *leadPhoton);
+  return getRelPhotonResolution(lead_Eres, *leadPhoton);
 }
 // return sublead photon resolution
-double MassResolution::subleadPhotonResolution() {
-  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+double MassResolution::subleadRelPhotonResolution() {
   bool sphericalSubleadPhoton_=subleadPhoton->isSphericalPhoton();
-//  std::cout << " MassResolution -- SubLead special ? " << sphericalSubleadPhoton_ <<std::endl;
-  return getPhotonResolution(sublead_p4.E(),sublead_Eres,*subleadPhoton);
+  return getRelPhotonResolution(sublead_Eres,*subleadPhoton);
 }
 
 // Actually compute resolution given a photon
-double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, const PhotonReducedInfo &info) {
+double MassResolution::getRelPhotonResolution(double photonResolution, const PhotonReducedInfo &info) {
   
   // Get the photon-category sigma
   std::string myCategory = EnergySmearer::photonCategory(_eSmearPars, info);
 
-  double categoryResolution = EnergySmearer::getSmearingSigma(_eSmearPars, myCategory, photonEnergy, info.caloPosition().Eta(),
-							      0.)*photonEnergy;
+  double categoryResolution = EnergySmearer::getSmearingSigma(_eSmearPars, myCategory, info.corrEnergy(), 
+							      info.caloPosition().Eta(), 0.);
   return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
 }

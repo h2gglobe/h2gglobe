@@ -509,13 +509,13 @@ Float_t LoopAll::diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadi
         tmva_dipho_UCSD_sumptom = (leadPt+subleadPt)/mass;
         tmva_dipho_UCSD_subleadmva = photonIDMVA2011(subleadingPho, vtx,leadP4, "UCSD");
         tmva_dipho_UCSD_leadmva = photonIDMVA2011(leadingPho, vtx,subleadP4, "UCSD");
-        // tmva_dipho_UCSD_dmom = sigmaMrv/mass;
-        tmva_dipho_UCSD_dmom = sigmaMeonly/mass;
+        // tmva_dipho_UCSD_dmom = sigmaMrv;
+        tmva_dipho_UCSD_dmom = sigmaMeonly;
   
         mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
     } else {
-        *tmva_dipho_MIT_dmom = sigmaMrv/mass;
-        *tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv/mass;
+        *tmva_dipho_MIT_dmom = sigmaMrv;
+        *tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv;
         *tmva_dipho_MIT_vtxprob = vtxProb;
         *tmva_dipho_MIT_ptom1 = leadPt/mass;
         *tmva_dipho_MIT_ptom2 = subleadPt/mass;
