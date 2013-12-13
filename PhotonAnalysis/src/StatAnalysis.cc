@@ -1431,13 +1431,13 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
 		    <<"\tprobmva:"                    <<l.vtx_std_evt_mva->at(diphoton_id)
 		    << "\tpho1_e:"                    <<  lead_p4.E()
-		    << "\tpho1_EnScale:"              <<  lead_p4.E()/((TLorentzVector*)l.pho_p4->At(l.dipho_leadind[diphoton_id]))->Energy()
+		    << "\tpho1_EnScale:"              <<  lead_p4.E()/energyCorrected[l.dipho_leadind[diphoton_id]]
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadRelPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
 		    << "\tpho1_phi:"                  <<  lead_p4.Phi()
 		    << "\tpho1_r9:"                   <<  lead_r9
 		    << "\tpho2_e:"                    <<  sublead_p4.E()
-		    << "\tpho2_EnScale:"              << sublead_p4.E()/ ((TLorentzVector*)l.pho_p4->At(l.dipho_subleadind[diphoton_id]))->Energy()
+		    << "\tpho2_EnScale:"              << sublead_p4.E()/energyCorrected[l.dipho_subleadind[diphoton_id]]
 		    << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadRelPhotonResolutionNoSmear()
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
