@@ -2706,8 +2706,8 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     if(diphobdt_output>-2){
         vtxAna_.setPairID(diphoton_id);
         std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
-        l.FillTree("sigmaMrvoM", (float)sigmaMrv/mass);
-        l.FillTree("sigmaMwvoM", (float)sigmaMwv/mass);
+        l.FillTree("sigmaMrvoM", (float)sigmaMrv);
+        l.FillTree("sigmaMwvoM", (float)sigmaMwv);
         
         //if (l.itype[l.current] == 3) {
         //    Int_t bin = weightHist->FindBin((float)Higgs.Pt());

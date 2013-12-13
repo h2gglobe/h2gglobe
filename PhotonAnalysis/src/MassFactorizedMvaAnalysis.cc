@@ -1512,8 +1512,8 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
     l.FillTree("pho2_scEpresh",pho2_scEpresh);
     l.FillTree("pho2_isconv",l.pho_isconv[sublead]);
 
-    l.FillTree("sigmaMOverM",sigmaMrv/mass);
-    l.FillTree("sigmaMOverM_wrongVtx",sigmaMwv/mass);
+    l.FillTree("sigmaMOverM",sigmaMrv);
+    l.FillTree("sigmaMOverM_wrongVtx",sigmaMwv);
     l.FillTree("vtxProb",vtxProb);
     l.FillTree("cosDeltaPhi",cos_dphi);
 
@@ -1564,8 +1564,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
     float cos_dphi = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
     //float pho1_sigmaE = energyCorrectedError[lead];
     //float pho2_sigmaE = energyCorrectedError[sublead];
-    float pho1_sigmaE = photonInfoCollection[lead].corrEnergyErr();
-    float pho2_sigmaE = photonInfoCollection[sublead].corrEnergyErr();
+    float pho1_sigmaE = photonInfoCollection[lead].corrEnergyErr() / photonInfoCollection[lead].corrEnergy();
+    float pho2_sigmaE = photonInfoCollection[sublead].corrEnergyErr() / photonInfoCollection[sublead].corrEnergy() ;
 
     l.FillHist("mass",0, mass, evweight);
     if (category>-1) l.FillHist("mass",category+1, mass, evweight);
@@ -1668,10 +1668,10 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("bdtout_highR9_up",etacat,diphobdt_output_up,evweight);
 	    l.FillHist("bdtout_highR9_down",etacat,diphobdt_output_down,evweight);
 
-	    l.FillHist("sigmaMOverM_highR9",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_highR9",0,sigmaMwv/mass, evweight);
-	    l.FillHist("sigmaMOverM_highR9",etacat,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_highR9",etacat,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_highR9",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_highR9",0,sigmaMwv, evweight);
+	    l.FillHist("sigmaMOverM_highR9",etacat,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_highR9",etacat,sigmaMwv, evweight);
 	} else if (lead_r9<0.9 && sublead_r9<0.9) {
 	    l.FillHist("bdtout_lowR9",0,diphobdt_output,evweight);
 	    l.FillHist("bdtout_lowR9_up",0,diphobdt_output_up,evweight);
@@ -1680,10 +1680,10 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("bdtout_lowR9_up",etacat,diphobdt_output_up,evweight);
 	    l.FillHist("bdtout_lowR9_down",etacat,diphobdt_output_down,evweight);
 
-	    l.FillHist("sigmaMOverM_lowR9",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",0,sigmaMwv/mass, evweight);
-	    l.FillHist("sigmaMOverM_lowR9",etacat,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",etacat,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_lowR9",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",0,sigmaMwv, evweight);
+	    l.FillHist("sigmaMOverM_lowR9",etacat,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",etacat,sigmaMwv, evweight);
 	} else {
 	    l.FillHist("bdtout_mixedR9",0,diphobdt_output,evweight);
 	    l.FillHist("bdtout_mixedR9_up",0,diphobdt_output_up,evweight);
@@ -1692,10 +1692,10 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("bdtout_mixedR9_up",etacat,diphobdt_output_up,evweight);
 	    l.FillHist("bdtout_mixedR9_down",etacat,diphobdt_output_down,evweight);
 
-	    l.FillHist("sigmaMOverM_mixedR9",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",0,sigmaMwv/mass, evweight);
-	    l.FillHist("sigmaMOverM_mixedR9",etacat,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",etacat,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_mixedR9",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",0,sigmaMwv, evweight);
+	    l.FillHist("sigmaMOverM_mixedR9",etacat,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",etacat,sigmaMwv, evweight);
 	}
 
 	l.FillHist("nvtx",0, l.vtx_std_n, evweight);
@@ -1711,15 +1711,15 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	if (passCiC) l.FillHist2D("pho2R9_vs_pho1R9_passCiC",0, lead_r9, sublead_r9, evweight);
 
 	if (fabs(lead_p4.Eta()) < 1.5) {
-	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EB",0, phoid_mvaout_lead, pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EB",0, lead_p4.Pt()/mass, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EB",0, phoid_mvaout_lead, pho1_sigmaE, evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EB",0, lead_p4.Pt()/mass, pho1_sigmaE, evweight);
 	    l.FillHist2D("pho1_idmvaVsPtOverM_EB",0, lead_p4.Pt()/mass, phoid_mvaout_lead, evweight);
 	} else {
-	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EE",0, phoid_mvaout_lead, pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EE",0, lead_p4.Pt()/mass, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EE",0, phoid_mvaout_lead, pho1_sigmaE, evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EE",0, lead_p4.Pt()/mass, pho1_sigmaE, evweight);
 	    l.FillHist2D("pho1_idmvaVsPtOverM_EE",0, lead_p4.Pt()/mass, phoid_mvaout_lead, evweight);
 	}
-	l.FillHist2D("pho1_sigmaEOverEVsEta",0, lead_p4.Eta(), pho1_sigmaE/lead_p4.E(), evweight);
+	l.FillHist2D("pho1_sigmaEOverEVsEta",0, lead_p4.Eta(), pho1_sigmaE, evweight);
 	l.FillHist2D("pho1_idmvaVsEta",0, lead_p4.Eta(), phoid_mvaout_lead, evweight);
 
 	if (fabs(sublead_p4.Eta()) < 1.5) {
@@ -1735,13 +1735,13 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	l.FillHist2D("pho2_idmvaVsEta",0, sublead_p4.Eta(), phoid_mvaout_sublead, evweight);
 
 	if (fabs(lead_p4.Eta()) < 1.4442) {
-	    l.FillHist("pho1_sigmaEOverE_EB",0,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_EB_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_EB_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_EB",0,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_EB_up",0,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_EB_down",0,(pho1_sigmaE*0.9), evweight);
 	} else {
-	    l.FillHist("pho1_sigmaEOverE_EE",0,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_EE_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_EE_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_EE",0,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_EE_up",0,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_EE_down",0,(pho1_sigmaE*0.9), evweight);
 	}
 
 	if (fabs(sublead_p4.Eta()) < 1.4442) {
@@ -1763,25 +1763,25 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	else if (lead_p4.Eta() < 2.0) {etacat=6;}
 	else {etacat=7;}
 	if (lead_r9<0.88) {
-	    l.FillHist("pho1_sigmaEOverE_lowR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_lowR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_lowR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_lowR9",etacat,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_lowR9_up",etacat,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_lowR9_down",etacat,(pho1_sigmaE*0.9), evweight);
 	    l.FillHist("pho1_phoidMva_lowR9",etacat,phoid_mvaout_lead, evweight);
 	    l.FillHist("pho1_phoidMva_lowR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
 	    l.FillHist("pho1_phoidMva_lowR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
 	    l.FillHist("pho1_eta_lowR9",0,lead_p4.Eta(), evweight);
 	} else if (lead_r9<0.94){
-	    l.FillHist("pho1_sigmaEOverE_midR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_midR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_midR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_midR9",etacat,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_midR9_up",etacat,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_midR9_down",etacat,(pho1_sigmaE*0.9), evweight);
 	    l.FillHist("pho1_phoidMva_midR9",etacat,phoid_mvaout_lead, evweight);
 	    l.FillHist("pho1_phoidMva_midR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
 	    l.FillHist("pho1_phoidMva_midR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
 	    l.FillHist("pho1_eta_midR9",0,lead_p4.Eta(), evweight);
 	} else {
-	    l.FillHist("pho1_sigmaEOverE_highR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_highR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_highR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_highR9",etacat,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_highR9_up",etacat,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_highR9_down",etacat,(pho1_sigmaE*0.9), evweight);
 	    l.FillHist("pho1_phoidMva_highR9",etacat,phoid_mvaout_lead, evweight);
 	    l.FillHist("pho1_phoidMva_highR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
 	    l.FillHist("pho1_phoidMva_highR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
@@ -1864,8 +1864,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
 	l.FillHist("pho1_phoidMva",0,phoid_mvaout_lead, evweight);
 	l.FillHist("pho2_phoidMva",0,phoid_mvaout_sublead, evweight);
-	l.FillHist("sigmaMOverM",0,sigmaMrv/mass, evweight);
-	l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv/mass, evweight);
+	l.FillHist("sigmaMOverM",0,sigmaMrv, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv, evweight);
 	l.FillHist("vtxProb",0,vtxProb, evweight);
 	l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/mass, evweight);
 	l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/mass, evweight);
@@ -1875,12 +1875,12 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
 	l.FillHist("r9",0,lead_r9, evweight);
 	l.FillHist("r9",0,sublead_r9, evweight);
-	l.FillHist("pho1_sigmaEOverE",0,pho1_sigmaE/lead_p4.E(), evweight);
-	l.FillHist("pho1_sigmaEOverE_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	l.FillHist("pho1_sigmaEOverE_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
-	l.FillHist("pho2_sigmaEOverE",0,pho2_sigmaE/sublead_p4.E(), evweight);
-	l.FillHist("pho2_sigmaEOverE_up",0,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
-	l.FillHist("pho2_sigmaEOverE_down",0,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	l.FillHist("pho1_sigmaEOverE",0,pho1_sigmaE, evweight);
+	l.FillHist("pho1_sigmaEOverE_up",0,(pho1_sigmaE*1.1), evweight);
+	l.FillHist("pho1_sigmaEOverE_down",0,(pho1_sigmaE*0.9), evweight);
+	l.FillHist("pho2_sigmaEOverE",0,pho2_sigmaE, evweight);
+	l.FillHist("pho2_sigmaEOverE_up",0,(pho2_sigmaE*1.1), evweight);
+	l.FillHist("pho2_sigmaEOverE_down",0,(pho2_sigmaE*0.9), evweight);
 
 	l.FillHist2D("pho1_r9VsEta",0, lead_p4.Eta(), lead_r9, evweight);
 	l.FillHist2D("pho2_r9VsEta",0, sublead_p4.Eta(), sublead_r9, evweight);
@@ -1905,8 +1905,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	if (category>-1) {
 	    l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
 	    l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
-	    l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM",category+1,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv, evweight);
 	    l.FillHist("vtxProb",category+1,vtxProb, evweight);
 	    l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
 	    l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
@@ -1916,52 +1916,52 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
 	    l.FillHist("r9",category+1,lead_r9, evweight);
 	    l.FillHist("r9",category+1,sublead_r9, evweight);
-	    l.FillHist("pho1_sigmaEOverE",category+1,pho1_sigmaE/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_up",category+1,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
-	    l.FillHist("pho1_sigmaEOverE_down",category+1,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
-	    l.FillHist("pho2_sigmaEOverE",category+1,pho2_sigmaE/sublead_p4.E(), evweight);
-	    l.FillHist("pho2_sigmaEOverE_up",category+1,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
-	    l.FillHist("pho2_sigmaEOverE_down",category+1,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE",category+1,pho1_sigmaE, evweight);
+	    l.FillHist("pho1_sigmaEOverE_up",category+1,(pho1_sigmaE*1.1), evweight);
+	    l.FillHist("pho1_sigmaEOverE_down",category+1,(pho1_sigmaE*0.9), evweight);
+	    l.FillHist("pho2_sigmaEOverE",category+1,pho2_sigmaE, evweight);
+	    l.FillHist("pho2_sigmaEOverE_up",category+1,(pho2_sigmaE*1.1), evweight);
+	    l.FillHist("pho2_sigmaEOverE_down",category+1,(pho2_sigmaE*0.9), evweight);
 	}
 
 	if (fabs(lead_p4.Eta()) < 1.4442 && fabs(sublead_p4.Eta())<1.4442) {
-	    l.FillHist("sigmaMOverM_EB",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_EB",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_EB",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EB",0,sigmaMwv, evweight);
 	    if (lead_r9>0.93 && sublead_r9>0.93) {
-		l.FillHist("sigmaMOverM_EB",1,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EB",1,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EB",1,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",1,sigmaMwv, evweight);
 	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
-		l.FillHist("sigmaMOverM_EB",3,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EB",3,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EB",3,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",3,sigmaMwv, evweight);
 	    } else {
-		l.FillHist("sigmaMOverM_EB",2,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EB",2,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EB",2,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",2,sigmaMwv, evweight);
 	    }
 	} else if (fabs(lead_p4.Eta()) > 1.566 && fabs(sublead_p4.Eta())>1.566) {
-	    l.FillHist("sigmaMOverM_EE",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_EE",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_EE",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EE",0,sigmaMwv, evweight);
 	    if (lead_r9>0.93 && sublead_r9>0.93) {
-		l.FillHist("sigmaMOverM_EE",1,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EE",1,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EE",1,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",1,sigmaMwv, evweight);
 	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
-		l.FillHist("sigmaMOverM_EE",3,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EE",3,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EE",3,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",3,sigmaMwv, evweight);
 	    } else {
-		l.FillHist("sigmaMOverM_EE",2,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EE",2,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EE",2,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",2,sigmaMwv, evweight);
 	    }
 	} else {
-	    l.FillHist("sigmaMOverM_EBEE",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx_EBEE",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_EBEE",0,sigmaMrv, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EBEE",0,sigmaMwv, evweight);
 	    if (lead_r9>0.93 && sublead_r9>0.93) {
-		l.FillHist("sigmaMOverM_EBEE",1,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EBEE",1,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EBEE",1,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",1,sigmaMwv, evweight);
 	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
-		l.FillHist("sigmaMOverM_EBEE",3,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EBEE",3,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EBEE",3,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",3,sigmaMwv, evweight);
 	    } else {
-		l.FillHist("sigmaMOverM_EBEE",2,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EBEE",2,sigmaMwv/mass, evweight);
+		l.FillHist("sigmaMOverM_EBEE",2,sigmaMrv, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",2,sigmaMwv, evweight);
 	    }
 	}
 
@@ -2258,8 +2258,8 @@ void MassFactorizedMvaAnalysis::fillTrainTree(LoopAll &l, Int_t leadingPho, Int_
     float mass     = Higgs.M();
     float diphopt   = Higgs.Pt();
 
-    l.FillTree("dmom",sigmaMrv/mass);
-    l.FillTree("dmom_wrong_vtx",sigmaMwv/mass);
+    l.FillTree("dmom",sigmaMrv);
+    l.FillTree("dmom_wrong_vtx",sigmaMwv);
     l.FillTree("vtxprob",vtxProb);
     l.FillTree("ptom1",leadPt/mass);
     l.FillTree("ptom2",subleadPt/mass);

@@ -32,8 +32,6 @@ type=2 name=sublead_r9
 type=2 name=diphoton_bdt
 type=3 name=higgs_mass
 
-type=3 name=sigmaMrv
-type=3 name=sigmaMwv
 type=3 name=lead_sigmaE
 type=3 name=lead_sigmaE_nosmear
 type=3 name=sublead_sigmaE

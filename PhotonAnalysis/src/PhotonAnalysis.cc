@@ -5699,51 +5699,6 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
     l.FillTree("myVBFSubJPt",myVBFSubJPt,"spin_trees");
     l.FillTree("myVBF_Mjj",myVBF_Mjj,"spin_trees");
 
-    /*
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
-    );
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
-    );
-    MassResolution *tempMassRes = new MassResolution;
-    tempMassRes->Setup(l,&pho1,&pho2,l.dipho_vtxind[diphoton_id],massResoPars, nR9Categories,nEtaCategories,beamspotSigma,true);
-
-    double sigmaMrv = tempMassRes->massResolutionEonly();
-    double sigmaMwv = tempMassRes->massResolutionWrongVtx();
-    double lead_sigmaE = tempMassRes->leadPhotonResolution();
-    double lead_sigmaE_nosmear = tempMassRes->leadPhotonResolutionNoSmear();
-    double sublead_sigmaE = tempMassRes->subleadPhotonResolution();
-    double sublead_sigmaE_nosmear = tempMassRes->subleadPhotonResolutionNoSmear();
-    
-    delete tempMassRes;
-
-   l.FillTree("sigmaMrv",sigmaMrv,"spin_trees");
-   l.FillTree("sigmaMwv",sigmaMwv,"spin_trees");
-   l.FillTree("lead_sigmaE",lead_sigmaE,"spin_trees");
-   l.FillTree("lead_sigmaE_nosmear",lead_sigmaE_nosmear,"spin_trees");
-   l.FillTree("sublead_sigmaE",sublead_sigmaE,"spin_trees");
-   l.FillTree("sublead_sigmaE_nosmear",sublead_sigmaE_nosmear,"spin_trees");
-
-   l.FillTree("sigmaMoMrv",float(sigmaMrv/Higgs.M()),"spin_trees");
-   l.FillTree("sigmaMoMwv",float(sigmaMwv/Higgs.M()),"spin_trees");
-   l.FillTree("vtx_prob",vtxProb,"spin_trees");
-   l.FillTree("leadPtoM",float(lead_p4.Pt()/Higgs.M()),"spin_trees");
-   l.FillTree("subleadPtoM",float(sublead_p4.Pt()/Higgs.M()),"spin_trees");
-   l.FillTree("leadEta",float(lead_p4.Eta()),"spin_trees");
-   l.FillTree("subleadEta",float(sublead_p4.Eta()),"spin_trees");
-   l.FillTree("cosDphi",float(TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())),"spin_trees");
-   */
 }
 
 // for Mass-factorized
@@ -5781,15 +5736,13 @@ void PhotonAnalysis::saveSpinTree(LoopAll& l, int category, float evweight, TLor
    l.FillTree("diphoton_bdt",diphobdt,"spin_trees");
    l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
  
-   l.FillTree("sigmaMrv",sigmaMrv,"spin_trees");
-   l.FillTree("sigmaMwv",sigmaMwv,"spin_trees");
    l.FillTree("lead_sigmaE",lead_sigmaE,"spin_trees");
    l.FillTree("lead_sigmaE_nosmear",lead_sigmaE_nosmear,"spin_trees");
    l.FillTree("sublead_sigmaE",sublead_sigmaE,"spin_trees");
    l.FillTree("sublead_sigmaE_nosmear",sublead_sigmaE_nosmear,"spin_trees");
 
-   l.FillTree("sigmaMoMrv",float(sigmaMrv/Higgs.M()),"spin_trees");
-   l.FillTree("sigmaMoMwv",float(sigmaMwv/Higgs.M()),"spin_trees");
+   l.FillTree("sigmaMoMrv",sigmaMrv,"spin_trees");
+   l.FillTree("sigmaMoMwv",sigmaMwv,"spin_trees");
    l.FillTree("vtx_prob",vtxProb,"spin_trees");
    l.FillTree("leadPtoM",float(lead_p4.Pt()/Higgs.M()),"spin_trees");
    l.FillTree("subleadPtoM",float(sublead_p4.Pt()/Higgs.M()),"spin_trees");
