@@ -72,6 +72,8 @@ kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
 puTarget=aux/nov08_rereco.json.68000.pileup.root
+puTargets=
+puLumis=
 
 # ggh scale uncertainties (mva analyses)
 pdfWeightHist=aux/GF_mvasys.root
@@ -102,11 +104,11 @@ recorrectJets=0
 rerunJetMva=0
 recomputeJetWp=0
 
-reRunVtx=1
+reRunVtx=0
 rematchConversions=0
 
 ## vertex
-vtxAlgoParams jan16reload/vertex_selection.dat
+## vtxAlgoParams jan16reload/vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
 tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
@@ -116,7 +118,7 @@ tmvaPerEvtMethod=evtBDTG
 
 #Jet
 jetHandlerCfg=jetHandler_Legacy7TeV.py
-recorrectJets=1
+recorrectJets=0
 
 doInterferenceSmear=1
 

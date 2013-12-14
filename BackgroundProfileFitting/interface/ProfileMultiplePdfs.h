@@ -41,6 +41,7 @@ class ProfileMultiplePdfs {
     static pair<double,pair<double,double> > getMinAndErrorAsymm(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
 		static pair<double,pair<double,double> > getMinAndErrorNoScale(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true); // this is for nll graphs that dont have their min at 0.
     static vector<double> getMinAndErrorAsymmVec(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
+    static vector<double> getMinAndErrorLinearAsymmVec(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
     static pair<double,double> getMinAndErrorSymm(TGraph *graph, float sigma, float stepsize=0.001,bool safemode=true);
 		static pair<double,pair<double,double> > getMinAndErrorLinear(TGraph *graph, float sigma, bool safemode);
     // -----------

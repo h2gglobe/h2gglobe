@@ -49,7 +49,8 @@ def writeTmpDat(dat):
  tmp = open(nam,"w")
  cats = []
  for line in fi.readlines():
-  if line.startswith('#') or line=='' or line =='\n': continue
+  if line.startswith('#') or line=='' or line.startswith('\n') or len(line)<=1: 
+	continue
   if "cats=" in line:
     vlist = (line.split("="))[1]
     cats = [int(v) for v in vlist.split(",")] 
@@ -57,14 +58,15 @@ def writeTmpDat(dat):
   if "{cat}" in line :
 	for c in cats:
 	  tmp.write(line.replace("{cat}","%d"%c))
-  else: tmp.write(line)
+  else: 
+    if not ( line.startswith('#') or line=='	' or line.startswith('\n') or len(line.strip())<=1): 
+	tmp.write(line)
  return nam
 
 tmpdatfile = writeTmpDat(options.datfile)
 df = open(tmpdatfile)
-
 i=0
 for line in df.readlines():
-  if line.startswith('#') or line=='' or line =='\n': continue
+  if line.startswith('#') or line=='' or line =='\n' or len(line)==0: continue
   writeSpec(tmpdatfile,i)
   i+=1

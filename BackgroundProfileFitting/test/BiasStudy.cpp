@@ -228,7 +228,7 @@ int main(int argc, char* argv[]){
   //TH1F *muDistChi2 = new TH1F("muDistChi2","muDistChi2",int(20*(mu_high-mu_low)),mu_low,mu_high);
   //TH1F *muDistAIC = new TH1F("muDistAIC","muDistAIC",int(20*(mu_high-mu_low)),mu_low,mu_high);
   
-  mass->setBins(320);
+  mass->setBins(160); // is this too fine for the signal MC?
   RooDataSet *data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
   //RooDataSet *data = (RooDataSet*)bkgWS->data(Form("data_cat%d_7TeV",cat));
   RooDataHist *dataBinned = new RooDataHist(Form("roohist_data_mass_cat%d",cat),Form("roohist_data_mass_cat%d",cat),RooArgSet(*mass),*data);
@@ -413,6 +413,8 @@ int main(int argc, char* argv[]){
       pair<double,pair<double,double> > muChi2Info = ProfileMultiplePdfs::getMinAndErrorAsymm(chi2Envelope.second["envelope"],1.);
       pair<double,pair<double,double> > muAICInfo = ProfileMultiplePdfs::getMinAndErrorAsymm(aicEnvelope.second["envelope"],1.);
 
+      
+      cout << "Pushing back results "  << endl;
       truthModel.push_back(it->first);
       muFab.push_back(muFabInfo.first);
       muPaul.push_back(muPaulInfo.first);
@@ -427,18 +429,22 @@ int main(int argc, char* argv[]){
       muChi2ErrHigh.push_back(muChi2Info.second.second);
       muAICErrHigh.push_back(muAICInfo.second.second);
 
+/*
       cout << "Fab mu = " << muFabInfo.first << " - " << muFabInfo.second.first << " + " << muFabInfo.second.second << endl;
       cout << "Paul mu = " << muPaulInfo.first << " - " << muPaulInfo.second.first << " + " << muPaulInfo.second.second << endl;
       cout << "Chi2 mu = " << muChi2Info.first << " - " << muChi2Info.second.first << " + " << muChi2Info.second.second << endl;
       cout << "AIC mu = " << muAICInfo.first << " - " << muAICInfo.second.first << " + " << muAICInfo.second.second << endl;
-
+*/
+      cout << "Writing NLLS " << endl;
       outFile->cd();
+      // Ignore poor fits
       fabianEnvelope.second["envelope"]->Write();
       paulEnvelope.second["envelope"]->Write();
       chi2Envelope.second["envelope"]->Write();
       aicEnvelope.second["envelope"]->Write();
     }
     toyn=toy;
+    cout << "Fill tree " << endl;
     muTree->Fill();
   }
 

@@ -60,9 +60,9 @@ def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
     execline = subline + ' -j %d -o BiasStudyOut_cat%d_job%d.root'%(j,cat,j)
     f.write('if ( %s ) then \n'%execline)
     if options.eosPath:
-      f.write('\tif ( cmsStage BiasStudyOut_cat%d_job%d.root %s/%s/BiasStudyOut_cat%d_job%d.root ) then \n'%(cat,j,options.eosPath,outdir,cat,j))
+      f.write('\tif ( cmsStage -f BiasStudyOut_cat%d_job%d.root %s/%s/BiasStudyOut_cat%d_job%d.root ) then \n'%(cat,j,options.eosPath,outdir,cat,j))
     else:
-      f.write('\tif ( cp BiasStudyOut_cat%d_job%d.root %s/%s ) then\n'%(cat,j,os.getcwd(),outdir))
+      f.write('\tif ( cp -f BiasStudyOut_cat%d_job%d.root %s/%s ) then\n'%(cat,j,os.getcwd(),outdir))
     f.write('\t\ttouch %s.done\n'%(f.name))
     f.write('\t\trm -f %s.run\n'%(f.name))
     f.write('\telse\n')

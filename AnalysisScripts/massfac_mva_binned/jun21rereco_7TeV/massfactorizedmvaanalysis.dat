@@ -35,14 +35,16 @@ multiclassVbfCatBoundaries2=10.,-10.
 #bkgPolOrderByCat=5,5,5,5,3,4,3,3,3,-10,3
 #bkgPolOrderByCat=4,4,4,4,3,3,3,3,3,-10,3
 #Bias studies mva 7TeV
-bkgPolOrderByCat=4,4,5,5,2,3,1,1,1,1,2
+#bkgPolOrderByCat=4,4,5,5,2,3,1,1,1,1,2
+bkgPolOrderByCat=4,4,5,5,2,3,2,3,3,1,2 
 #JIM
 #bdtCategoryBoundaries=1,0.97,0.92,0.78,0.42
 #JOSH
 bdtCategoryBoundaries=1,0.93,0.85,0.70,0.19
 
-# FIXME
-efficiencyFileMVA=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+#
+#efficiencyFileMVA=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+efficiencyFileMVA=aux//sig_reweighing_legacy_mva_7TeV.root
 
 smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
 

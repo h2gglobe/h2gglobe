@@ -280,9 +280,9 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
-        sigmaMrv = massResolutionCalculator->massResolutionEonly();
-        sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-        float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+        sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+        sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+        float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); 
 

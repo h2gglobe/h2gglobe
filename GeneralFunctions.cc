@@ -509,13 +509,13 @@ Float_t LoopAll::diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadi
         tmva_dipho_UCSD_sumptom = (leadPt+subleadPt)/mass;
         tmva_dipho_UCSD_subleadmva = photonIDMVA2011(subleadingPho, vtx,leadP4, "UCSD");
         tmva_dipho_UCSD_leadmva = photonIDMVA2011(leadingPho, vtx,subleadP4, "UCSD");
-        // tmva_dipho_UCSD_dmom = sigmaMrv/mass;
-        tmva_dipho_UCSD_dmom = sigmaMeonly/mass;
+        // tmva_dipho_UCSD_dmom = sigmaMrv;
+        tmva_dipho_UCSD_dmom = sigmaMeonly;
   
         mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
     } else {
-        *tmva_dipho_MIT_dmom = sigmaMrv/mass;
-        *tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv/mass;
+        *tmva_dipho_MIT_dmom = sigmaMrv;
+        *tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv;
         *tmva_dipho_MIT_vtxprob = vtxProb;
         *tmva_dipho_MIT_ptom1 = leadPt/mass;
         *tmva_dipho_MIT_ptom2 = subleadPt/mass;
@@ -4911,7 +4911,7 @@ void LoopAll::VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, 
   }
 }
 
-void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type){
+void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type,float deltaRcut){
   int mu_ind_1 = MuonSelection2012B(10);
   if(mu_ind_1!=-1) {
     TLorentzVector* mymu_1 = (TLorentzVector*) mu_glo_p4->At(mu_ind_1);
@@ -4945,7 +4945,7 @@ void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & dip
       }
       if(mu_ind_2!=-1){
 	TLorentzVector* mymu_2 = (TLorentzVector*) mu_glo_p4->At(mu_ind_2);
-	if(mymu_2->DeltaR(lead_p4_1)>0.5 && mymu_2->DeltaR(sublead_p4_1)>0.5 && (*mymu_1+*mymu_2).M()<110 && (*mymu_1+*mymu_2).M()>70){
+	if(MuonPhotonCuts2012B(lead_p4_1,sublead_p4_1,mymu_1,deltaRcut) && MuonPhotonCuts2012B(lead_p4_1,sublead_p4_1,mymu_2,deltaRcut) && (*mymu_1+*mymu_2).M()<110 && (*mymu_1+*mymu_2).M()>70){
 	  VHlep1event=true;
 	  VHlep2event=false;
 	  diphotonVHlep_id = diphotonVHlep_id_1;
@@ -4956,7 +4956,7 @@ void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & dip
   }
 }
 
-void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type){
+void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type, float deltaRcut){
   int el_ind_1=ElectronSelectionMVA2012(10);
   if(el_ind_1!=-1) {
     TLorentzVector* myel_1 = (TLorentzVector*) el_std_p4->At(el_ind_1);
@@ -4993,7 +4993,7 @@ void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int &
       if(el_ind_2!=-1){
 	TLorentzVector* myel_2 = (TLorentzVector*) el_std_p4->At(el_ind_2);
 	TLorentzVector* mysc_2 = (TLorentzVector*) el_std_sc->At(el_ind_2);
-	if(myel_2->DeltaR(lead_p4_1)>0.5 && myel_2->DeltaR(sublead_p4_1)>0.5 && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70){
+	if(ElectronPhotonCuts2012B(lead_p4_1,sublead_p4_1,*myel_1,true,deltaRcut) && ElectronPhotonCuts2012B(lead_p4_1,sublead_p4_1,*myel_2,true,deltaRcut) && (*myel_1+*myel_2).M()<110 && (*myel_1+*myel_2).M()>70){
 	  VHlep1event=true;
 	  VHlep2event=false;
 	  diphotonVHlep_id = diphotonVHlep_id_1;

@@ -43,7 +43,8 @@ diphobdt_output_Cut_TTHlep=-0.6
 deltaRPholep_cut=0
 doMinvCut=0
 doDrGsfTrackCut=1
-drSC_lep=0.5
+drSC_ele=1.
+drSC_muon=0.5
 drGsf_lep=1.
 doApplyEleVeto=0 
 
@@ -108,7 +109,9 @@ doEcorrectionSmear=1
 doEcorrectionSyst=1
 
 ## energy scale adjustement and errors
-scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc.dat
+#scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc.dat
+# Et Dependent
+scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc_etdep.dat
 scale_offset_error_file=energy_scale_errors.dat
 
 ## uncorrelated part of the uncertainties

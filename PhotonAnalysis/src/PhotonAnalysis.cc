@@ -119,7 +119,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     doDrGsfTrackCut=false;
     ptjet_loosecut=25.;
 
-    drSC_lep=0.;
+    drSC_ele=0.;
+    drSC_muon=0.;
     drGsf_lep=0.;
 
 
@@ -219,23 +220,30 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
                 err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) && 
+            (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f %f\n", &catname, &type, 
+                            &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &pivot_err, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 14 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0, pivot_err=0.;
+        }
+        if( (nread == 0) && 
             (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
                             &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
                             &stocastic, &stocastic_err ) ) != 13 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) &&
             ( nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f\n", &catname, &type, 
                              &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 12 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( (nread == 0) &&
             ( nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
                              &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 10 ) {
             nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
-                err=0., pivot=0;
+                err=0., pivot=0, pivot_err=0.;
         }
         if( nread == 0 ) { 
             continue; 
@@ -243,7 +251,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 	
         std::cout << "Energy scale (or smearing) by run " << nread  << " " << catname   << " " << type 
                   << " " << minet << "<E_T<" << maxet << " " << mineta << "<eta<" << maxeta    << " " << minr9 << "<r9<" << maxr9 
-                  << " " << first << "<run<" << last  << " " << pivot << " " << offset << "+-" << err 
+                  << " " << first << "<run<" << last  << " " << pivot << "+-" << pivot_err << " " << offset << "+-" << err 
                   << " " << stocastic << "+-" << stocastic_err << std::endl;
         
         assert( type>=0 && type<=2 );
@@ -3292,9 +3300,9 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     //}
     //l.vtx_std_ranked_list->insert(l.vtx_std_ranked_list->begin(),elVtx);
     float vtx_mva = -0.9;// vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back()  );
-    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     // easy to calculate vertex probability from vtx mva output
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
@@ -3530,9 +3538,9 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     //}
     //l.vtx_std_ranked_list->insert(l.vtx_std_ranked_list->begin(),elVtx);
     float vtx_mva = -0.9;// vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back()  );
-    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionEonly();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     // easy to calculate vertex probability from vtx mva output
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
@@ -4242,7 +4250,9 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int& diphotonVHhad_id, float*
     //jet selection
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4399,7 +4409,9 @@ bool PhotonAnalysis::VHhadronicTag2012(LoopAll& l, int& diphotonVHhad_id, float*
     //jet selection
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
         TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
-        if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+        if(usePUjetveto){
+            if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+        }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
         
         bool isJet_LeadPho = false;
@@ -4545,7 +4557,9 @@ bool PhotonAnalysis::VHhadronicBtag2012(LoopAll& l, int& diphotonVHhadBtag_id, f
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4680,7 +4694,9 @@ bool PhotonAnalysis::TTHhadronicTag2012(LoopAll& l, int& diphotonTTHhad_id, floa
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
 
         bool isJet_LeadPho = false;
@@ -4790,7 +4806,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 	TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(elInd);
 	TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(elInd);
 
-    float drtoveto = drSC_lep;
+    float drtoveto = drSC_ele;
     float drgsftoveto = drGsf_lep;
 
     l.PhotonsToVeto(myelsc, drtoveto,veto_indices, true, drgsftoveto);
@@ -4819,7 +4835,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
     if(muonInd != -1 && diphotonTTHlep_id !=1){
 	mu_tag= (TLorentzVector*) l.mu_glo_p4->At(muonInd);
-	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_lep);
+	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_muon);
     }
 
     if((elInd==-1) && (muonInd==-1))return tag;
@@ -4941,7 +4957,9 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 
 	TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+    if(usePUjetveto){
         if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+    }
         if(fabs(p4_jet->Eta()) > 2.4) continue;
         bool isJet_LeadPho = false;
 	bool isJet_SubLeadPho = false;
@@ -5300,12 +5318,12 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
         TLorentzVector dipho_p4 = lead_p4+sublead_p4;
 
         float mass = dipho_p4.M();
-        met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
+        //met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
 
         tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet, true, moriond2013MetCorrection);
-        if (tag) {
-            if(met_cat!=0) tag=false;
-        }
+        // if (tag) {
+        //     if(met_cat!=0) tag=false;
+        // }
 
         if(!tag) diphotonVHmet_id=-1;
 
@@ -5532,8 +5550,8 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
     MassResolution tempMassRes;
 
     tempMassRes.Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
-    double sigMright = tempMassRes.massResolutionEonlyNoSmear();
-    double sigMwrong = tempMassRes.massResolutionWrongVtxNoSmear();
+    double sigMright = tempMassRes.relMassResolutionEonlyNoSmear();
+    double sigMwrong = tempMassRes.relMassResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
     return result;
 }
@@ -5681,51 +5699,6 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
     l.FillTree("myVBFSubJPt",myVBFSubJPt,"spin_trees");
     l.FillTree("myVBF_Mjj",myVBF_Mjj,"spin_trees");
 
-    /*
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
-    );
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
-    );
-    MassResolution *tempMassRes = new MassResolution;
-    tempMassRes->Setup(l,&pho1,&pho2,l.dipho_vtxind[diphoton_id],massResoPars, nR9Categories,nEtaCategories,beamspotSigma,true);
-
-    double sigmaMrv = tempMassRes->massResolutionEonly();
-    double sigmaMwv = tempMassRes->massResolutionWrongVtx();
-    double lead_sigmaE = tempMassRes->leadPhotonResolution();
-    double lead_sigmaE_nosmear = tempMassRes->leadPhotonResolutionNoSmear();
-    double sublead_sigmaE = tempMassRes->subleadPhotonResolution();
-    double sublead_sigmaE_nosmear = tempMassRes->subleadPhotonResolutionNoSmear();
-    
-    delete tempMassRes;
-
-   l.FillTree("sigmaMrv",sigmaMrv,"spin_trees");
-   l.FillTree("sigmaMwv",sigmaMwv,"spin_trees");
-   l.FillTree("lead_sigmaE",lead_sigmaE,"spin_trees");
-   l.FillTree("lead_sigmaE_nosmear",lead_sigmaE_nosmear,"spin_trees");
-   l.FillTree("sublead_sigmaE",sublead_sigmaE,"spin_trees");
-   l.FillTree("sublead_sigmaE_nosmear",sublead_sigmaE_nosmear,"spin_trees");
-
-   l.FillTree("sigmaMoMrv",float(sigmaMrv/Higgs.M()),"spin_trees");
-   l.FillTree("sigmaMoMwv",float(sigmaMwv/Higgs.M()),"spin_trees");
-   l.FillTree("vtx_prob",vtxProb,"spin_trees");
-   l.FillTree("leadPtoM",float(lead_p4.Pt()/Higgs.M()),"spin_trees");
-   l.FillTree("subleadPtoM",float(sublead_p4.Pt()/Higgs.M()),"spin_trees");
-   l.FillTree("leadEta",float(lead_p4.Eta()),"spin_trees");
-   l.FillTree("subleadEta",float(sublead_p4.Eta()),"spin_trees");
-   l.FillTree("cosDphi",float(TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())),"spin_trees");
-   */
 }
 
 // for Mass-factorized
@@ -5763,15 +5736,13 @@ void PhotonAnalysis::saveSpinTree(LoopAll& l, int category, float evweight, TLor
    l.FillTree("diphoton_bdt",diphobdt,"spin_trees");
    l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
  
-   l.FillTree("sigmaMrv",sigmaMrv,"spin_trees");
-   l.FillTree("sigmaMwv",sigmaMwv,"spin_trees");
    l.FillTree("lead_sigmaE",lead_sigmaE,"spin_trees");
    l.FillTree("lead_sigmaE_nosmear",lead_sigmaE_nosmear,"spin_trees");
    l.FillTree("sublead_sigmaE",sublead_sigmaE,"spin_trees");
    l.FillTree("sublead_sigmaE_nosmear",sublead_sigmaE_nosmear,"spin_trees");
 
-   l.FillTree("sigmaMoMrv",float(sigmaMrv/Higgs.M()),"spin_trees");
-   l.FillTree("sigmaMoMwv",float(sigmaMwv/Higgs.M()),"spin_trees");
+   l.FillTree("sigmaMoMrv",sigmaMrv,"spin_trees");
+   l.FillTree("sigmaMoMwv",sigmaMwv,"spin_trees");
    l.FillTree("vtx_prob",vtxProb,"spin_trees");
    l.FillTree("leadPtoM",float(lead_p4.Pt()/Higgs.M()),"spin_trees");
    l.FillTree("subleadPtoM",float(sublead_p4.Pt()/Higgs.M()),"spin_trees");
@@ -5970,9 +5941,9 @@ float PhotonAnalysis::getDiphoBDTOutput(LoopAll &l,int diphoton_id, TLorentzVect
     massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphoton_id]],&photonInfoCollection[l.dipho_subleadind[diphoton_id]],0,//default vertex
 				    massResoPars,nR9Categories,nEtaCategories,beamspotSigma,true);
 
-    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
-    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    float sigmaMrv = massResolutionCalculator->relMassResolutionCorrVtx();
+    float sigmaMwv = massResolutionCalculator->relMassResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->relMassResolutionEonly();
     
     //diphoton mva                                                                                                                                                     
     float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             
@@ -6025,8 +5996,8 @@ void PhotonAnalysis::VHLepTag2013(LoopAll& l, int & diphotonVHlep_id, bool & VHl
         int Njet_lepcat = VHNumberOfJets(l, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0]);
         if(Njet_lepcat<3) l.VHNewLeptonCategorization(VHlep1event, VHlep2event, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0], 45.0, moriond2013MetCorrection);
     }
-    l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str());
-    l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str());
+    l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str(), drSC_muon);
+    l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str(), drSC_ele);
 }
 
 int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy){
@@ -6063,9 +6034,11 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
     if(dR_jet_PhoSubLead<0.5) continue;
     if(dR_jet_electron<0.5) continue;
     if(dR_jet_muon<0.5) continue;
-    if(p4_jet->Eta()>2.4) continue;
+    if(fabs(p4_jet->Eta())>2.4) continue;
     if(p4_jet->Pt()<20) continue;
-    if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
+    if(usePUjetveto){
+        if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
+    }
     Njet_lepcat = Njet_lepcat + 1;
   }
 
@@ -6147,7 +6120,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV7(LoopAll &l, int ipho,
     double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
     _vals[9] = bcpos->Eta()-sc->Eta();
-    _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[10] = bcpos->DeltaPhi(*sc);
     _vals[11] = bcE/l.sc_raw[sc_index];
     _vals[12] = be3x3/be5x5;
     _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -6254,7 +6227,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
     _vals[10] = bcpos->Eta()-sc->Eta();
-    _vals[11] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[11] = bcpos->DeltaPhi(*sc);
     _vals[12] = bcE/l.sc_raw[sc_index];
     _vals[13] = be3x3/be5x5;
     _vals[14] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -6285,7 +6258,7 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     _vals[31] = (bieta-1*std::abs(bieta)/bieta)%5;; //submodule boundary eta symmetry
     _vals[32] = (biphi-1)%2; //submodule boundary phi symmetry
     _vals[33] = (TMath::Abs(bieta)<=25)*((bieta-1*TMath::Abs(bieta)/bieta)%25) + (TMath::Abs(bieta)>25)*((bieta-26*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
-    _vals[34] = biphi%20; //module boundary phi symmetry
+    _vals[34] = (biphi-1)%20; //module boundary phi symmetry
     _vals[35] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
     _vals[36] = l.pho_phicry[ipho];//bphicry;
 
@@ -6501,7 +6474,9 @@ std::pair<int, int> PhotonAnalysis::SelectBtaggedAndHighestPtJets(LoopAll& l,int
     std::vector<int> index_selected_btagloose;
     for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
         j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
-        if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
+        if(usePUjetveto){
+            if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
+        }
         if(fabs(j1p4->Eta()) > 2.4) continue;
         if(j1p4->DeltaR(leadpho) < dr2pho) continue;
         if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
