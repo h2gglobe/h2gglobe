@@ -1356,9 +1356,11 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   // EBEB only
   float leadEta    = lead_p4.Eta();
   float subleadEta = sublead_p4.Eta();
-  if (fabs(leadEta)>1.5)    return tag;
-  if (fabs(subleadEta)>1.5) return tag;
- 
+  if(moriond2013MetCorrection){
+    if (fabs(leadEta)>1.5)    return tag;
+    if (fabs(subleadEta)>1.5) return tag;
+  }
+
   if(doMETCleaning){
     bool passcleaning = METCleaning2012B(lead_p4, sublead_p4, myMet);
     if(!passcleaning) return tag;
@@ -4306,6 +4308,35 @@ int LoopAll::MuonSelection2012B(float muptcut){
 }
 
 
+std::vector<int> LoopAll::MuonSelection2013(float muptcut){
+
+    std::vector<int> MuonIndecesVector;
+    TLorentzVector* thismu;
+    float thiseta = -100;
+    float thispt = -100;
+    float thisiso =1000;
+    int passingMu = 0;
+
+    if(GFDEBUG) std::cout<<"mu_glo_n "<<mu_glo_n<<std::endl;
+    for( int indmu=0; indmu<mu_glo_n; indmu++){
+      
+      thismu = (TLorentzVector*) mu_glo_p4->At(indmu);
+      thiseta = fabs(thismu->Eta());
+      thispt = thismu->Pt();
+      
+      if(thiseta>2.4) continue;
+      if(thispt<muptcut) continue;
+      
+      if(!MuonTightID2012(indmu)) continue;
+      if(!MuonIsolation2012(indmu, thispt)) continue;
+      
+      MuonIndecesVector.push_back(indmu);
+    }
+    
+    return MuonIndecesVector;
+}
+
+
 
 bool LoopAll::MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu,float deltaRcut){
   //  cout<<"mu:"<<pho1.DeltaR(*thismu)<<" "<<pho2.DeltaR(*thismu)<<endl;
@@ -4518,6 +4549,27 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
    
     if(GFDEBUG) std::cout<<"final el_ind "<<el_ind<<std::endl;
     return el_ind;
+}
+
+
+std::vector<int> LoopAll::ElectronSelectionMVA2013(float elptcut){
+    
+    std::vector<int> ElectronIndecesVector;
+
+    for(int iel=0; iel<el_std_n; iel++){
+        int vtx_ind = FindElectronVertex(iel);
+	if(ElectronMVACuts(iel,vtx_ind)){
+	  if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
+            TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
+            if(GFDEBUG) std::cout<<"passing eta "<<thiselp4->Eta()<<std::endl;
+            if(elptcut<thiselp4->Pt()){
+                if(GFDEBUG) std::cout<<"passing pt "<<std::endl;
+		ElectronIndecesVector.push_back(iel);
+            }
+        }
+    }
+   
+    return ElectronIndecesVector;
 }
 
 bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){

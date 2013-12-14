@@ -1230,6 +1230,7 @@ int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 bool MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
 //HCP2012
 int MuonSelection2012B(float muptcut=20.);
+std::vector<int> MuonSelection2013(float muptcut=20.);
 bool MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu,float deltaRcut=1.0);
 bool MuonLooseID2012(int indmu);
 bool MuonTightID2012(int indmu, int vtxind=-1);
@@ -1245,6 +1246,7 @@ bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
 bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
 //HCP2012
 int ElectronSelectionMVA2012(float elptcut=20.);
+std::vector<int> ElectronSelectionMVA2013(float elptcut=20.);
 bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
 bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet=false,float deltaRcut=1.0);
 int FindElectronVertex(int el_ind);
