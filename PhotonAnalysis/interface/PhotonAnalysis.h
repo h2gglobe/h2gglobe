@@ -477,6 +477,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool VHhadronicBtag2012(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0,bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
     //TTH leptonic category
     bool TTHleptonicTag2012(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0,bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
+    bool TTHleptonicTag2013(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0,bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
     //TTH hadronic category
     bool TTHhadronicTag2012(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0, bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
     //only one tth category for 7 TeV

@@ -796,7 +796,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         if(includeTTHlep){
             if(!(l.sqrtS==7)){
-                TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
+                TTHlepevent = TTHleptonicTag2013(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
             }else{
                 TTHlepevent = TTHTag7TeV(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
             }
