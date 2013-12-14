@@ -14,6 +14,7 @@ using namespace std;
 #include "BaseAnalysis.h"
 
 #include "TSystem.h"
+#include "TBenchmark.h"
 #include "EventFilterFromListStandAlone.h"
 
 // ------------------------------------------------------------------------------------
@@ -217,46 +218,39 @@ void LoopAll::MergeContainers(){
   std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
 		
   // Loop Over the files and get the relevant pieces to Merge:
-  for (;it!=files.end()
-	 ;it_file++,it++){
-    
+  for (;it!=files.end();it_file++,it++){
+	  
 	  *it_file = TFile::Open((*it).c_str());
-    (*it_file)->cd();
-    std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
-
-    for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
-	   ;it_hist!=histogramNames.end()
-	   ;it_hist++) {
-			
-      TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",it_hist->c_str()));
-      rooContainer->AppendTH1F(*it_hist,histExtra);	
-      //delete histExtra;
-    }
-		
-    RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
-    for (std::vector<std::string>::iterator it_data=datasetNames.begin()
-	   ;it_data!=datasetNames.end()
-	   ;it_data++) {
-
-      RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
-      if( dataExtra == 0 ) {
-	      std::cout << "skipping "<< it_data->c_str() << " " << dataExtra << std::endl;
-	      continue;
-      }
-      rooContainer->AppendDataSet(*it_data,dataExtra);	
-      //delete dataExtra;
-    }
-
-    delete work;
-    //std::cout << "Finished Combining File - " << (*it) << std::endl;
-
-    (*it_file)->Close();
-    i++;
-    //delete tmpFile;			
+	  (*it_file)->cd();
+	  
+	  std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
+	  
+	  RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
+	  std::list<RooAbsData *> allData = work->allData();
+	  for(std::list<RooAbsData *>::iterator it=allData.begin(); it!=allData.end(); ++it) {
+		  if( (*it)->sumEntries() == 0 ) { continue; }
+		  RooDataSet * data = dynamic_cast<RooDataSet *>(*it);
+		  if( data ) {
+			  TString name = data->GetName();
+			  rooContainer->AppendDataSet(name.Data(),data);
+		  } else {
+			  RooDataHist * hist = dynamic_cast<RooDataHist *>(*it);
+			  TString name = hist->GetName();
+			  name.ReplaceAll("roohist_","");
+			  TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",name.Data()));
+			  rooContainer->AppendTH1F(name.Data(),histExtra);	
+		  }
+	  }
+	  delete work;
+	  /// std::cout << "Finished Combining File - " << (*it) << std::endl;
+	  
+	  (*it_file)->Close();
+	  i++;
+	  //delete tmpFile;			
   } 
   TermReal(typerun);
   Term();
-   
+  
 }
 // ------------------------------------------------------------------------------------
 void LoopAll::LoopAndFillHistos(TString treename) {
