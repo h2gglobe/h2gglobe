@@ -3020,7 +3020,7 @@ std::vector<int> LoopAll::DiphotonCiCSelectionForTaggedChannels( phoCiCIDLevel L
   }
   
   std::vector<int> passing_dipho;
-  std::vector<float> passing_sumpt;
+  std::vector<float> passing_sumpt(dipho_n,0.);
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
     if( idipho >= MAX_DIPHOTONS-1 ) { 
       std::cout << "Warning diphoton index exceeds array capacity. Throwing even away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
@@ -3099,7 +3099,7 @@ std::vector<int> LoopAll::DiphotonCiCSelectionForTaggedChannels( phoCiCIDLevel L
     }
     
     passing_dipho.push_back(idipho);
-    passing_sumpt.push_back(leadpt+subleadpt);
+    passing_sumpt[idipho] = leadpt+subleadpt;
   }
   
   if( passing_dipho.empty() ) { return passing_dipho; }
@@ -3131,7 +3131,7 @@ std::vector<int> LoopAll::DiphotonMITPreSelectionForTaggedChannels(const char * 
     float selected_sublead_pt = -1;
     
     std::vector<int> passing_dipho;
-    std::vector<float> passing_sumpt;
+    std::vector<float> passing_sumpt(dipho_n,0.);
     for(int idipho = 0; idipho < dipho_n; ++idipho ) {
         if( idipho >= MAX_DIPHOTONS-1 ) { 
             std::cout << "Warning diphoton index exceeds array capacity. Throwing event away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
@@ -3146,7 +3146,7 @@ std::vector<int> LoopAll::DiphotonMITPreSelectionForTaggedChannels(const char * 
 
         if(sumpt!=-99){
             passing_dipho.push_back(idipho);
-            passing_sumpt.push_back(sumpt); // need to use reordered pt!
+            passing_sumpt[idipho] = sumpt; // need to use reordered pt!
         }
     }
   
@@ -4285,13 +4285,11 @@ int LoopAll::MuonSelection2012B(float muptcut){
         thismu = (TLorentzVector*) mu_glo_p4->At(indmu);
         thiseta = fabs(thismu->Eta());
         thispt = thismu->Pt();
-
         if(thiseta>2.4) continue;
         if(thispt<muptcut) continue;
 
         if(!MuonTightID2012(indmu)) continue;
         if(!MuonIsolation2012(indmu, thispt)) continue;
-    
 	if(bestpt<thispt) {
 	  bestpt=thispt;
 	  mymu = indmu;
@@ -4378,13 +4376,12 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
     thissc = (TLorentzVector*) el_std_sc->At(indel);
     thispt = thisel->Pt();
     thiseta = fabs(thissc->Eta());
+
     if(thispt<20) continue;
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
-    
     if(phodepend){
         if(!ElectronPhotonCuts(pho1, pho2, *thisel)) continue;
     }
-
     passingEl++;
     myel = indel;
 
@@ -4570,7 +4567,6 @@ std::vector<int> LoopAll::ElectronSelectionMVA2013(float elptcut){
 
 bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     bool pass=false;
-
     if(GFDEBUG) std::cout<<"Is el in bounds?  el el_std_n "<<el_ind<<" "<<el_std_n<<std::endl;
     if(el_ind<0 || el_ind>=el_std_n) return pass;
 
@@ -4582,9 +4578,7 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     TLorentzVector* thissc = (TLorentzVector*) el_std_sc->At(el_ind);
     float thiseta = fabs(thissc->Eta());
     float thispt = thisel->Pt();
-
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) return pass;
-
     double Aeff=0.;
     /*
     if(thiseta<1.0)                   Aeff=0.10;

@@ -12,7 +12,7 @@ if (len(argv)==1):
     exit(1)
 
 import ROOT
-eos="/afs/cern.ch/project/eos/installation/0.2.5/bin/eos.select"
+eos="/afs/cern.ch/project/eos/installation/0.3.4/bin/eos.select"
 
 if len(argv)==2: filelist=popen("grep CaDir "+argv[1]+" | grep -v typ=0 | grep -v '#' | sed 's|.*CaDir=\\(\\S*\\).*|\\1|' | xargs -i "+eos+" find -f {} | grep .root").readlines()
 if len(argv)==3: filelist=popen(eos+" find -f "+argv[2]+" | grep .root ").readlines()

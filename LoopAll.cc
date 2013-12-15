@@ -1073,8 +1073,20 @@ int LoopAll::FillAndReduce(int jentry) {
   //
   // read all inputs 
   //
+  bool keep = true;
+  /*this is really useful for fast checks for synchronization 
+  bool keep=false;
+  b_run->GetEntry(jentry);
+  b_lumis->GetEntry(jentry);
+  b_event->GetEntry(jentry);
+
+  if(event == 210601324) keep = true;*/
   if(!makeDummyTrees){
-    GetEntry(inputBranches, jentry);
+    if(keep){
+      GetEntry(inputBranches, jentry);
+    }else{
+      return hasoutputfile;
+    }
   }
 
   //b_run->GetEntry(jentry);
