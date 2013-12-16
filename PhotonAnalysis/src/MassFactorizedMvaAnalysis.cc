@@ -700,7 +700,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // FIXME pass smeared R9
         // --> only need to check ptom cuts for this selection --> kinonly
-        diphoton_id = l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0], vetodipho, kinonly);
+        diphoton_id = l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, 
+						&smeared_pho_energy[0], vetodipho, kinonly, 
+						( doDiphoMvaUpFront ? bdtCategoryBoundaries.back() : -2. ) );
 
         // Exclusive Modes
         int diphotonVBF_id = -1;
