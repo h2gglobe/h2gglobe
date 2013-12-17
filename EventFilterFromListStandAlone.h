@@ -278,7 +278,7 @@ EventFilterFromListStandAlone::filter(int run, int lumiSection, int event)
 
   // Okay, now create a string object for this run:ls:event
   std::stringstream thisevent;
-  thisevent<<run<<":"<<lumiSection<<":"<<event;
+  thisevent<<(unsigned int)run<<":"<<(unsigned int)lumiSection<<":"<<(unsigned int)event;
 
   // Event not found in bad list; it is a good event
   strVecI it = std::lower_bound(EventList_.begin(), EventList_.end(), thisevent.str());
