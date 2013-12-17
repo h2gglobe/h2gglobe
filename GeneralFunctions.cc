@@ -3020,7 +3020,7 @@ std::vector<int> LoopAll::DiphotonCiCSelectionForTaggedChannels( phoCiCIDLevel L
   }
   
   std::vector<int> passing_dipho;
-  std::vector<float> passing_sumpt;
+  std::vector<float> passing_sumpt(dipho_n,0.);
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
     if( idipho >= MAX_DIPHOTONS-1 ) { 
       std::cout << "Warning diphoton index exceeds array capacity. Throwing even away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
@@ -3099,7 +3099,7 @@ std::vector<int> LoopAll::DiphotonCiCSelectionForTaggedChannels( phoCiCIDLevel L
     }
     
     passing_dipho.push_back(idipho);
-    passing_sumpt.push_back(leadpt+subleadpt);
+    passing_sumpt[idipho] = leadpt+subleadpt;
   }
   
   if( passing_dipho.empty() ) { return passing_dipho; }
@@ -3131,7 +3131,7 @@ std::vector<int> LoopAll::DiphotonMITPreSelectionForTaggedChannels(const char * 
     float selected_sublead_pt = -1;
     
     std::vector<int> passing_dipho;
-    std::vector<float> passing_sumpt;
+    std::vector<float> passing_sumpt(dipho_n,0.);
     for(int idipho = 0; idipho < dipho_n; ++idipho ) {
         if( idipho >= MAX_DIPHOTONS-1 ) { 
             std::cout << "Warning diphoton index exceeds array capacity. Throwing event away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
@@ -3146,7 +3146,7 @@ std::vector<int> LoopAll::DiphotonMITPreSelectionForTaggedChannels(const char * 
 
         if(sumpt!=-99){
             passing_dipho.push_back(idipho);
-            passing_sumpt.push_back(sumpt); // need to use reordered pt!
+            passing_sumpt[idipho] = sumpt; // need to use reordered pt!
         }
     }
   
