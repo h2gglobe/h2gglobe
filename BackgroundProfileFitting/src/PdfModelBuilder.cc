@@ -98,7 +98,7 @@ RooAbsPdf* PdfModelBuilder::getBernstein(string prefix, int order){
   for (int i=0; i<order; i++){
     string name = Form("%s_p%d",prefix.c_str(),i);
     //params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),1.0,0.,5.)));
-    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.01*(i+1),-5.,5.);
+    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.1*(i+1),-5.,5.);
     RooFormulaVar *form = new RooFormulaVar(Form("%s_sq",name.c_str()),Form("%s_sq",name.c_str()),"@0*@0",RooArgList(*param));
     params.insert(pair<string,RooRealVar*>(name,param));
     prods.insert(pair<string,RooFormulaVar*>(name,form));
@@ -486,6 +486,7 @@ void PdfModelBuilder::plotPdfsToData(RooAbsData *data, int binning, string name,
     }	
     plot->Draw();
     canv->Print(Form("%s_%s.pdf",name.c_str(),it->first.c_str()));
+    canv->Print(Form("%s_%s.png",name.c_str(),it->first.c_str()));
   }
   delete canv;
 }
@@ -506,6 +507,8 @@ void PdfModelBuilder::fitToData(RooAbsData *data, bool bkgOnly, bool cache, bool
     }
     if (cache) {
       RooArgSet *fitargs = (RooArgSet*)it->second->getParameters(*obs_var);
+      // remove the signal strength since this will be set AFTER fitting the background 
+      fitargs->remove(*signalModifier); 
       wsCache->defineSet(Form("%s_params",it->first.c_str()),*fitargs);
       wsCache->defineSet(Form("%s_observs",it->first.c_str()),*obs_var);
       wsCache->saveSnapshot(it->first.c_str(),*fitargs,true);
@@ -604,7 +607,7 @@ void PdfModelBuilder::throwToy(string postfix, int nEvents, bool bkgOnly, bool b
   for (map<string,RooAbsPdf*>::iterator it=pdfSet.begin(); it!=pdfSet.end(); it++){
     if (cache) {
       wsCache->loadSnapshot(it->first.c_str());
-      cout << "Loading snapshot.." << endl;
+      cout << "Loaded snapshot, params at.." << endl;
       it->second->getVariables()->Print("v");
     }
     RooAbsData *toy;
@@ -705,6 +708,7 @@ void PdfModelBuilder::plotToysWithPdfs(string prefix, int binning, bool bkgOnly)
         pdfIt->second->paramOn(plot,LineColor(kRed),RooFit::Layout(0.34,0.96,0.89),RooFit::Format("NEA",AutoPrecision(1)));
         plot->Draw();
         canv->Print(Form("%s_%s.pdf",prefix.c_str(),pdfIt->first.c_str()));
+        canv->Print(Form("%s_%s.png",prefix.c_str(),pdfIt->first.c_str()));
       }
     }
   }

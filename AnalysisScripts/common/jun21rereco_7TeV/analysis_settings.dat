@@ -85,7 +85,7 @@ doEcorrectionSyst=0
 
 ## energy scale adjustement and errors
 scale_offset_file=jun21rereco_7TeV/energy_scale_offsets.dat
-scale_offset_error_file=common/energy_scale_errors.dat
+scale_offset_error_file=jun21rereco_7TeV/energy_scale_errors.dat
 
 ## uncorrelated part of the uncertainties
 splitEscaleSyst=0

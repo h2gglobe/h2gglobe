@@ -1,0 +1,17 @@
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
+# http://indico.cern.ch/getFile.py/access?contribId=2&resId=0&materialId=slides&confId=176520
+# these numbers for june15unblind - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/779.html
+# also see https://twiki.cern.ch/twiki/pub/CMS/EcalEnergyResolutionWithZee/Hgg-rerecoICHEP2012.pdfEBlowEtaBad  
+
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
+EBlowEtaGold7TeV 0    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.05e-2
+EBlowEtaBad7TeV	 0    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.05e-2
+
+EBhighEtaGold7TeV	0    1.0	1.5	0.94	999.00	-999999	999999	0.0	0.06e-2
+EBhighEtaBad7TeV	0    1.0	1.5	-999.00	0.94	-999999	999999	0.0	0.12e-2
+
+EElowEtaBad7TeV		0    1.5	2.0	-999.00	0.94	-999999	999999	0.0	0.2e-2
+EElowEtaGold7TeV	0    1.5	2.0	0.94	999.00	-999999	999999	0.0	0.3e-2
+
+EEhighEtaGold7TeV	0    2.0	3.0	-999.	0.94	-999999	999999	0.0	0.2e-2
+EEhighEtaBad7TeV	0    2.0	3.0	0.94	999.00	-999999	999999	0.0	0.3e-2

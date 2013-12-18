@@ -346,10 +346,12 @@ int main(int argc, char* argv[]){
   toysModel.setSignalModifierConstant(false);
   toysModel.fitToData(dataBinned,false,false,true);
   // -----
-  toysModel.setSignalModifierVal(expectSignal);
+  //toysModel.setSignalModifierVal(expectSignal);
+  toysModel.setSignalModifierVal(0);  // Always throwing from the background Only fit (why I have no idea)
   toysModel.setSignalModifierConstant(true);
   toysModel.fitToData(dataBinned,false,true,true);
   if (!skipPlots) toysModel.plotPdfsToData(dataBinned,80,Form("%s/plots/truthToData/datafit_mu%3.1f",outDir.c_str(),expectSignal),false);
+  toysModel.setSignalModifierVal(expectSignal);
   toysModel.setSignalModifierConstant(false);
   toysModel.saveWorkspace(outFile);
   
