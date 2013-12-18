@@ -85,10 +85,10 @@ puTarget=aux/nov08_rereco.json.68000.pileup.root
 ->
 energy scale adjustement and errors
 ->
-scale_offset_file=energy_scale_offsets.dat
-scale_offset_error_file=energy_scale_errors.dat
+scale_offset_file=jan16reload/energy_scale_offsets.dat
+scale_offset_error_file=jan16reload/energy_scale_errors.dat
 
 ->
 additional MC smearing
 ->
-smearing_file=smearing_sigma_and_errors.dat
+smearing_file=jan16reload/smearing_sigma_and_errors.dat

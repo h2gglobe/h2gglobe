@@ -1,0 +1,30 @@
+# switch off all systematics except Escale
+doEscaleSyst=1
+doEcorrectionSyst=0
+doEresolSyst=0
+doKFactorSyst=0
+doPdfWeightSyst=0
+doPhotonIdEffSyst=0
+doPhotonMvaIdSyst=0
+doPtSpinSyst=0
+doR9Syst=0
+doRegressionSyst=0
+doStocasticSmearingSyst=0
+doSystematics=0
+doTriggerEffSyst=0
+doVtxEffSyst=0
+
+# do 1-sigma shifts and book only mH=125
+systRange=1
+sigPointsToBook=125
+
+# split energy scale and resolution uncertainties by photon categories
+splitEscaleSyst=1
+splitEresolSyst=0
+
+# stocastic smearing and uncertainties
+doStocasticSmearingSyst=0
+
+# evaluate material-related systematic uncertainties
+scale_offset_corr_error_file=energy_scale_corr_errors_material.dat
+scale_offset_error_file=energy_scale_errors_material.dat
