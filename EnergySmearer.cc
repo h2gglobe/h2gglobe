@@ -368,7 +368,7 @@ double EnergySmearer::getWeight(double pt, std::string theCategory, float syst_s
 
 EnergySmearerExtrapolation::EnergySmearerExtrapolation(EnergySmearer * smearer) : 
 	target_(smearer),
-	name_(smearer->name()+"_extra"),
+	name_(smearer->name()+"Phi"),
 	myParameters_(smearer->myParameters_),
 	needed_(false)
 {
