@@ -75,6 +75,40 @@ def makePullPlot(h,ext,truth,usefit):
         c.Print('%s/%s_%.1f_%.1f_%s_pull.pdf'%(options.outDir,ext,truth,options.injectVal,h.GetName()))
     	c.Print('%s/%s_%.1f_%.1f_%s_pull.png'%(options.outDir,ext,truth,options.injectVal,h.GetName()))
 
+def makeDecompositionPulls(hlist,ext,truth):
+	if len(hlist)<1: return
+	print hlist
+	tnames = []
+	gmax=0
+	for i,h in enumerate(hlist):	
+	  hname = h.GetName()
+	  tnames.append(hname[hname.find("_bfit_"):hname.find("_only_")]) # truth is before the first underscore
+	  h.SetLineColor(i+1)		
+	  if h.GetMaximum() > gmax: 
+		gmax=h.GetMaximum()
+
+	hlist[0].SetMaximum(gmax*1.2)
+	c=r.TCanvas("cp","cp",600,600)
+	r.gStyle.SetOptStat(0)
+	l = r.TLegend(0.6,0.7,0.89,0.89)
+	l.SetFillColor(0)
+
+	lines = []
+	for i,h in enumerate(hlist):
+	  if i==0: h.Draw()
+	  else: h.Draw("same")	
+	  l.AddEntry(h,tnames[i],"L")
+	  line = r.TLine(h.GetMean(),0,h.GetMean(),gmax*1.2)
+	  line.SetLineColor(h.GetLineColor())
+	  lines.append(line)
+	for li in lines : li.Draw()
+	l.Draw()
+	overname=hlist[0].GetName() 
+	savename=overname[0:overname.find("_bfit")]
+	hlist[0].SetTitle(savename)	
+        c.Print('%s/%s_%.1f_%.1f_%s_decomp.pdf'%(options.outDir,ext,truth,options.injectVal,savename))
+        c.Print('%s/%s_%.1f_%.1f_%s_decomp.png'%(options.outDir,ext,truth,options.injectVal,savename))
+
 def makeTypePlot(h,ext,truth):
 	r.gROOT.SetBatch(1)
 	r.gStyle.SetOptStat(0)
@@ -100,7 +134,7 @@ def makeTypePlot(h,ext,truth):
 def makePlot():
   
   if options.runMasses:
-    valerr = 5 
+    valerr = 1.0 
     valTitle = "m_{H} (GeV)"
     ext = 'mass_mu%.1f'%options.injectVal
     xlow = 105
@@ -289,6 +323,14 @@ def makePlot():
 	else:
             graphDict['Pull'][stype].SetPoint(p,val,histPull.GetMean())
             graphDict['Pull'][stype].SetPointError(p,0,histPull.GetMeanError())
+
+	if stype!="Fab": 
+	  tronlyHists = []
+	  for tr_o in truth_mods:
+	    tronlyHists.append(f.Get('%s_mu%sPull_bfit_%s_only'%(truth,stype,tr_o)))
+	    #print tronlyHists
+	  makeDecompositionPulls(tronlyHists,ext,val)
+	  tronlyHists = []
 
         for v, cov in enumerate(coverageValues):
           graph = f.Get('%s_mu%sCov%3.1f'%(truth,stype,cov))

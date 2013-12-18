@@ -67,6 +67,7 @@ def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
     f.write('\t\trm -f %s.run\n'%(f.name))
     f.write('\telse\n')
     f.write('\t\ttouch %s.fail\n'%(f.name))
+    f.write('\t\trm -f %s.run\n'%(f.name))
     f.write('\tfi\n')
     f.write('else\n')
     f.write('\ttouch %s.fail\n'%(f.name))

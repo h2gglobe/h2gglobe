@@ -8,7 +8,7 @@ from optparse import OptionParser
 parser=OptionParser()
 
 parser.add_option("-r","--resubFailed",default=False,action="store_true",help="Resubmit failed jobs")
-parser.add_option("","--rerun",default=False,action="store_true",help="Resubmit jobs in run status")
+#parser.add_option("","--rerun",default=False,action="store_true",help="Resubmit jobs in run status")
 parser.add_option("-q","--queue",dest="queue",type="str",default="8nh",help="Which queue to run job in")
 (options,args)=parser.parse_args()
 dir = args[0]
@@ -17,8 +17,8 @@ dir = args[0]
 comp={}
 fail={}
 failedscripts=[]
-run={}
-runedscripts=[]
+#run={}
+#runedscripts=[]
 for root,dirs,files in os.walk(dir):
   for file in fnmatch.filter(files,'*.sh'):
     cat = int(file.split('cat')[-1].split('_')[0])
@@ -34,12 +34,12 @@ for root,dirs,files in os.walk(dir):
       else:
         fail[cat].append(job)
       failedscripts.append('%s/%s'%(root,file))
-    if os.path.isfile('%s/%s.run'%(root,file)):
-      if cat not in run:
-        run[cat] = [job]
-      else:
-        run[cat].append(job)
-      runedscripts.append('%s/%s'%(root,file))
+ #   if os.path.isfile('%s/%s.run'%(root,file)):
+ #     if cat not in run:
+ #       run[cat] = [job]
+ #     else:
+ #       run[cat].append(job)
+ #     runedscripts.append('%s/%s'%(root,file))
 
 print 'Completed jobs:'
 for key,item in comp.items():
@@ -49,9 +49,9 @@ print 'Failed jobs:'
 for key,item in fail.items():
   print '\t cat', key, ' - ', len(item)
 
-print 'Running jobs:'
-for key,item in run.items():
-  print '\t cat', key, ' - ', len(item)
+#print 'Running jobs:'
+#for key,item in run.items():
+#  print '\t cat', key, ' - ', len(item)
 
 if options.resubFailed: 
   for fi in failedscripts:
@@ -59,15 +59,14 @@ if options.resubFailed:
     #print 'bsub -q %s -o %s.log < ./%s'%(options.queue,fi,fi)
   print "done subbing failures"
 
-if options.rerun: 
-  for fi in runedscripts:
-    os.system('bsub -q %s -o %s.log < ./%s'%(options.queue,fi,fi))
-    #print 'bsub -q %s -o %s.log < ./%s'%(options.queue,fi,fi)
-  print "done re-subbing running jobs"
+#if options.rerun: 
+#  for fi in runedscripts:
+#    os.system('bsub -q %s -o %s.log < ./%s'%(options.queue,fi,fi))
+#  print "done re-subbing running jobs"
   
 
 if options.resubFailed: sys.exit("Re-run without --resubFailed to merge jobs")
-if options.rerun : sys.exit("Re-run without --rerun to merge jobs")
+#if options.rerun : sys.exit("Re-run without --rerun to merge jobs")
 
 answer = raw_input('Continue to merge jobs? (y/yes)')
 if not answer=="y" or answer=="yes": sys.exit("done")
