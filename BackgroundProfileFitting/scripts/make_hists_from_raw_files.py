@@ -6,7 +6,7 @@
 import os
 import sys
 import fnmatch
-
+import math
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-D","--dir")
@@ -96,6 +96,7 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
   histMap={}
   histErrMap={}
   histPullMap={}
+  histPullTruthMap={}
   histTypeMap={}
   graphCovMap={}
   counterCovMap={}
@@ -104,6 +105,7 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
     histMap[type] = {}
     histErrMap[type] = {}
     histPullMap[type] = {}
+    histPullTruthMap[type] = {}
     histTypeMap[type] = {}
     graphCovMap[type] = {}
     counterCovMap[type] = {}
@@ -112,6 +114,9 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
       histErrMap[type][mod] = r.TH1F('%s_mu%sErr'%(mod,type),'%s_mu%sErr'%(mod,type),errB,errL,errH)
       bWidth = (pullH-pullL)/pullB # so we can center at 0
       histPullMap[type][mod] = r.TH1F('%s_mu%sPull'%(mod,type),'%s_mu%sPull'%(mod,type),pullB,pullL-bWidth/2,pullH-bWidth/2)
+      histPullTruthMap[type][mod] = {}
+      for mod1 in truth_models:
+	histPullTruthMap[type][mod][mod1] = r.TH1F('%s_mu%sPull_bfit_%s_only'%(mod,type,mod1),'%s_mu%sPull_bfit_%s_only'%(mod,type,mod1),pullB,pullL-bWidth/2,pullH-bWidth/2)
       histTypeMap[type][mod] = {}
       graphCovMap[type][mod] = []
       counterCovMap[type][mod] = []
@@ -158,7 +163,7 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
 
       #if  sym_err <0.01 or ( abs(muVal-options.expectSignal) > 2*sym_err):
       pull = profiler.getPull(graph,options.expectSignal) ## need to fit best fit and truth for this
-
+      if math.isnan(pull) : continue
       """
       if abs(pull)<0.25 :# doesnt work so well
       #else: taken from L.Lyons but "seems odd" since distribution of mu should follow assymmetry of LH curve
@@ -172,6 +177,10 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
 
       # first find which pdf gave the best fit
       bfname = graph.GetTitle()
+      family = ""
+      for fam in truth_models: 
+	if fam in bfname : family = fam
+
       if bfname in histTypeMap[mytype][truth].keys():
 	histTypeMap[mytype][truth][bfname]+=1
       elif bfname:
@@ -180,6 +189,7 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
       histMap[mytype][truth].Fill(muVal)
       histErrMap[mytype][truth].Fill(sym_err)
       histPullMap[mytype][truth].Fill(pull)
+      if family!="": histPullTruthMap[mytype][truth][family].Fill(pull)
       
       for c, cov in enumerate(coverageValues):
         counterCovMap[mytype][truth][c][1] += 1
@@ -198,6 +208,10 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
   for type, item in histPullMap.items():
     for truth, hist in item.items():
       hist.Write()
+  for type, item in histPullTruthMap.items():
+    for truth, hists in item.items():
+	for tr,hist in hists.items():
+          hist.Write()
   for type, item in histTypeMap.items():
     for truth, hist in item.items():
       ntypes = len(hist.keys())
