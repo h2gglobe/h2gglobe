@@ -5,10 +5,11 @@ doEresolSyst=0
 doKFactorSyst=0
 doPdfWeightSyst=0
 doPhotonIdEffSyst=0
-doPhotonMvaIdSyst=0
+#MVA
+#doPhotonMvaIdSyst=0
 doPtSpinSyst=0
 doR9Syst=0
-doRegressionSyst=0
+#doRegressionSyst=0
 doStocasticSmearingSyst=0
 doSystematics=0
 doTriggerEffSyst=0
