@@ -1027,10 +1027,21 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    << "\trun:"                       <<  l.run
 		    << "\tlumi:"                      <<  l.lumis
 		    << "\tevent:"                     <<   (unsigned int)l.event
-		    << "\tvertexId0:"                 <<  vtxlist[0]
 		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
-		    << "\tvertex_z:"                   <<  vtx->z()
-		    <<"\tprobmva:"                    <<(1.-0.49*(l.vtx_std_evt_mva->at(diphoton_id)+1.))
+		    << "\tvertex_z:"                   <<  vtx->z();
+
+		for(size_t ii=0; ii<3; ++ii ) {
+		    eventListText << "\tvertexId"<< ii <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+		}
+		for(size_t ii=0; ii<3; ++ii ) {
+		    eventListText << "\tvertexMva"<< ii<<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+		}
+		for(size_t ii=1; ii<3; ++ii ) {
+		    eventListText << "\tvertexdeltaz"<< ii <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
+		}
+		eventListText << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
+
+		eventListText
 		    <<"\tsigmamom:"                   <<sigmaMrv/mass
 		    <<"\tsigmamom_wrong_vtx:"         <<sigmaMwv/mass
 		    <<"\tvtxprob:"                    <<vtxProb
@@ -1040,6 +1051,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    <<"\tdphi:"<<TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())
 		    
 		    << "\tpho1_e:"                    <<  lead_p4.E()
+		    <<"\tpho1_ecaliso:"               <<  l.pho_ecalsumetconedr03[l.dipho_leadind[diphoton_id]]
 		    << "\tpho1_EnScale:"               <<  lead_p4.E()/((TLorentzVector*)l.pho_p4->At(l.dipho_leadind[diphoton_id]))->Energy()
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
@@ -1079,6 +1091,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
 		    << "\tpho2_r9:"                   <<  sublead_r9
+		    <<"\tpho2_ecaliso:"               <<  l.pho_ecalsumetconedr03[l.dipho_subleadind[diphoton_id]]
 		    << "\tmass:"                      <<  mass 		
 		    << "\tcat:"                       <<  category
 		    << "\tpho1_idMVA:"                <<  phoid_mvaout_lead
