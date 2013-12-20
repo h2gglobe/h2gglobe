@@ -46,7 +46,7 @@ public:
 	
 	void buildPdfs();
 	
-	std::string name() { return name_; };
+	std::string name() const { return name_; };
 
 	void setShape(shape_t x);
 	shape_t getShape() { return shape_; };

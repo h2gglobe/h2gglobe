@@ -63,7 +63,7 @@ public:
     float diphovtxProb;
     bool pho1Matched, pho2Matched, corrVeretx;
     int pho1CiC, pho2CiC;
-    float diphoMVA;
+    float diphoMVA, vbfMVA, combinedMVA;
     
 };
 

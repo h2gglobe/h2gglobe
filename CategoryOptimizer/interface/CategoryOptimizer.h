@@ -25,6 +25,8 @@ public:
 	
 	virtual void clear() { categoryYields_.clear(); };
 
+	virtual std::string name() const { return ""; };
+	
 protected:
 	type_t type_;
 	std::vector<double> categoryYields_;
@@ -143,7 +145,7 @@ public:
 	};
 
 	void setStrategy(int x) { strategy_=x; };
-	void setScan(int x, bool y) { scan_=x; scanBoundaries_=y; };
+	void setScan(int x, bool y, int repeat=1) { scan_=x; scanBoundaries_=y; repeat_=repeat;};
 	void setTransformOrtho(bool x=true) { tranformOrtho_=x; };
 	void setSpeed(double x) { speed_=x; };
 	
@@ -151,7 +153,7 @@ public:
 private:
 
 	ROOT::Math::Minimizer * minimizer_;
-	int ndim_, strategy_, scan_;
+	int ndim_, strategy_, scan_, repeat_;
 	bool scanBoundaries_, tranformOrtho_;	
 	
 	std::vector<AbsModelBuilder *> sigModels_;

@@ -1,0 +1,7 @@
+{ 
+    "settings" : [["setScan",[100,1,3]],["setStrategy",[2]]],
+    "refit" : 1,
+    "cont" : "step0_%(label)s",
+    "mincat" : 4,
+    "maxcat" : 6
+}

@@ -1,0 +1,22 @@
+{ 
+    "refit" : 1,
+    "dry" : 1,
+    "cont" : "step1_%(label)s",
+    "mincat" : 4,
+    "maxcat" : 6,
+
+    "%(vbftreeoff)ssbackgrounds" : { 
+	"bkg" : [["vbfAnalysis/Data",""]
+		 ]
+	    },
+
+    "%(vbftreeoff)sweights" : { "sigRv" : "weight", "sigWv" : "weight", "bkg" : "weight" },
+
+    "%(opttreeoff)sbackgrounds" : { 
+	"bkg" : [["opttree","itype == 0"]
+		 ]
+	    },
+    "%(opttreeoff)sweights" : { "sigRv" : "full_weight", "sigWv" : "full_weight", "bkg" : "full_weight" },
+
+    "makeWorkspace" : 1
+}

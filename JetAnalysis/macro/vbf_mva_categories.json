@@ -1,6 +1,6 @@
 { 
     "variables"  : [
-       ["vbfMva := BDT%(label)s", [-1,1,0.005]]
+       ["vbfMva := BDT%(label)s", [0.5,1,0.005]]
 		   ],
 
     "_variables"  : [
@@ -26,10 +26,10 @@
  	
     "fix" : ["phoidMvaEB","phoidMvaEE","truncPho1ptOverM"],
     "selection" : "",
-    "cutoff" : 0.01,
+    "cutoff" : 0.02,
  
     "signals" : {
-	"vbf" : [ ["TestTree","classID == 0"]
+	"vbf" : [ ["TestTree","mctype == -126100"]
 		   ]
 	    },
     
@@ -43,14 +43,14 @@
 	"bkg" : [ ["TestTree","classID == 1 && mctype >0"],
 		  ["TrainTree","classID == 1 && mctype >0"]	
 		 ],
-	"ggh" : [ ["TestTree","classID == 1 && mctype < 0"]
+	"ggh" : [ ["TestTree","mctype == -126000"]
 		 ]
 	},
 
      "shapes" : { "ggh" : "gaus" },
      "constrained" : { "ggh" : 0.5 },
      "weights" : { "vbf" : "Signal_wei", "bkg" : "Background_wei", "ggh" : "Background_wei"  },
-     "minevents" : { "bkg" : 10, "ggh" : 0.1 },
+     "minevents" : { "bkg" : 2, "ggh" : 0.01 },
 
      "_infile" : "tmvavbf_mva_jetonly.root",
      "_infile" : "tmvavbf_mva_full.root"

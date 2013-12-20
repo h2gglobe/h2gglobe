@@ -4,7 +4,7 @@
   "variables"  : [],
   "spectators" : ["diphoM","pho1idMva","pho2idMva","entry","mctype","pho1scEta","pho2scEta","pho1r9","pho2r9",
 		"diphoptOverM:=diphopt/diphoM","diphosM","diphoMVA","pho1ptOverM:=pho1pt/diphoM","pho2ptOverM:=pho2pt/diphoM",
-		"wei := weight","diphoMVA"],
+		"wei := weight*(1+4.13*(mctype==5)+(-1+2.28e-6)*(mctype==-125010))","diphoMVA"],
   
   "categories" : [ 
                  ],
@@ -17,7 +17,8 @@
 	"Signal" : { 
 		"samples" : [
                    ["vbfAnalysis/vbf_m124_8TeV",1,"",0],
-	           ["vbfAnalysis/vbf_m125_8TeV",1,"",1]
+	           ["vbfAnalysis/vbf_m125_8TeV",1,"",1],
+	           ["vbfAnalysis/vbf_m126_8TeV",1,"",1]
 	        ],
 		"weight" : "weight"
 		},
@@ -30,15 +31,19 @@
                    ["vbfAnalysis/gjet_40_8TeV_pf",  1,"Entry$ % 2 == 0",0],
 	           ["vbfAnalysis/gjet_40_8TeV_pf",  2,"Entry$ % 2 == 1",1],
 	           ["vbfAnalysis/qcd_30_8TeV_ff",  1,"1",1],
-	           ["vbfAnalysis/qcd_40_8TeV_S7_ff",  1,"1",1],
-	           ["vbfAnalysis/ggh_m125_8TeV",1,"",1],
+	           ["vbfAnalysis/qcd_40_8TeV_ff",  1,"1",1],
+	           ["vbfAnalysis/ggh_m125_8TeV",1,"1",1],
+	           ["vbfAnalysis/ggh_m126_8TeV",1,"1",1],
+	           ["vbfAnalysis/ggh_minlo_m125_8TeV",1,"2.28e-6",1],
 	           ["vbfAnalysis/Data",1,"",1]
+                ],
+		"_samples" : [
 	         ],
-		"weight" : "weight"
+		"weight" : "weight*(1+4.13*(mctype==5)+(-1+2.28e-6)*(mctype==-125010))"
 		}
 	},
-  "indir" : "/afs/cern.ch/user/m/musella/eos_musella/hgg/vbf_optimization/legacy_v8/",
-  "files" : "histograms_legacy_v8.root",
+  "indir" : "/afs/cern.ch/user/m/musella/eos_musella/hgg/vbf_optimization_oct8/legacy_training_jan22_rdmc_v3/",
+  "files" : "histograms_CMS-HGG.root",
   "settings" : { 
 	"Cuts" : "H:!V:FitMethod=GA:VarProp=FSmart:EffSel:Steps=30:Cycles=3:PopSize=400:SC_steps=10:SC_rate=5:SC_factor=0.95"
   }
