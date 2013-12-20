@@ -1015,40 +1015,106 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     
         if (dumpAscii && category > -1 && mass >= 100. && mass < 180. && !isSyst){
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
-	        float pfchargedisobad03_1=0.;
-	        float pfchargedisobad03_2=0.;
-	        for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
-		        pfchargedisobad03_1=(*(l.pho_pfiso_mycharged03))[diphoton_index.first][ivtx]>pfchargedisobad03_1?
-                    (*(l.pho_pfiso_mycharged03))[diphoton_index.first][ivtx]:pfchargedisobad03_1;
-		        pfchargedisobad03_2=(*(l.pho_pfiso_mycharged03))[diphoton_index.second][ivtx]>pfchargedisobad03_2?
-                    (*(l.pho_pfiso_mycharged03))[diphoton_index.second][ivtx]:pfchargedisobad03_2;
-	        }
+
 		std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+		TVector3* vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+
+
 
 		eventListText 
+
+
 		    << "\trun:"                       <<  l.run
 		    << "\tlumi:"                      <<  l.lumis
-		    << "\tevent:"                     <<  l.event
-		    << "\tvertexId0:"                 <<  vtxlist[0]
+		    << "\tevent:"                     <<   (unsigned int)l.event
 		    << "\tvertexMva0:"                <<  vtxAna_.mva(vtxlist[0]) 
-		    <<"\tprobmva:"                    <<l.vtx_std_evt_mva->at(diphoton_id)
+		    << "\tvertex_z:"                   <<  vtx->z();
+
+		for(size_t ii=0; ii<3; ++ii ) {
+		    eventListText << "\tvertexId"<< ii <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+		}
+		for(size_t ii=0; ii<3; ++ii ) {
+		    eventListText << "\tvertexMva"<< ii<<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+		}
+		for(size_t ii=1; ii<3; ++ii ) {
+		    eventListText << "\tvertexdeltaz"<< ii <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
+		}
+		eventListText << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
+
+		eventListText
+		    <<"\tsigmamom:"                   <<sigmaMrv/mass
+		    <<"\tsigmamom_wrong_vtx:"         <<sigmaMwv/mass
+		    <<"\tvtxprob:"                    <<vtxProb
+		    <<"\tpt_dipho:"                    <<(lead_p4+sublead_p4).Pt()
+		    <<"\tptom1:"                      <<lead_p4.Pt()/mass
+		    <<"\tptom2:"                      <<sublead_p4.Pt()/mass
+		    <<"\tdphi:"<<TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())
+		    
 		    << "\tpho1_e:"                    <<  lead_p4.E()
+		    <<"\tpho1_ecaliso:"               <<  l.pho_ecalsumetconedr03[l.dipho_leadind[diphoton_id]]
 		    << "\tpho1_EnScale:"               <<  lead_p4.E()/((TLorentzVector*)l.pho_p4->At(l.dipho_leadind[diphoton_id]))->Energy()
 		    << "\tpho1_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
 		    << "\tpho1_eta:"                  <<  lead_p4.Eta()
 		    << "\tpho1_phi:"                  <<  lead_p4.Phi()
-		    << "\tpho1_r9:"                   <<  lead_r9
+		    << "\tpho1_r9:"                   <<  lead_r9;
+
+		float pfchargedisobad03_1=0.;
+		float pfchargedisobad03_2=0.;
+		for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+		    pfchargedisobad03_1=(*(l.pho_pfiso_mycharged03))[l.dipho_leadind[diphoton_id]][ivtx]>pfchargedisobad03_1?(*(l.pho_pfiso_mycharged03))[l.dipho_leadind[diphoton_id]][ivtx]:pfchargedisobad03_1;
+		    pfchargedisobad03_2=(*(l.pho_pfiso_mycharged03))[l.dipho_subleadind[diphoton_id]][ivtx]>pfchargedisobad03_2?(*(l.pho_pfiso_mycharged03))[l.dipho_subleadind[diphoton_id]][ivtx]:pfchargedisobad03_2;
+		}
+		/*		    if(((TLorentzVector *)l.sc_p4->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->E()>0.1){
+			eventListText<<"\tpho1_scEta:"                <<   ((TLorentzVector *)l.sc_p4->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta();
+			}*/
+
+		eventListText
+		    <<"\tpho1_scRawE:"              <<   l .sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]]
+		    <<"\tpho1_pfChargedIsoBad03:"   <<   pfchargedisobad03_1
+		    <<"\tpho1_pfChargedIsoGood03:"   <<   (*(l.pho_pfiso_mycharged03))[l.dipho_leadind[diphoton_id]][l.dipho_vtxind[diphoton_id]]
+		    <<"\tpho1_pfPhotonIso03:"       <<   l.pho_pfiso_myphoton03[l.dipho_leadind[diphoton_id]]
+		    <<"\tpho1_sieie:"               <<   l.pho_sieie[l.dipho_leadind[diphoton_id]]
+		    <<"\tpho1_sieip:"               <<   l.pho_sieip[l.dipho_leadind[diphoton_id]]
+		    <<"\tpho1_etaWidth:"            <<   l.pho_etawidth[l.dipho_leadind[diphoton_id]]
+		    <<"\tpho1_phiWidth:"            <<   l.sc_sphi[l.pho_scind[l.dipho_leadind[diphoton_id]]];
+
+		    eventListText
+		    <<"\tpho1_s4Ratio:"             <<   l.pho_s4ratio[l.dipho_leadind[diphoton_id]]
+		    <<"\tpho1_ESEffSigmaRR:"        <<   l.pho_ESEffSigmaRR[l.dipho_leadind[diphoton_id]];
+
+		
+
+	    eventListText
 		    << "\tpho2_e:"                    <<  sublead_p4.E()
 		    << "\tpho2_EnScale:"               << sublead_p4.E()/ ((TLorentzVector*)l.pho_p4->At(l.dipho_subleadind[diphoton_id]))->Energy()
 		    << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
 		    << "\tpho2_eta:"                  <<  sublead_p4.Eta()
 		    << "\tpho2_phi:"                  <<  sublead_p4.Phi()
 		    << "\tpho2_r9:"                   <<  sublead_r9
+		    <<"\tpho2_ecaliso:"               <<  l.pho_ecalsumetconedr03[l.dipho_subleadind[diphoton_id]]
 		    << "\tmass:"                      <<  mass 		
 		    << "\tcat:"                       <<  category
 		    << "\tpho1_idMVA:"                <<  phoid_mvaout_lead
 		    << "\tpho2_idMVA:"                <<  phoid_mvaout_sublead
 		    << "\tdiphoMVA:"                  <<  diphobdt_output;
+
+		eventListText
+		    <<"\tpho2_scRawE:"              <<   l .sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]]
+		    <<"\tpho2_pfChargedIsoBad03:"   <<   pfchargedisobad03_2
+		    <<"\tpho2_pfChargedIsoGood03:"   <<   (*(l.pho_pfiso_mycharged03))[l.dipho_subleadind[diphoton_id]][l.dipho_vtxind[diphoton_id]]
+		    <<"\tpho2_pfPhotonIso03:"       <<   l.pho_pfiso_myphoton03[l.dipho_subleadind[diphoton_id]]
+		    <<"\tpho2_sieie:"               <<   l.pho_sieie[l.dipho_subleadind[diphoton_id]]
+		    <<"\tpho2_sieip:"               <<   l.pho_sieip[l.dipho_subleadind[diphoton_id]]
+		    <<"\tpho2_etaWidth:"            <<   l.pho_etawidth[l.dipho_subleadind[diphoton_id]]
+		    <<"\tpho2_phiWidth:"            <<   l.sc_sphi[l.pho_scind[l.dipho_subleadind[diphoton_id]]];
+		/*		    if(((TLorentzVector *)l.sc_p4->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->E()>0.2){
+			eventListText<<"\tpho2_scEta:"                <<   ((TLorentzVector *)l.sc_p4->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta();
+			}*/
+		    eventListText
+		    <<"\tpho2_s4ratio:"             <<   l.pho_s4ratio[l.dipho_subleadind[diphoton_id]]
+		    <<"\tpho2_ESEffSigmaRR:"        <<   l.pho_ESEffSigmaRR[l.dipho_subleadind[diphoton_id]];
+
+		
 
 
 		int tth=0,vhLep=0,vhMet=0,vhHad=0;
@@ -1260,6 +1326,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		    if( isJet_LeadPho || isJet_SubLeadPho || isJet_Lep ) continue;
 		    j1pt=j1p4->Pt();
 		    if(j1pt<20.) continue;
+		    if(l.event==210601324)std::cout<<j1pt<<" eta "<<j1p4->Eta()<<" btag "<<l.jet_algoPF1_csvBtag[ii]<<endl;
 		    njets++;
 		    TLorentzVector * bj1p4;
 		    if(l.jet_algoPF1_csvBtag[ii]>0.679){
@@ -1391,12 +1458,20 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		if(myVBF_MVA<-1.9){
 		    myVBF_MVA=-999;   
 		    myVBFcombined=-999;   
+		    myVBF_Mjj=-999;
+		    myVBFZep=-999;
+		    myVBFdPhiTrunc=-999;
+		    myVBFdEta=-999; 
+		    
 		}
 
 		
 		eventListText<<"\tdijetMVA:"<<myVBF_MVA
-			     <<"\tcombiMVA:"<<myVBFcombined;
-
+			     <<"\tcombiMVA:"<<myVBFcombined
+			     <<"\tvbf_massJJ:"<<myVBF_Mjj
+			     <<"\tvbf_Zeppenfeld:"<<myVBFZep
+			     <<"\tvbf_dPhiJJGG:"<<myVBFdPhiTrunc
+			     <<"\tvbf_dEtaJJ:"<<myVBFdEta; 
             
                 eventListText << endl;
             }
