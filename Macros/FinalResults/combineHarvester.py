@@ -44,6 +44,7 @@ specOpts.add_option("--pointsperjob",type="int",default=1)
 specOpts.add_option("--expectSignal",type="float")
 specOpts.add_option("--expectSignalMass",type="float")
 specOpts.add_option("--splitChannels")
+specOpts.add_option("--toysFile")
 specOpts.add_option("--additionalOptions")
 parser.add_option_group(specOpts)
 (opts,args) = parser.parse_args()
@@ -56,7 +57,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly']
 
 def checkValidMethod():
 	if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
@@ -110,6 +111,7 @@ def splitCard():
 			for el in line.split()[1:]:
 				allCats.add(el)
 	f.close()
+	if opts.verbose: print 'Found these categories in card: ', allCats
 	veto = ""
 	for cat in allCats:
 		if cat in opts.splitChannels: continue
@@ -163,10 +165,14 @@ def writePreamble(sub_file):
 	sub_file.write('cd scratch\n')
 	sub_file.write('cp -p $CMSSW_BASE/bin/$SCRAM_ARCH/combine .\n')
 	sub_file.write('cp -p %s .\n'%os.path.abspath(opts.datacard))
+	if opts.toysFile: 
+		for f in opts.toysFile.split(','):
+			sub_file.write('cp -p %s .\n'%os.path.abspath(f))
 	for file in opts.files.split(','):
 		sub_file.write('cp -p %s .\n'%os.path.abspath(file))
 
 def writePostamble(sub_file, exec_line):
+
 	sub_file.write('if ( %s ) then\n'%exec_line)
 	sub_file.write('\t mv higgsCombine*.root %s\n'%os.path.abspath(opts.outDir))
 	sub_file.write('\t touch %s.done\n'%os.path.abspath(sub_file.name))
@@ -246,8 +252,15 @@ def writeProfileLikelhood():
 
 	tempcardstore = opts.datacard
 	if opts.splitChannels: splitCard()
+	toysfilestore = opts.toysFile
+
+	# write
 	for j, mass_set in enumerate(opts.masses_per_job):
 		file = open('%s/sub_job%d.sh'%(opts.outDir,j),'w')
+		if opts.toysFile:
+			opts.toysFile = ''
+			for mass in mass_set:
+				opts.toysFile += toysfilestore.replace('${m}',str(mass)).replace('.0','')
 		writePreamble(file)
 		exec_line = ''
 		for mass in mass_set:
@@ -255,10 +268,13 @@ def writeProfileLikelhood():
 			if opts.expected: exec_line += ' -t -1'
 			if opts.expectSignal: exec_line += ' --expectSignal=%3.1f'%opts.expectSignal
 			if opts.expectSignalMass: exec_line += ' --expectSignalMass=%6.2f'%opts.expectSignalMass
+			if opts.toysFile: exec_line += ' --toysFile %s'%toysfilestore.replace('${m}',str(mass)).replace('.0','')
 			if mass!=mass_set[-1]: exec_line += ' && '
+		
 		writePostamble(file,exec_line)
-		# change back
-		opts.datacard = tempcardstore
+	# change back
+	opts.datacard = tempcardstore
+	opts.toysFile = toysfilestore
 
 def writeChannelCompatibility():
 
@@ -272,6 +288,39 @@ def writeChannelCompatibility():
 	writePreamble(file)
 	exec_line = 'combine %s -M ChannelCompatibilityCheck -m %6.2f --rMin=-25. --saveFitResult --cminDefaultMinimizerType=Minuit2'%(opts.datacard,opts.mh)
 	writePostamble(file,exec_line)
+
+def writeSingleGenerateOnly():
+	
+	file = open('%s/sub.sh'%(opts.outDir),'w')
+	writePreamble(file)
+	exec_line = 'combine %s -M GenerateOnly -m %6.2f --saveToys '%(opts.datacard,opts.mh)
+	if opts.expected: exec_line += ' -t -1'
+	if opts.expectSignal: exec_line += ' --expectSignal=%3.1f'%opts.expectSignal
+	if opts.expectSignalMass: exec_line += ' --expectSignalMass=%6.2f'%opts.expectSignalMass
+	writePostamble(file,exec_line)
+
+def writeGenerateOnly():
+
+	if opts.splitChannels:
+		backupcard = opts.datacard
+		backupdir = opts.outDir
+		if 'all' in opts.splitChannels:
+			cats = getSortedCats()
+			for cat in cats:
+				opts.splitChannels = [cat]
+				splitCard()
+				opts.outDir += '/'+cat
+				os.system('mkdir -p %s'%opts.outDir)
+				writeSingleGenerateOnly()
+				opts.datacard = backupcard
+				opts.outDir = backupdir
+		else:
+			splitCard()
+			writeSingleGenerateOnly()
+			opts.datacard = backupcard
+			opts.outDir = backupdir
+	else:
+		writeSingleGenerateOnly()
 
 def writeMultiPdfChannelCompatibility():
 	
@@ -357,21 +406,24 @@ def writeMultiDimFit():
 	for i in range(opts.jobs):
 		file = open('%s/sub_m%6.2f_job%d.sh'%(opts.outDir,opts.mh,i),'w')
 		writePreamble(file)
-		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --cminDefaultMinimizerType Minuit2 --algo=grid --saveNLL --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n Job%d'%(opts.datacard,par_ranges[opts.method],combine_args[opts.method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i)
+		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --keepFailures --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n Job%d'%(opts.datacard,par_ranges[opts.method],combine_args[opts.method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i)
 		if opts.mh: exec_line += ' -m %6.2f'%opts.mh
 		if opts.expected: exec_line += ' -t -1'
 		if opts.expectSignal: exec_line += ' --expectSignal %4.2f'%opts.expectSignal
 		if opts.expectSignalMass: exec_line += ' --expectSignalMass %6.2f'%opts.expectSignalMass
-		if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions 
+		if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions
+		if opts.toysFile: exec_line += ' --toysFile %s'%opts.toysFile
 		if opts.verbose: print '\t', exec_line
 		writePostamble(file,exec_line)
 
 	opts.datacard = backupcard 
 
 def run():
+	# setup
 	os.system('mkdir -p %s'%opts.outDir)
 	if opts.verbose: print 'Made directory', opts.outDir
 	checkValidMethod()
+	# submit
 	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
 	if opts.method=='Asymptotic':
@@ -384,6 +436,8 @@ def run():
 		writeChannelCompatibility()
 	elif opts.method=='MultiPdfChannelCompatibility':
 		writeMultiPdfChannelCompatibility()
+	elif opts.method=='GenerateOnly':
+		writeGenerateOnly()
 	else:
 		writeMultiDimFit()
 
@@ -409,6 +463,7 @@ def configure(config_line):
 		if option.startswith('jobs='): opts.jobs = int(option.split('=')[1])
 		if option.startswith('pointsperjob='): opts.pointsperjob = int(option.split('=')[1])
 		if option.startswith('splitChannels='): opts.splitChannels = option.split('=')[1].split(',')
+		if option.startswith('toysFile='): opts.toysFile = option.split('=')[1]
 		if option.startswith('mh='): opts.mh = float(option.split('=')[1])
 		if option.startswith('muLow='): opts.muLow = float(option.split('=')[1])
 		if option.startswith('muHigh='): opts.muHigh = float(option.split('=')[1])

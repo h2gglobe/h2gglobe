@@ -1491,14 +1491,14 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 		labels.insert(pair<string,string>("all","Combined"));
 	}
 	else {
-		labels.insert(pair<string,string>("cat0","Untagged 0 (High p_{t})"));
-		labels.insert(pair<string,string>("cat1","Untagged 1 (High p_{t})"));
-		labels.insert(pair<string,string>("cat2","Untagged 2 (High p_{t})"));
-		labels.insert(pair<string,string>("cat3","Untagged 3 (High p_{t})"));
-		labels.insert(pair<string,string>("cat4","Untagged 4 (Low p_{t})"));
-		labels.insert(pair<string,string>("cat5","Untagged 5 (Low p_{t})"));
-		labels.insert(pair<string,string>("cat6","Untagged 6 (Low p_{t})"));
-		labels.insert(pair<string,string>("cat7","Untagged 7 (Low p_{t})"));
+		labels.insert(pair<string,string>("cat0","Untagged 0 (High p_{T})"));
+		labels.insert(pair<string,string>("cat1","Untagged 1 (High p_{T})"));
+		labels.insert(pair<string,string>("cat2","Untagged 2 (High p_{T})"));
+		labels.insert(pair<string,string>("cat3","Untagged 3 (High p_{T})"));
+		labels.insert(pair<string,string>("cat4","Untagged 4 (Low p_{T})"));
+		labels.insert(pair<string,string>("cat5","Untagged 5 (Low p_{T})"));
+		labels.insert(pair<string,string>("cat6","Untagged 6 (Low p_{T})"));
+		labels.insert(pair<string,string>("cat7","Untagged 7 (Low p_{T})"));
 		labels.insert(pair<string,string>("cat8","Dijet Tag Tight"));
 		labels.insert(pair<string,string>("cat9","Dijet Tag Loose"));
 		labels.insert(pair<string,string>("cat10","VH Lepton Tight"));

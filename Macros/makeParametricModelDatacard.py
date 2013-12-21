@@ -10,6 +10,7 @@ parser.add_option("--photonSystCats",default="EBlowR9,EBhighR9,EElowR9,EEhighR9"
 parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
 parser.add_option("--isMultiPdf",default=False,action="store_true")
+parser.add_option("--isBinnedSignal",default=False,action="store_true")
 parser.add_option("--is2011",default=False,action="store_true")
 parser.add_option("--quadInterpolate",type="int",default=0,help="Do a quadratic interpolation of globe templates back to 1 sigma from this sigma. 0 means off (default: %default)")
 (options,args)=parser.parse_args()
@@ -87,30 +88,38 @@ intL = inWS.var('IntLumi').getVal()
 # info = [file,workspace,name]
 if options.isCutBased:
 	if options.isMultiPdf:
-		dataFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
-		bkgFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
+		dataFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
+		bkgFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
 		dataWS = 'multipdf'
 		bkgWS = 'multipdf'
 	else:
-		dataFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
-		bkgFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
+		dataFile = 'CMS-HGG_cic_%dTeV_data.root'%sqrts
+		bkgFile = 'CMS-HGG_cic_%dTeV_data.root'%sqrts
 		dataWS = 'cms_hgg_workspace'
 		bkgWS = 'cms_hgg_workspace'
-	sigFile = 'CMS-HGG_cutbased_legacy_sigfit_%dTeV.root'%sqrts
-	sigWS = 'wsig_%dTeV'%sqrts
+	if options.isBinnedSignal:
+		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
+		sigWS = 'cms_hgg_workspace'
+	else:
+		sigFile = 'CMS-HGG_cic_%dTeV_sigfit.root'%sqrts
+		sigWS = 'wsig_%dTeV'%sqrts
 else:
 	if options.isMultiPdf:
-		dataFile = 'CMS-HGG_massfac_%dTeV_multipdf.root'%sqrts
-		bkgFile = 'CMS-HGG_massfac_%dTeV_multipdf.root'%sqrts
+		dataFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
+		bkgFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
 		dataWS = 'multipdf'
 		bkgWS = 'multipdf'
 	else:
-		dataFile = 'CMS-HGG_massfac_%dTeV_data.root'%sqrts
-		bkgFile = 'CMS-HGG_massfac_%dTeV_data.root'%sqrts
+		dataFile = 'CMS-HGG_mva_%dTeV_data.root'%sqrts
+		bkgFile = 'CMS-HGG_mva_%dTeV_data.root'%sqrts
 		dataWS = 'cms_hgg_workspace'
 		bkgWS = 'cms_hgg_workspace'
-	sigFile = 'CMS-HGG_massfac_%dTeV_sigfit.root'%sqrts
-	sigWS = 'wsig_%dTeV'%sqrts
+	if options.isBinnedSignal:
+		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
+		sigWS = 'cms_hgg_workspace'
+	else:
+		sigFile = 'CMS-HGG_mva_%dTeV_sigfit.root'%sqrts
+		sigWS = 'wsig_%dTeV'%sqrts
 
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
@@ -118,43 +127,81 @@ if options.isMultiPdf:
 	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
 else:
 	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
-fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
-fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
-if splitVH:
-	fileDetails['WH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]
-	fileDetails['ZH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_zh_$CHANNEL'%sqrts]
+
+if options.isBinnedSignal:
+	fileDetails['ggH'] 			= [sigFile,sigWS,'roohist_sig_ggh_mass_m$MASS_$CHANNEL']
+	fileDetails['qqH'] 			= [sigFile,sigWS,'roohist_sig_vbf_mass_m$MASS_$CHANNEL']
+	if splitVH:
+		fileDetails['WH'] 			=	[sigFile,sigWS,'roohist_sig_wh_mass_m$MASS_$CHANNEL']
+		fileDetails['ZH'] 			=	[sigFile,sigWS,'roohist_sig_zh_mass_m$MASS_$CHANNEL']
+	else:
+		fileDetails['VH'] 			=	[sigFile,sigWS,'roohist_sig_vh_mass_m$MASS_$CHANNEL']
+	fileDetails['ttH'] 			= [sigFile,sigWS,'roohist_sig_tth_mass_m$MASS_$CHANNEL']
 else:
-	fileDetails['VH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_wzh_$CHANNEL'%sqrts]
-fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
+	fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
+	fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
+	if splitVH:
+		fileDetails['WH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_wh_$CHANNEL'%sqrts]
+		fileDetails['ZH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_zh_$CHANNEL'%sqrts]
+	else:
+		fileDetails['VH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_wzh_$CHANNEL'%sqrts]
+	fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
 
 # theory systematics arr=[up,down]
 pdfSyst = {}
-pdfSyst['ggH'] = [0.076,-0.070]
-pdfSyst['qqH'] = [0.026,-0.028]
-if splitVH:
-	pdfSyst['WH'] =  [0.042,-0.042]
-	pdfSyst['ZH'] =  [0.042,-0.042]
-else:
-	pdfSyst['VH'] =  [0.042,-0.042]
-pdfSyst['ttH'] = [0.080,-0.080]
 scaleSyst = {}
-scaleSyst['ggH'] = [0.076,-0.082]
-scaleSyst['qqH'] = [0.003,-0.008]
-if splitVH:
-	scaleSyst['WH'] =  [0.021,-0.018]
-	scaleSyst['ZH'] =  [0.021,-0.018]
+# 7 TeV
+if options.is2011:
+	# pdf
+	pdfSyst['ggH'] = [0.076,-0.071] 
+	pdfSyst['qqH'] = [0.025,-0.021]
+	if splitVH:
+		pdfSyst['WH'] = [0.026,-0.026]
+		pdfSyst['ZH'] = [0.027,-0.027]
+	else:
+		pdfSyst['VH'] = [0.037,-0.037]
+	pdfSyst['ttH'] = [0.81,-0.81]
+	# scale
+	scaleSyst['ggH'] = [0.071,-0.078] 
+	scaleSyst['qqH'] = [0.003,-0.003]
+	if splitVH:
+		scaleSyst['WH'] = [0.009,-0.009]
+		scaleSyst['ZH'] = [0.029,-0.029]
+	else:
+		scaleSyst['VH'] = [0.030,-0.030]
+	scaleSyst['ttH'] = [0.032,-0.093]
+# 8 TeV
 else:
-	scaleSyst['VH'] =  [0.021,-0.018]
-scaleSyst['ttH'] = [0.041,-0.094]
+	# pdf
+	pdfSyst['ggH'] = [0.075,-0.069] 
+	pdfSyst['qqH'] = [0.026,-0.028]
+	if splitVH:
+		pdfSyst['WH'] = [0.023,-0.023]
+		pdfSyst['ZH'] = [0.025,-0.025]
+	else:
+		pdfSyst['VH'] = [0.034,-0.034]
+	pdfSyst['ttH'] = [0.081,-0.081]
+	# scale
+	scaleSyst['ggH'] = [0.072,-0.078]
+	scaleSyst['qqH'] = [0.002,-0.002]
+	if splitVH:
+		scaleSyst['WH'] = [0.010,-0.010]
+		scaleSyst['ZH'] = [0.031,-0.031]
+	else:
+		scaleSyst['VH'] = [0.031,-0.031] 
+	scaleSyst['ttH'] = [0.038,-0.093]
+
+# BR uncertainty
+brSyst = [0.050,-0.050]
 
 # global scale
 globalScale = 0.0027
 
 # lumi syst
 if options.is2011:
-	lumiSyst = 0.045
+	lumiSyst = 0.022
 else:
-	lumiSyst = 0.044
+	lumiSyst = 0.026
 
 # vtx eff
 if options.is2011:
@@ -178,12 +225,15 @@ globeSysts['triggerEff'] = 'n_trig_eff'
 if not options.isCutBased:
   globeSysts['phoIdMva'] = 'n_id_mva'
   globeSysts['regSig'] = 'n_sigmae'
+if options.isBinnedSignal:
+	globeSysts['E_scale'] = 'n_e_scale'
+	globeSysts['E_res'] = 'n_e_res'
 
-  # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
-  if not options.is2011:
-    globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
-    for pdfi in range(1,27):
-      globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
+# QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
+if not options.is2011 and not options.isBinnedSignal:
+	globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
+	for pdfi in range(1,27):
+		globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
 
 # vbf uncertainties (different for 7 TeV?)
 vbfSysts={}
@@ -266,7 +316,10 @@ def printFileOptions():
 			file = info[0]
 			wsname = info[1]
 			pdfname = info[2].replace('$CHANNEL','cat%d'%c)
-			outFile.write('shapes %-8s cat%d_%dTeV %-30s %s:%s\n'%(typ,c,sqrts,file,wsname,pdfname))
+			if options.isBinnedSignal:
+				outFile.write('shapes %-8s cat%d_%dTeV %-30s %s:%s %s:%s_$SYSTEMATIC01_sigma\n'%(typ,c,sqrts,file,wsname,pdfname,wsname,pdfname))
+			else:
+				outFile.write('shapes %-8s cat%d_%dTeV %-30s %s:%s\n'%(typ,c,sqrts,file,wsname,pdfname))
 	outFile.write('\n')
 
 def printObsProcBinLines():
@@ -309,28 +362,32 @@ def printObsProcBinLines():
 			if p in bkgProcs:
 				outFile.write('1.0 ')
 			else:
-				scale=1.
-				if c in looseLepCat: scale *= looseLepRateScale
-				if c in tightLepCat: scale *= tightLepRateScale
-				if c in tthCats:
-					if c in tthLepCat: scale *= tthLepRateScale
-					else: scale *= tthHadRateScale
-				outFile.write('%7.1f '%(intL*scale))
+				if options.isBinnedSignal:
+					outFile.write('-1 ')
+				else:
+					scale=1.
+					if c in looseLepCat: scale *= looseLepRateScale
+					if c in tightLepCat: scale *= tightLepRateScale
+					if c in tthCats:
+						if c in tthLepCat: scale *= tthLepRateScale
+						else: scale *= tthHadRateScale
+					outFile.write('%7.1f '%(intL*scale))
 	outFile.write('\n')
 	outFile.write('\n')
 
 def printNuisParams():
-	print 'Nuisances...'
-	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
-	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',globalScale))
-	if options.isCutBased:
-		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
-		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
-	for phoSyst in options.photonSystCats:
-		outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%sscale'%phoSyst))
-	for phoSyst in options.photonSystCats:
-		outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%ssmear'%phoSyst))
-	outFile.write('\n')
+	if not options.isBinnedSignal:
+		print 'Nuisances...'
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',globalScale))
+		if options.isCutBased:
+			outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
+			outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
+		for phoSyst in options.photonSystCats:
+			outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%sscale'%phoSyst))
+		for phoSyst in options.photonSystCats:
+			outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%ssmear'%phoSyst))
+		outFile.write('\n')
 
 def printTheorySysts():
 	print 'Theory...'
@@ -359,6 +416,18 @@ def printTheorySysts():
 					outFile.write('- ')
 		outFile.write('\n')
 	outFile.write('\n')
+	
+	# br
+	outFile.write('%-25s   lnN   '%('br_hgg'))
+	for c in range(options.ncats):
+		for p in options.procs:
+			if '%s:%d'%(p,c) in options.toSkip: continue
+			if p in bkgProcs:
+				outFile.write('- ')
+			else:
+				outFile.write('%5.3f/%5.3f '%(1.+brSyst[1],1.+brSyst[0]))
+	outFile.write('\n')
+	outFile.write('\n')
 
 def printLumiSyst():
 	print 'Lumi...'
@@ -376,12 +445,18 @@ def printLumiSyst():
 def printGlobeSysts():
 	print 'Efficiencies...'
 	for globeSyst, paramSyst in globeSysts.items():
-		outFile.write('%-25s   lnN   '%('CMS_hgg_%s'%paramSyst))
+		if options.isBinnedSignal:
+			outFile.write('%-25s   shape   '%(globeSyst))
+		else:
+			outFile.write('%-25s   lnN   '%('CMS_hgg_%s'%paramSyst))
 		for c in range(options.ncats):
 			for p in options.procs:
 				if '%s:%d'%(p,c) in options.toSkip: continue
 				if p in bkgProcs or ('pdfWeight' in globeSyst and p!='ggH'):
-					outFile.write('- ')
+					if options.isBinnedSignal:
+						outFile.write('0 ')
+					else:
+						outFile.write('- ')
 				else:
 					th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(globeProc[p],c))
 					th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(globeProc[p],c,globeSyst))
@@ -389,11 +464,17 @@ def printGlobeSysts():
 					systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up)
 					if 'pdfWeight' in globeSyst:
 						if p=='ggH':
-							outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
+							if options.isBinnedSignal:
+								outFile.write('0.3333 ')
+							else:
+								outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
 						else:
 							outFile.write('- ')
 					else:
-						outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
+						if options.isBinnedSignal:
+							outFile.write('0.333 ')
+						else:
+							outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
 		outFile.write('\n')
 	outFile.write('\n')
 

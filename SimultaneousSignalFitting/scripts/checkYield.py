@@ -4,7 +4,9 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-i","--infile")
 parser.add_option("-p","--procs",default="ggh,vbf,wh,zh,tth")
-parser.add_option("-c","--cats",default="0,1,2,3,4,5,6,7,8")
+parser.add_option("-c","--cats",default="0,1,2,3,4,5,6,7,8,9,10")
+parser.add_option("--is2011",default=False,action="store_true")
+parser.add_option("-o","--outname",default="effAccCrossCheck")
 (options,args)=parser.parse_args()
 
 import ROOT as r
@@ -13,7 +15,8 @@ r.gROOT.ProcessLine(".L lib/libSimultaneousSignalFit.so")
 
 tf = r.TFile(options.infile)
 
-ws = tf.Get('wsig_8TeV')
+sqrtS = 7 if options.is2011 else 8
+ws = tf.Get('wsig_%dTeV'%sqrtS)
 MH = ws.var('MH')
 intL = ws.var('IntLumi')
 
@@ -61,8 +64,8 @@ tg.SetLineWidth(3)
 tg.Draw("AL")
 canv.Update()
 canv.Modified()
-canv.Print("effAccCrossCheck.pdf")
-canv.Print("effAccCrossCheck.png")
+canv.Print("%s.pdf"%options.outname)
+canv.Print("%s.png"%options.outname)
 
 tf.Close()
 	
