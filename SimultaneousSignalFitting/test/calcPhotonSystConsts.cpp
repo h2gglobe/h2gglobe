@@ -28,6 +28,7 @@ string photonCatStr_;
 vector<string> photonCats_;
 string procStr_;
 vector<string> procs_;
+string plotDir_;
 int mh_;
 int nCats_;
 int quadInterpolate_;
@@ -42,6 +43,7 @@ void OptionParser(int argc, char *argv[]){
     ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    					"Number of total categories")
 		("phoCats,c",po::value<string>(&photonCatStr_)->default_value("EBlowR9,EBhighR9,EElowR9,EEhighR9"),	"Photon cats (comma sep)")
 		("procs,p",po::value<string>(&procStr_)->default_value("ggh,vbf,wh,zh,tth"),												"Processes (comma sep)")
+		("plotDir,D", po::value<string>(&plotDir_)->default_value("plots"),																	"Out directory for plots")
 		("quadInterpolate",	po::value<int>(&quadInterpolate_)->default_value(0),														"Do a quadratic interpolation from this amount of sigma")
   ;                                                                                             		
   po::variables_map vm;
@@ -201,8 +203,14 @@ void plotVariation(TH1F *nom, TH1F *up, TH1F *down, string phoCat, string name){
 	leg->SetFillColor(0);
 	leg->SetLineColor(0);
 	leg->AddEntry(nom,"Nominal","L");
-	leg->AddEntry(up,"+3#sigma","L");
-	leg->AddEntry(down,"-3#sigma","L");
+	if (quadInterpolate_!=0) {
+		leg->AddEntry(up,Form("+%d#sigma",quadInterpolate_),"L");
+		leg->AddEntry(down,Form("-%d#sigma",quadInterpolate_),"L");
+	}
+	else {
+		leg->AddEntry(up,"+1#sigma","L");
+		leg->AddEntry(down,"-1#sigma","L");
+	}
 
 	nom->Draw("HIST");
 	up->Draw("HISTsame");
@@ -210,8 +218,8 @@ void plotVariation(TH1F *nom, TH1F *up, TH1F *down, string phoCat, string name){
 	nom->Draw("HISTsame");
 	leg->Draw();
 	
-	canv->Print(Form("plots/systematics/%s_%s.pdf",name.c_str(),phoCat.c_str()));
-	canv->Print(Form("plots/systematics/%s_%s.png",name.c_str(),phoCat.c_str()));
+	canv->Print(Form("%s/systematics/%s_%s.pdf",plotDir_.c_str(),name.c_str(),phoCat.c_str()));
+	canv->Print(Form("%s/systematics/%s_%s.png",plotDir_.c_str(),name.c_str(),phoCat.c_str()));
 }
 
 double getMeanVar(TH1F* nom, TH1F *up, TH1F* down){
@@ -266,7 +274,7 @@ int main(int argc, char *argv[]){
   TStopwatch sw;
   sw.Start();
 
-	system("mkdir -p plots/systematics");
+	system(Form("mkdir -p %s/systematics",plotDir_.c_str()));
   
 	TFile *inFile = TFile::Open(filename_.c_str());
 	inFile->ls();

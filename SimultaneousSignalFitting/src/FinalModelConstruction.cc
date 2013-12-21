@@ -375,7 +375,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 	}
 	if (quadraticSigmaSum_) formula+=")";
 	formula+=")";
-	formula = Form("TMath::Max(%s,0.)",formula.c_str()); // consider smooth cutoff ? 
+	formula = Form("TMath::Max(%s,1.e-6)",formula.c_str()); // consider smooth cutoff ? 
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
 	return formVar;
 }
