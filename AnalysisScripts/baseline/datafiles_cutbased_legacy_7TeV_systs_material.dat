@@ -1,4 +1,4 @@
-intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/7TeV/systematics/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=7
+intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/cutbased/7TeV/systematics/%(label)s_material/CMS-HGG.root output=eventsList.txt sqrtS=7
 
 
 #

@@ -4,5 +4,5 @@
 
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
 
-EBCentral   	0    0.0	1.0	-999. 999	-999999	999999	0.0	0.e-2
-EBOuterEE	0    1.0	3.0	-999. 999	-999999	999999	0.0	0.e-2
+MaterialEBCentral   	0    0.0	1.0	-999. 999	-999999	999999	0.0	0.e-2
+MaterialEBOuterEE	0    1.0	3.0	-999. 999	-999999	999999	0.0	0.e-2
