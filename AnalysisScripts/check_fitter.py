@@ -42,6 +42,7 @@ groups = { "" : [], "run" : [], "fail" : [], "done" : [] }
 for i,s in status.iteritems():
     groups[s].append(i)
 
+print taskdir
 for g,jo in groups.iteritems():
     print
     print "%d jobs in status %s" % (len(jo), g)
