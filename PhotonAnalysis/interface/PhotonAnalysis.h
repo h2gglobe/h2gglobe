@@ -218,6 +218,7 @@ class PhotonAnalysis : public BaseAnalysis
     void setupEresolSyst(LoopAll &l);
 
     EnergySmearer::energySmearingParameters eSmearPars;
+    EnergySmearer::energySmearingParameters eScalePars;
     float smearing_sigma_EBHighR9       ;
     float smearing_sigma_EBLowR9        ;
     float smearing_sigma_EBm4HighR9       ;
