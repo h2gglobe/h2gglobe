@@ -22,36 +22,75 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
-string filename_;
+string infilenamesStr_;
+vector<string> infilenames_;
 string outfilename_;
-string photonCatStr_;
-vector<string> photonCats_;
+
+string photonCatScalesStr_;
+vector<string> photonCatScales_;
+string photonCatScalesCorrStr_;
+vector<string> photonCatScalesCorr_;
+
+string photonCatSmearsStr_;
+vector<string> photonCatSmears_;
+string photonCatSmearsCorrStr_;
+vector<string> photonCatSmearsCorr_;
+
+string globalScalesStr_;
+vector<string> globalScales_;
+string globalScalesCorrStr_;
+vector<string> globalScalesCorr_;
+
 string procStr_;
 vector<string> procs_;
 string plotDir_;
 int mh_;
 int nCats_;
+string sqrtS_;
 int quadInterpolate_;
 
 void OptionParser(int argc, char *argv[]){
-  po::options_description desc("Allowed options");
-  desc.add_options()
+
+	po::options_description general_opts("General options");
+	general_opts.add_options()
     ("help,h",                                                                                					"Show help")
-    ("infilename,i", po::value<string>(&filename_),                                           					"Input file name")
+    ("infilenames,i", po::value<string>(&infilenamesStr_),                                           		"Input file names (comma sep)")
     ("outfilename,o", po::value<string>(&outfilename_)->default_value("dat/photonCatSyst.dat"), 				"Output file name")
     ("mh,m", po::value<int>(&mh_)->default_value(125),                                  								"Mass point")
     ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    					"Number of total categories")
-		("phoCats,c",po::value<string>(&photonCatStr_)->default_value("EBlowR9,EBhighR9,EElowR9,EEhighR9"),	"Photon cats (comma sep)")
+		("sqrtS", po::value<string>(&sqrtS_)->default_value("8"),																								"CoM energy")
 		("procs,p",po::value<string>(&procStr_)->default_value("ggh,vbf,wh,zh,tth"),												"Processes (comma sep)")
 		("plotDir,D", po::value<string>(&plotDir_)->default_value("plots"),																	"Out directory for plots")
 		("quadInterpolate",	po::value<int>(&quadInterpolate_)->default_value(0),														"Do a quadratic interpolation from this amount of sigma")
   ;                                                                                             		
+	
+	po::options_description syst_opts("Systematics options");
+	syst_opts.add_options()
+		("photonCatScales,s", 		po::value<string>(&photonCatScalesStr_)->default_value("EBlowR9,EBhighR9,EElowR9,EEhighR9"),												"Photon category scales (comma sep) which get correlated across diphoton categories but NOT different years.")
+		("photonCatScalesCorr,S", po::value<string>(&photonCatScalesCorrStr_)->default_value("MaterialEBCentral,MaterialEBOuterEE"),									"Photon category scales (comma sep) which get correlated across diphoton categories AND across years.")
+		("photonCatSmears,r", 		po::value<string>(&photonCatSmearsStr_)->default_value("EBlowR9,EBhighR9,EBlowR9Phi,EBhighR9Phi,EElowR9,EEhighR9"),	"Photon category smears (comma sep) which get correlated across diphoton categories but NOT different years.")
+		("photonCatSmearsCorr,R", po::value<string>(&photonCatSmearsCorrStr_)->default_value(""),																											"Photon category smears (comma sep) which get correlated across diphoton categories AND years.")
+		("globalScales,g", 				po::value<string>(&globalScalesStr_)->default_value("NonLinearity"),																						"Global scales (comma sep) which get correlated across diphoton categories but NOT different years. Can add additional options with a \':\' to insist that a particular category get a bigger or smaller effect. E.g. passing \'NonLinearity:0:2\' will create a systematics called \'NonLinearity\' and make its effect in category 0 twice as large")
+		("globalScalesCorr,G", 		po::value<string>(&globalScalesCorrStr_)->default_value(""),																												"As above but scales ARE correlated across diphoton categories AND years.")
+	;
+
+	po::options_description all("Allowed options");
+	all.add(general_opts).add(syst_opts);
+
   po::variables_map vm;
-  po::store(po::parse_command_line(argc,argv,desc),vm);
+  po::store(po::parse_command_line(argc,argv,all),vm);
   po::notify(vm);
-  if (vm.count("help")){ cout << desc << endl; exit(1);}
-	split(photonCats_,photonCatStr_,boost::is_any_of(","));
+  if (vm.count("help")){ cout << all << endl; exit(1);}
+
+	// make vectors of strings from passed strings
+	split(infilenames_,infilenamesStr_,boost::is_any_of(","));
 	split(procs_,procStr_,boost::is_any_of(","));
+	split(photonCatScales_,photonCatScalesStr_,boost::is_any_of(","));
+	split(photonCatScalesCorr_,photonCatScalesCorrStr_,boost::is_any_of(","));
+	split(photonCatSmears_,photonCatSmearsStr_,boost::is_any_of(","));
+	split(photonCatSmearsCorr_,photonCatSmearsCorrStr_,boost::is_any_of(","));
+	split(globalScales_,globalScalesStr_,boost::is_any_of(","));
+	split(globalScalesCorr_,globalScalesCorrStr_,boost::is_any_of(","));
 }
 
 // quadInterpolate function from Nick
@@ -267,6 +306,53 @@ double getRateVar(TH1F* nom, TH1F *up, TH1F* down){
 	return val;
 }
 
+vector<TH1F*> getHistograms(vector<TFile*> files, string name, string syst){
+
+	vector<TH1F*> ret_hists;
+	for (unsigned int i=0; i<files.size(); i++){
+		
+		files[i]->cd();
+		TH1F *up = (TH1F*)files[i]->Get(Form("%s_%sUp01_sigma",name.c_str(),syst.c_str()));
+		TH1F *down = (TH1F*)files[i]->Get(Form("%s_%sDown01_sigma",name.c_str(),syst.c_str()));
+		TH1F *nominal = (TH1F*)files[i]->Get(name.c_str());
+		if (up && down && nominal) {
+			ret_hists.push_back(nominal);
+			ret_hists.push_back(up);
+			ret_hists.push_back(down);
+			return ret_hists;
+		}
+	}
+	cout << "ERROR - at least one of histograms " << name << ", " << name+"_"+syst+"Up01_sigma, " << name+"_"+syst+"Down01_sigma not found in any file" << endl;
+	return vector<TH1F*>(3,NULL);
+}
+
+TH1F *getHistogram(vector<TFile*> files, string name){
+	
+	for (unsigned int i=0; i<files.size(); i++){
+		files[i]->cd();
+		TH1F *h = (TH1F*)files[i]->Get(name.c_str());
+		if (h) return h;
+	}
+	cout << "ERROR - histogram " << name << " not found in any file" << endl;
+	return 0;
+}
+
+void printInfo(ofstream &outfile, string name, vector<string> systs, string ext){
+	
+	outfile << name;
+	for (unsigned int i=0; i<systs.size(); i++) {
+		string pre = systs[i];
+		string post = "";
+		if (systs[i].find(":")!=string::npos){
+			pre = systs[i].substr(0,systs[i].find(":"));
+			post = systs[i].substr(systs[i].find(":"),string::npos);
+		}
+		outfile << pre+ext+post;
+		if (i<systs.size()-1) outfile << ",";
+	}
+	outfile << endl;
+}
+
 int main(int argc, char *argv[]){
  
   OptionParser(argc,argv);
@@ -275,61 +361,132 @@ int main(int argc, char *argv[]){
   sw.Start();
 
 	system(Form("mkdir -p %s/systematics",plotDir_.c_str()));
-  
-	TFile *inFile = TFile::Open(filename_.c_str());
-	inFile->ls();
+
+	vector<TFile*> inFiles;
+	for (unsigned int i=0; i<infilenames_.size(); i++){
+		inFiles.push_back(TFile::Open(infilenames_[i].c_str()));
+		cout << "Opened file " << infilenames_[i] << endl;
+		inFiles[i]->Print();
+	}
+
 	ofstream outfile;
 	outfile.open(outfilename_.c_str());
+	cout << "Writing to datfile " << outfilename_ << endl;
+
 	outfile << "# this file has been autogenerated by calcPhotonSystConsts.cpp" << endl;
 	outfile << endl;
-	outfile << "photonCats=" << photonCatStr_ << endl;
+
+	if (!photonCatScalesStr_.empty()) printInfo(outfile,"photonCatScales=",photonCatScales_,"_"+sqrtS_+"TeVscale");
+	if (!photonCatScalesCorrStr_.empty()) printInfo(outfile,"photonCatScalesCorr=",photonCatScalesCorr_,"_scale");
+	if (!photonCatSmearsStr_.empty()) printInfo(outfile,"photonCatSmears=",photonCatSmears_,"_"+sqrtS_+"TeVsmear");
+	if (!photonCatSmearsCorrStr_.empty()) printInfo(outfile,"photonCatSmearsCorr=",photonCatSmearsCorr_,"_smear");
+	if (!globalScalesStr_.empty()) printInfo(outfile,"globalScales=",globalScales_,"_"+sqrtS_+"TeVscale");
+	if (!globalScalesCorrStr_.empty()) printInfo(outfile,"globalScalesCorr=",globalScalesCorr_,"_scale");
 	outfile << endl;
-	outfile << "# photonCat       mean_change    sigma_change    rate_change" << endl;
+	outfile << "# photonCat                   mean_change    sigma_change    rate_change" << endl;
 
 	for (int cat=0; cat<nCats_; cat++){
 		for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
-		
+	
+			cout << *proc << " - cat " << cat << endl;
+			
 			outfile << Form("diphotonCat=%d",cat) << endl;
 			outfile << Form("proc=%s",proc->c_str()) << endl;
 
-			TH1F *nominal = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat));
-			for (vector<string>::iterator phoCat=photonCats_.begin(); phoCat!=photonCats_.end(); phoCat++){
-
-				TH1F *scaleUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
-				TH1F *scaleDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
-			
-				if( scaleUp != 0 && scaleDown != 0 ) {
-					plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
-					
-					outfile << *phoCat+"scale";
-					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
-				} else {
-					outfile << *phoCat+"scale";
-					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
-				}
-								
-				TH1F *smearUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
-				TH1F *smearDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
+			// photon scales not correlated ....
+			if (photonCatScalesStr_.size()!=0){
+				for (vector<string>::iterator phoCat=photonCatScales_.begin(); phoCat!=photonCatScales_.end(); phoCat++){
 				
-				if( smearUp != 0 && smearDown != 0 ) {
-					plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
-					
-					outfile << *phoCat+"smear";
-					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
-				} else {
-					outfile << *phoCat+"smear";
-					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
-				}
+					// this is to ensure nominal comes from the right file
+					vector<TH1F*> hists = getHistograms(inFiles,Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat),Form("E_scale_%s",phoCat->c_str()));
+					TH1F *nominal = hists[0];
+					TH1F *scaleUp = hists[1];
+					TH1F *scaleDown = hists[2];
 
+					outfile << Form("%-30s",(*phoCat+"_"+sqrtS_+"TeVscale").c_str());
+					if( scaleUp != 0 && scaleDown != 0 && nominal != 0) {
+						plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+					} else {
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+					}
+				}
 			}
-			outfile << endl;
-		}
+
+			// photon smears not correlated
+			if (photonCatSmearsStr_.size()!=0){
+				for (vector<string>::iterator phoCat=photonCatSmears_.begin(); phoCat!=photonCatSmears_.end(); phoCat++){
+				
+					// this is to ensure nominal comes from the right file
+					vector<TH1F*> hists = getHistograms(inFiles,Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat),Form("E_res_%s",phoCat->c_str()));
+					TH1F *nominal = hists[0];
+					TH1F *smearUp = hists[1];
+					TH1F *smearDown = hists[2];
+
+					outfile << Form("%-30s",(*phoCat+"_"+sqrtS_+"TeVsmear").c_str());
+					if( smearUp != 0 && smearDown != 0 && nominal != 0) {
+						plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+					} else {
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+					}
+				}
+			}
+			
+			// photon scales correlated
+			if (photonCatScalesCorrStr_.size()!=0){
+				for (vector<string>::iterator phoCat=photonCatScalesCorr_.begin(); phoCat!=photonCatScalesCorr_.end(); phoCat++){
+				
+					// this is to ensure nominal comes from the right file
+					vector<TH1F*> hists = getHistograms(inFiles,Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat),Form("E_scale_%s",phoCat->c_str()));
+					TH1F *nominal = hists[0];
+					TH1F *scaleUp = hists[1];
+					TH1F *scaleDown = hists[2];
+					
+					outfile << Form("%-30s",(*phoCat+"_scale").c_str());
+					if( scaleUp != 0 && scaleDown != 0 && nominal != 0) {
+						plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+					} else {
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+					}
+				}
+			}
+
+			// photon smears correlated
+			if (photonCatSmearsCorrStr_.size()!=0){
+				for (vector<string>::iterator phoCat=photonCatSmearsCorr_.begin(); phoCat!=photonCatSmearsCorr_.end(); phoCat++){
+				
+					// this is to ensure nominal comes from the right file
+					vector<TH1F*> hists = getHistograms(inFiles,Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat),Form("E_res_%s",phoCat->c_str()));
+					TH1F *nominal = hists[0];
+					TH1F *smearUp = hists[1];
+					TH1F *smearDown = hists[2];
+					
+					outfile << Form("%-30s",(*phoCat+"_smear").c_str());
+					if( smearUp != 0 && smearDown != 0 && nominal != 0) {
+						plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+					} else {
+						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+					}
+				}
+			}
+			outfile << endl;	
+		} // end process loop
+		outfile << endl;
+	} // end category loop
+
+	for (unsigned int i=0; i<inFiles.size(); i++){
+		cout << "Closed file " << inFiles[i]->GetName() << endl;
+		inFiles[i]->cd();
+		inFiles[i]->Close();
 	}
 	outfile.close();
-
+	
+	sw.Stop();
+	cout << "Took ..." << endl;
+	cout << "\t";
+	sw.Print();
 	return 0;
 }
