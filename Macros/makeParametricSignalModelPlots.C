@@ -918,7 +918,7 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<doubl
 }
 
 // from p. meridiani with addition from m. kenzie
-void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH, bool isMassFac, bool is2011){
+void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH, bool isMassFac, bool is2011, int raiseVHdijet){
 
   TString catName[nCats+1];
 	for (int cat=0; cat<nCats; cat++) catName[cat] = labels[Form("cat%d",cat)];
@@ -948,9 +948,12 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   for (int i=0;i<nprocs;++i)
   {
     std::cout <<"+++++++++++++++++ " << processName[i] << " ++++++++++++++++++++" << std::endl;
-    for (int j=0;j<nCats;++j)
+    for (int c=0;c<nCats;++c)
     {
-      cout << catName[j] << ": " <<  100.*sigVals[Form("cat%d",j)][i+1]/sigVals[Form("cat%d",j)][0] << "%" << std::endl;
+			int cat = c;
+			if (c == nCats-1-raiseVHdijet) cat = nCats-1;
+			if (c > nCats-1-raiseVHdijet && c < nCats) cat = c-1;
+      cout << catName[cat] << ": " <<  100.*sigVals[Form("cat%d",cat)][i+1]/sigVals[Form("cat%d",cat)][0] << "%" << std::endl;
     }
     cout << catName[nCats] << ": " <<  100.*sigVals["all"][i+1]/sigVals["all"][0] << "%" << std::endl;
   }
@@ -994,8 +997,14 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   ci = TColor::GetColor("#00ff00");
   dummy->SetFillColor(ci);
 
-  for (int i=0;i<nCats+1;++i) dummy->GetYaxis()->SetBinLabel(nCats+1-i,catName[i]);
-  dummy->GetXaxis()->SetTickLength(0.01);
+  for (int c=0;c<nCats+1;++c) {
+		int cat = c;
+		if (c == nCats-1-raiseVHdijet) cat = nCats-1;
+		if (c > nCats-1-raiseVHdijet && c < nCats) cat = c-1;
+		cout << "Old cat: " << c << " New cat: " << cat << " Bin: " << nCats+1-c << " Label: " << catName[cat] << endl;
+		dummy->GetYaxis()->SetBinLabel(nCats+1-c,catName[cat]);
+  }
+	dummy->GetXaxis()->SetTickLength(0.01);
   dummy->GetYaxis()->SetTickLength(0);
   dummy->GetXaxis()->SetTitle("Signal Fraction (%)");
   dummy->GetXaxis()->SetNdivisions(510);
@@ -1021,8 +1030,11 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
 
   TPave *pave;
 	TPaveText *pavetext;
-  for (int cat=0; cat<nCats+1; cat++) {
-    float ybin = nCats-cat;
+  for (int c=0; c<nCats+1; c++) {
+		int cat = c;
+		if (c == nCats-1-raiseVHdijet) cat = nCats-1;
+		if (c > nCats-1-raiseVHdijet && c < nCats) cat = c-1;
+    float ybin = nCats-c;
     float ybinmin = ybin-width;
     float ybinmax = ybin+width;
     float xbinmin = ymin;
@@ -1146,7 +1158,7 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   Width->SetRightMargin(0.05);
   Width->SetFrameBorderMode(0);
   Width->SetFrameBorderMode(0);
-  TH2F *dummy2 = new TH2F("dummy2","",1,-3.,3.,nCats+1,-0.5,nCats+0.5);
+  TH2F *dummy2 = new TH2F("dummy2","",1,0.,3.,nCats+1,-0.5,nCats+0.5);
   for (int i=1; i<=dummy2->GetNbinsX(); i++) dummy2->GetYaxis()->SetBinLabel(i,"");
   dummy2->SetStats(0);
   dummy2->GetXaxis()->SetTickLength(0.01);
@@ -1172,8 +1184,11 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   
   TPave *spave;
   TPave *fpave;
-  for (int cat=0; cat<nCats+1; cat++) {
-    float ybin = nCats-cat;
+  for (int c=0; c<nCats+1; c++) {
+		int cat = c;
+		if (c == nCats-1-raiseVHdijet) cat = nCats-1;
+		if (c > nCats-1-raiseVHdijet && c < nCats) cat = c-1;
+    float ybin = nCats-c;
     float ybinmin = ybin-width;
     float ybinmax = ybin+width;
     
@@ -1187,14 +1202,16 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
       sEff = sigEffs[Form("cat%d",cat)];
       fwhm = fwhms[Form("cat%d",cat)];
     }
-    spave = new TPave(-1.*sEff,ybinmin,sEff,ybinmax);
+    spave = new TPave(0.,ybinmin,sEff,ybinmax);
+    //spave = new TPave(-1.*sEff,ybinmin,sEff,ybinmax);
     spave->SetFillColor(kBlue-7);
     spave->SetLineColor(kBlue);
     spave->SetLineWidth(1);
     spave->SetBorderSize(1);
     spave->Draw();
 
-    fpave = new TPave(fwhm/-2.35,ybinmin,fwhm/2.35,ybinmax);
+    fpave = new TPave(0.,ybinmin,fwhm/2.35,ybinmax);
+    //fpave = new TPave(fwhm/-2.35,ybinmin,fwhm/2.35,ybinmax);
     fpave->SetFillColor(kRed);
     fpave->SetFillStyle(3004);
     fpave->SetLineColor(kRed);
@@ -1222,28 +1239,30 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   tex_m->SetTextSize(0.045);
   tex_m->DrawLatex(0.7,0.865,"FWHM/2.35");
   
-  TLine *sline = new TLine(-3.,nCats-nIncCats+0.5,3.,nCats-nIncCats+0.5);
+  TLine *sline = new TLine(0.,nCats-nIncCats+0.5,3.,nCats-nIncCats+0.5);
   sline->SetLineColor(kBlack);
   sline->SetLineWidth(2);
   sline->SetLineStyle(2);
   sline->Draw();
 
-  TLine *sline2 = new TLine(-3.,nCats-nIncCats-nVBFCats+0.5,3.,nCats-nIncCats-nVBFCats+0.5);
+  TLine *sline2 = new TLine(0.,nCats-nIncCats-nVBFCats+0.5,3.,nCats-nIncCats-nVBFCats+0.5);
   sline2->SetLineColor(kBlack);
   sline2->SetLineWidth(2);
   sline2->SetLineStyle(2);
   sline2->Draw();
 
-  TLine *sline3 = new TLine(-3.,0.5,3.,0.5);
+  TLine *sline3 = new TLine(0.,0.5,3.,0.5);
   sline3->SetLineColor(kBlack);
   sline3->SetLineWidth(2);
   sline3->SetLineStyle(9);
   sline3->Draw();
 
+	/*
   TLine *sline4 = new TLine(0.,-0.5,0.,nCats+0.5);
   sline4->SetLineColor(kBlack);
   sline4->SetLineWidth(2);
   sline4->Draw();
+	*/
 
   Width->RedrawAxis();
 
@@ -1289,8 +1308,11 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
     dummy3->Draw("");
     
     TPave *sobpave;
-    for (int cat=0; cat<nCats+1; cat++) {
-      float ybin = nCats-cat;
+    for (int c=0; c<nCats+1; c++) {
+			int cat = c;
+			if (c == nCats-1-raiseVHdijet) cat = nCats-1;
+			if (c > nCats-1-raiseVHdijet && c < nCats) cat = c-1;
+      float ybin = nCats-c;
       float ybinmin = ybin-width;
       float ybinmax = ybin+width;
       double sob;
@@ -1383,7 +1405,7 @@ void getNCats(RooWorkspace *ws, int mh, int &ncats){
 }
 
 // main function
-void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, int m_hyp=125, bool blind=true, bool doTable=false, string bkgdatFileName="0", int ncats=9, bool is2011=false, bool splitVH=false, bool isMassFac=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, int m_hyp=125, bool blind=true, bool doTable=false, string bkgdatFileName="0", int ncats=9, bool is2011=false, bool splitVH=false, bool isMassFac=true, int raiseVHdijet=0, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -1473,8 +1495,8 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 			labels.insert(pair<string,string>("cat6","VH Lepton Tight"));
 			labels.insert(pair<string,string>("cat7","VH Lepton Loose"));
 			labels.insert(pair<string,string>("cat8","VH MET Tag"));     
-			labels.insert(pair<string,string>("cat9","ttH Lep+Had Tag"));
-			labels.insert(pair<string,string>("cat10","VH Hadronic Tag"));
+			labels.insert(pair<string,string>("cat9","ttH Tags"));
+			labels.insert(pair<string,string>("cat10","VH Dijet Tag"));
 		}
 		else {
 			labels.insert(pair<string,string>("cat4","Untagged 4"));
@@ -1485,8 +1507,8 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 			labels.insert(pair<string,string>("cat9","VH Lepton Loose"));
 			labels.insert(pair<string,string>("cat10","VH MET Tag"));     
 			labels.insert(pair<string,string>("cat11","ttH Leptonic Tag"));
-			labels.insert(pair<string,string>("cat12","ttH Hadronic Tag"));
-			labels.insert(pair<string,string>("cat13","VH Hadronic Tag"));
+			labels.insert(pair<string,string>("cat12","ttH Multijet Tag"));
+			labels.insert(pair<string,string>("cat13","VH Dijet Tag"));
 		}
 		labels.insert(pair<string,string>("all","Combined"));
 	}
@@ -1505,13 +1527,13 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 		labels.insert(pair<string,string>("cat11","VH Lepton Loose"));
 		labels.insert(pair<string,string>("cat12","VH MET Tag"));
 		if (is2011) {
-			labels.insert(pair<string,string>("cat13","ttH Lep+Had Tag"));
-			labels.insert(pair<string,string>("cat14","VH Hadronic Tag"));
+			labels.insert(pair<string,string>("cat13","ttH Tags"));
+			labels.insert(pair<string,string>("cat14","VH Dijet Tag"));
 		}
 		else {
 			labels.insert(pair<string,string>("cat13","ttH Leptonic Tag"));
-			labels.insert(pair<string,string>("cat14","ttH Hadronic Tag"));
-			labels.insert(pair<string,string>("cat15","VH Hadronic Tag"));
+			labels.insert(pair<string,string>("cat14","ttH Multijet Tag"));
+			labels.insert(pair<string,string>("cat15","VH Dijet Tag"));
 		}
 		labels.insert(pair<string,string>("all","Combined"));
 	}
@@ -1550,6 +1572,16 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   */
+
+	for (int c=0; c<=ncats; c++){
+		int cat = c;
+		// VH rejig
+		if (c == ncats-1-raiseVHdijet) cat = ncats-1;
+		if (c > ncats-1-raiseVHdijet && c < ncats) cat = c-1;
+		cout << "Raise: " << raiseVHdijet << endl;
+		cout << "Old cat: " << c << " Old cat name: " << labels[Form("cat%d",c)] << endl;
+		cout << "New cat: " << cat << " New cat name: " << labels[Form("cat%d",cat)] << endl;
+	}
 
   map<string,RooDataSet*> dataSets;
   map<string,RooAddPdf*> pdfs;
@@ -1637,8 +1669,12 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
       fprintf(nfile,"Cat              SigY    ggh    vbf    wh     zh     tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
       fprintf(nfile,"---------------------------------------------------------------------------------------------------------------\n");
     }
-    for (int cat=0; cat<=ncats; cat++){
-      string catString;
+    for (int c=0; c<=ncats; c++){
+			int cat = c;
+			if (c == ncats-1-raiseVHdijet) cat = ncats-1;
+			if (c > ncats-1-raiseVHdijet && c < ncats) cat = c-1;
+      
+			string catString;
       if (cat==ncats) catString = "all";
       else catString = Form("cat%d",cat);
 			string thisCatName = labels[catString];
@@ -1686,7 +1722,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     }
     fclose(nfile);
     fclose(file);
-    makeSignalCompositionPlot(ncats,labels,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH,isMassFac,is2011);
+    makeSignalCompositionPlot(ncats,labels,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH,isMassFac,is2011,raiseVHdijet);
     system(Form("cat %s/table.txt",outPathName.c_str()));
     cout << "-->" << endl;
     cout << Form("--> LaTeX version of this table has been written to %s/table.tex",outPathName.c_str()) << endl;

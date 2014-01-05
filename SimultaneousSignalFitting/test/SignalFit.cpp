@@ -49,6 +49,8 @@ bool doSecondaryModels_=true;
 bool doQuadraticSigmaSum_=false;
 bool runInitialFitsOnly_=false;
 bool recursive_=true;
+string highR9cats_;
+string lowR9cats_;
 int verbose_=0;
 
 void OptionParser(int argc, char *argv[]){
@@ -73,7 +75,9 @@ void OptionParser(int argc, char *argv[]){
 		("skipMasses", po::value<string>(&massesToSkip_)->default_value(""),														"Skip these mass points - used eg for the 7TeV where there's no mc at 145")
 		("runInitialFitsOnly",																																					"Just fit gaussians - no interpolation, no systematics - useful for testing nGaussians")
     ("nonRecursive",                                                                             		"Do not recursively calculate gaussian fractions")
-    ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
+    ("highR9cats", po::value<string>(&highR9cats_)->default_value("0,1,4,5"),												"For cut based only - pass over which categories are inclusive high R9 cats (comma sep string)")
+		("lowR9cats", po::value<string>(&lowR9cats_)->default_value("2,3,6,7"),													"For cut based only - pass over which categories are inclusive low R9 cats (comma sep string)")
+		("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
   ;                                                                                             		
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
@@ -238,6 +242,10 @@ int main(int argc, char *argv[]){
 
 			// this guy constructs the final model with systematics, eff*acc etc.
 			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,skipMasses_,verbose_,isCutBased_,is2011_,doQuadraticSigmaSum_);
+			if (isCutBased_){
+				finalModel.setHighR9cats(highR9cats_);
+				finalModel.setLowR9cats(lowR9cats_);
+			}
 			finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
 			finalModel.setRVsplines(splinesRV);
 			finalModel.setWVsplines(splinesWV);

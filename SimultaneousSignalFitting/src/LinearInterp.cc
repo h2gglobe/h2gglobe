@@ -105,7 +105,7 @@ map<string,RooSpline1D*> LinearInterp::getSplines(){
 }
 
 void LinearInterp::setVerbosity(int v){
-  if (v<1) {
+  if (v<2) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
   }
