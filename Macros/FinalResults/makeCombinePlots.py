@@ -290,9 +290,10 @@ def limitPlot(allVals):
         twoSigma.SetPoint(point_counter,mh,median)
         twoSigma.SetPointError(point_counter,0,0,abs(median-down95),abs(up95-median))
         point_counter+=1
-        if options.verbose: print mh, median, down68, up68, down95, up95, 
-        if not options.expected: print obs
-        else: print ''
+        if options.verbose: 
+          print mh, median, down68, up68, down95, up95, 
+          if not options.expected: print obs
+          else: print ''
     
     graph.SetMarkerStyle(21)
     graph.SetMarkerSize(0.5)
@@ -571,9 +572,9 @@ def plot1DNLL(returnErrors=False):
     gr.GetXaxis().SetNdivisions(505)
     if not options.yaxis: gr.GetYaxis().SetRangeUser(0.,6)
     else: gr.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
-    gr.SetMarkerSize(2)
-    gr.SetMarkerStyle(r.kOpenCircle)
-    gr.Draw("LP")
+    #gr.SetMarkerSize(2)
+    #gr.SetMarkerStyle(r.kOpenCircle)
+    gr.Draw("L")
 
   # draw legend
   if len(options.files)>1:
