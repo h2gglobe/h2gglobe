@@ -741,7 +741,7 @@ def printTTHSysts():
 				if '%s:%d'%(p,c) in options.toSkip: 
 					outFile.write('- ')
 					continue
-				if p=='ggH':
+				if p=='ggH' and c in tthCats:
 					outFile.write('%6.4f/%6.4f '%(1.-systVal,1.+systVal))
 				else:
 					outFile.write('- ')
