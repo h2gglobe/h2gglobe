@@ -12,6 +12,11 @@ cosThetaCatBoundaries=0.,0.2,0.375,0.55,0.75,1.
 bkgPolOrderByCat=4,4,4,4,3,4,4,4,4,3,4,4,4,4,3,4,4,4,4,3
 sigPointsToBook=125,126
 
+nEtaCategories=2
+nR9Categories=2
+nPtCategories=1
+nPtOverMCategories=1
+
 includeVBF=0
 includeVHhad=0
 includeVHhadBtag=0
