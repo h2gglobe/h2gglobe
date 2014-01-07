@@ -1283,18 +1283,23 @@ void PhotonAnalysis::Init(LoopAll& l)
     eSmearPars.n_categories = tmp_smear_smearing_cat.size();
     eSmearPars.photon_categories = tmp_smear_smearing_cat;
     
-    eSmearPars.scale_offset = tmp_smear_scale_offset[0].scale_offset;
-    eSmearPars.scale_offset_error = tmp_smear_scale_offset[0].scale_offset_error;
-    eSmearPars.scale_stocastic_offset = tmp_smear_scale_offset[0].scale_stocastic_offset;
-    eSmearPars.scale_stocastic_offset_error = tmp_smear_scale_offset[0].scale_stocastic_offset_error;
-    eSmearPars.scale_stocastic_pivot = tmp_smear_scale_offset[0].scale_stocastic_pivot;
-    
     eSmearPars.smearing_sigma = tmp_smear_smearing[0].scale_offset;
     eSmearPars.smearing_sigma_error = tmp_smear_smearing[0].scale_offset_error;
     eSmearPars.smearing_stocastic_sigma = tmp_smear_smearing[0].scale_stocastic_offset;
     eSmearPars.smearing_stocastic_sigma_error = tmp_smear_smearing[0].scale_stocastic_offset_error;
     eSmearPars.smearing_stocastic_pivot = tmp_smear_smearing[0].scale_stocastic_pivot;
     
+    eScalePars.categoryType = "Automagic";
+    eScalePars.byRun = false;
+    eScalePars.n_categories = tmp_smear_scale_cat.size();
+    eScalePars.photon_categories = tmp_smear_scale_cat;
+    
+    eScalePars.scale_offset = tmp_smear_scale_offset[0].scale_offset;
+    eScalePars.scale_offset_error = tmp_smear_scale_offset[0].scale_offset_error;
+    eScalePars.scale_stocastic_offset = tmp_smear_scale_offset[0].scale_stocastic_offset;
+    eScalePars.scale_stocastic_offset_error = tmp_smear_scale_offset[0].scale_stocastic_offset_error;
+    eScalePars.scale_stocastic_pivot = tmp_smear_scale_offset[0].scale_stocastic_pivot;    
+
     // Energy resolution parameters used for diphotonBDT input
     if( ! mass_resol_file.empty() ) {
         EnergySmearer::energySmearingParameters::eScaleVector tmp_mres_smearing;
@@ -1322,7 +1327,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
 
     // energy scale systematics to MC
-    eScaleSmearer = new EnergySmearer( eSmearPars );
+    eScaleSmearer = new EnergySmearer( eScalePars );
     eScaleSmearer->name("E_scale");
     eScaleSmearer->doEnergy(true);
     eScaleSmearer->scaleOrSmear(true);
@@ -1334,7 +1339,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     eResolSmearer->scaleOrSmear(false);
 
     if( doEcorrectionSmear ) {
-        eCorrSmearer = new EnergySmearer( eSmearPars );
+        eCorrSmearer = new EnergySmearer( eScalePars );
         eCorrSmearer->name("E_corr");
         // activating pho corrections to this instance of EnergySmearer, implies that it won't touch Escale and Eresolution
         eCorrSmearer->doCorrections(true);

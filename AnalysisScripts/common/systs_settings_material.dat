@@ -11,7 +11,7 @@ doPtSpinSyst=0
 doR9Syst=0
 #doRegressionSyst=0
 doStocasticSmearingSyst=0
-doSystematics=0
+doSystematics=1
 doTriggerEffSyst=0
 doVtxEffSyst=0
 
