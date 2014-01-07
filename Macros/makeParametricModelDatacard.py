@@ -442,19 +442,19 @@ def printObsProcBinLines():
 def printNuisParams():
 	if not options.isBinnedSignal:
 		print 'Nuisances...'
-		outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
+		outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltafracright'%sqrts,vtxSyst))
 		if options.isCutBased:
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
+			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9barrel'%sqrts,r9barrelSyst))
+			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9mixed'%sqrts,r9mixedSyst))
 		for phoSyst in options.photonNuisancesScale:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance%s_%dTeVscale'%(phoSyst,sqrts)))
+			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst,sqrts)))
 		for phoSyst in options.photonNuisancesSmear:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance%s_%dTeVsmear'%(phoSyst,sqrts)))
+			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVsmear'%(phoSyst,sqrts)))
 		for phoSyst in options.photonNuisancesMaterial:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance%s_scale'%(phoSyst)))
+			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst)))
 		# get implemented as global scales	
 		for phoSyst in options.photonNuisancesNonLinearity:
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance%s_%dTeVscale'%(phoSyst.split(':')[0],sqrts),float(phoSyst.split(':')[1])))
+			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst.split(':')[0],sqrts),float(phoSyst.split(':')[1])))
 		outFile.write('\n')
 
 def printTheorySysts():

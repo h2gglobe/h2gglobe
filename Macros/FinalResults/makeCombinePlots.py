@@ -491,10 +491,12 @@ def plot1DNLL(returnErrors=False):
     for i in range(tree.GetEntries()):
       tree.GetEntry(i)
       xv = getattr(tree,x)
-      if tree.quantileExpected==1: continue
-      if tree.deltaNLL>=-4:
-        if xv in [re[0] for re in res]: continue
-        else: res.append([xv,2.*tree.deltaNLL])
+      #if tree.quantileExpected==1: continue
+      if tree.deltaNLL<0: continue
+      if xv in [re[0] for re in res]: continue
+      if tree.deltaNLL>100 or tree.deltaNLL<-100: continue
+      if tree.deltaNLL != tree.deltaNLL: continue
+      res.append([xv,2.*tree.deltaNLL])
     res.sort()
     minNLL = min([re[1] for re in res])
     for re in res: 
