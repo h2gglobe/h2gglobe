@@ -33,7 +33,7 @@ public:
   
  protected:
   
-  double getWeight( const TLorentzVector & p4, const int nPu, float syst_shift=0.) const;
+  double getWeight( const TLorentzVector & p4, const int nPu, float syst_shift=0., int process_shift=0) const;
   
   std::string   name_;
   std::string   KFName_;
@@ -42,7 +42,6 @@ public:
   std::vector<TH2F*> kFactorSmearers_;
   void   readFile(std::string uId, std::string dId );
   double getPdfWeight(int genMassPoint, int id, double gPT , double gY) const;
-
   std::string downId, upId; 
 };
 
