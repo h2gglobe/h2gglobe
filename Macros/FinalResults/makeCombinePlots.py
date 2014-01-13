@@ -496,6 +496,7 @@ def plot1DNLL(returnErrors=False):
       if xv in [re[0] for re in res]: continue
       if tree.deltaNLL>100 or tree.deltaNLL<-100: continue
       if tree.deltaNLL != tree.deltaNLL: continue
+      if xv<-1 and tree.deltaNLL==0: continue
       res.append([xv,2.*tree.deltaNLL])
     res.sort()
     minNLL = min([re[1] for re in res])
@@ -538,7 +539,8 @@ def plot1DNLL(returnErrors=False):
     eplus2 = h2-m
     eminus2 = m-l2
 
-    print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( gr.GetName(), xmin, eplus , eminus, eplus2, eminus2 )
+    print "%s : %4.2f +%4.2g -%4.2g" % ( options.names[k], xmin, eplus , eminus )
+    #print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( options.names[k], xmin, eplus , eminus, eplus2, eminus2 )
 
     if returnErrors:
       return [xmin,eplus,eminus,eplus2,eminus2]
@@ -879,6 +881,7 @@ def plotMPdfChComp():
     options.files = [loffiles[0]]
     options.method = 'mu'
     r.gROOT.SetBatch()
+    print '%15s'%options.names[k],
     ps = plot1DNLL(True)
     ps.insert(0,options.names[k])
     points.append(ps)
