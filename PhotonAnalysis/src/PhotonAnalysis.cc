@@ -5269,7 +5269,7 @@ bool PhotonAnalysis::TTHleptonicTag2013(LoopAll& l, int& diphotonTTHlep_id, floa
                     //jet selection
                     static std::vector<unsigned char> id_flags;
                     if( jetid_flags == 0 ) {
-                        switchJetIdVertex( l, l.dipho_vtxind[diphotonTTHlep_id] );
+                        switchJetIdVertex( l, l.dipho_vtxind[diphotonTTHlep_id_prov] );
                         id_flags.resize(l.jet_algoPF1_n);
                         for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
                             id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
@@ -5349,7 +5349,7 @@ bool PhotonAnalysis::TTHleptonicTag2013(LoopAll& l, int& diphotonTTHlep_id, floa
                     //jet selection
                     static std::vector<unsigned char> id_flags;
                     if( jetid_flags == 0 ) {
-                        switchJetIdVertex( l, l.dipho_vtxind[diphotonTTHlep_id] );
+                        switchJetIdVertex( l, l.dipho_vtxind[diphotonTTHlep_id_prov] );
                         id_flags.resize(l.jet_algoPF1_n);
                         for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
                             id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
