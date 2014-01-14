@@ -274,30 +274,32 @@ class GitHelper:
         print "Adding remotes"
         run("(git remote | grep fork_%s) || (git remote add fork_%s %s)" % (user,user,remote.ssh_url), "" )
         run("(git remote | grep upstream) || (git remote add upstream %s)" % (self._upstream.ssh_url), "" )
-
+        run("git fetch fork_%s" % user, "" )
+        run("git fetch --tags fork_%s" % user, "" )
+        
         if tagname in self._upstreamtags:
             print
             print "Tag is already in upstream repository."
         else:
             print
             print "Checking out tag to be pushed"
-            run("git fetch --tags fork_%s" % user, "" )
             run("git checkout %s" % (tagname), "" )
         
             print
             print "Pushing the tag"
             out = run("git push upstream %s" % (tagname), "" )
             print out
-            issue.create_comment(out)
+            issue.create_comment("Imported tag %s:\n %s " % ( tagname, out) )
         
         print
         print "Checking out remote branch"
-        run("git checkout -b tagme_%s fork_%s/tagme_%s" % (tagname,user,tagname), "" )
+        run("( git checkout -b tagme_%s fork_%s/tagme_%s || git checkout tagme_%s && git pull fork_%s tagme_%s)" %
+            (tagname,user,tagname, tagname,user,tagname), "" )
 
         print
         print "Comparing remote branch with upstream/master"
         run("git fetch upstream", "")
-
+        
         commits = run("git log --no-merges --oneline tagme_%s ^upstream/master" % tagname, "")
         if commits != "":
             print
@@ -305,7 +307,13 @@ class GitHelper:
 
             if not issue.pull_request:
                 print "Making pull request"
+                issue.create_comment("There are commits to be merged. Transforming issue into a pull request.\n%s" % commits)
                 self._upstream.create_pull_from_issue(issue.number,base=issue.base,head=issue.head)
+        else:
+            print
+            print "No commits to be merged. Closing the issue."
+            issue.create_comment("No commits to be merged. Closing the issue.")
+            issue.close()
             
         print
 
