@@ -16,7 +16,7 @@ inputBranches massfactorizedmvaanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 inputBranches TTVH_analysis_input.dat
 
-#treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees.dat
+treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees.dat
 
 #treevariables massfac_mva_binned/treevariables_optree.dat
 #runZeeValidation=1
@@ -29,5 +29,4 @@ inputBranches TTVH_analysis_input.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_settings.dat 
-## doFullMvaFinalTree=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_settings.dat doFullMvaFinalTree=1

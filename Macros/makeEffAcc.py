@@ -230,6 +230,7 @@ can.Update()
 print "Saving plot as effAcc_vs_mass.pdf"
 can.SaveAs("effAcc_vs_mass.pdf")
 can.SaveAs("effAcc_vs_mass.png")
+can.SaveAs("effAcc_vs_mass.root")
 
   
 
