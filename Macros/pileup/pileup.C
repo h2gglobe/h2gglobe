@@ -14,6 +14,9 @@ void fillHists(TTree *tree, TH1D *pu1D, TH2D *pu2D){
   tree->SetBranchStatus("pu_n", 1);
   tree->SetBranchStatus("run", 1);
 
+  tree->SetBranchAddress("pu_n",&pu_n);
+  tree->SetBranchAddress("run",&run);
+
   for (int i=0; i<tree->GetEntries(); i++){
     std::cout << Form("\t %4.1f%% \r",float(i)*100./tree->GetEntries()) << std::flush; 
     tree->GetEntry(i);
