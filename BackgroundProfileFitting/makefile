@@ -26,11 +26,11 @@ USERINCLUDES += -I$(BOOST_PATH)/include/
 USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options 
 USERINCLUDES += -I$(ROOFITSYS)/include
-USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
+USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore -lRooStats
 USERLIBS += -L$(CMSSW_BASE)/lib 
 endif
 
-USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore -lMathMore 
+USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore -lMathMore -lRooStats 
 CXXFLAGS = -Wall -g -Wl,-rpath=$(BASEDIR)/lib 
 LDFLAGS = -shared -W 
 

@@ -14,7 +14,7 @@ parser.add_option("-p","--procs",default="ggh,vbf,wh,zh,tth",help="String list o
 parser.add_option("-c","--ncats",default=9,type="int",help="Number of cats (default: %default)")
 parser.add_option("--photonNuisancesScale",default="EBlowR9,EBhighR9,EElowR9,EEhighR9",help="String list of photon scale nuisance names - WILL NOT correlate across years (default: %default)")
 parser.add_option("--photonNuisancesSmear",default="EBlowR9,EBhighR9,EBlowR9Phi,EBhighR9Phi,EElowR9,EEhighR9",help="String list of photon smear nuisance names - WILL NOT correlate across years (default: %default)")
-parser.add_option("--photonNuisancesMaterial",default="MaterialEBCentral,MaterialEBOuter",help="String list of material related photon scale nuisance names - WILL correlate across years (default: %default)")
+parser.add_option("--photonNuisancesMaterial",default="MaterialEBCentral,MaterialEBOuterEE",help="String list of material related photon scale nuisance names - WILL correlate across years (default: %default)")
 parser.add_option("--photonNuisancesNonLinearity",default="NonLinearity:0.001",help="String list of non-linearity related photon scale nuisance names with value separted by a \':\'. Get implemented as global scales - WILL NOT correlate across years (default: %default)")
 parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
@@ -161,48 +161,57 @@ else:
 	fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
 
 # theory systematics arr=[up,down]
-pdfSyst = {}
-scaleSyst = {}
+# these come in specific types (as must be correlated with combination)
+# 	- see https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsCombinationConventions
+# QCDscale_ggH, QCDscale_qqH, QCDscale_VH, QCDscale_ttH
+# pdf_gg, pdf_qqbar
+theorySyst = {}
+theorySyst['QCDscale_ggH'] = {}
+theorySyst['QCDscale_qqH'] = {}
+theorySyst['QCDscale_VH'] = {}
+theorySyst['QCDscale_ttH'] = {}
+theorySyst['pdf_gg'] = {}
+theorySyst['pdf_qqbar'] = {}
 # 7 TeV
 if options.is2011:
-	# pdf
-	pdfSyst['ggH'] = [0.076,-0.071] 
-	pdfSyst['qqH'] = [0.025,-0.021]
-	if splitVH:
-		pdfSyst['WH'] = [0.026,-0.026]
-		pdfSyst['ZH'] = [0.027,-0.027]
-	else:
-		pdfSyst['VH'] = [0.037,-0.037]
-	pdfSyst['ttH'] = [0.81,-0.81]
 	# scale
-	scaleSyst['ggH'] = [0.071,-0.078] 
-	scaleSyst['qqH'] = [0.003,-0.003]
+	theorySyst['QCDscale_ggH']['ggH'] = [0.071,-0.078] 
+	theorySyst['QCDscale_qqH']['qqH'] = [0.003,-0.003]
 	if splitVH:
-		scaleSyst['WH'] = [0.009,-0.009]
-		scaleSyst['ZH'] = [0.029,-0.029]
+		theorySyst['QCDscale_VH']['WH'] = [0.009,-0.009]
+		theorySyst['QCDscale_VH']['ZH'] = [0.029,-0.029]
 	else:
-		scaleSyst['VH'] = [0.030,-0.030]
-	scaleSyst['ttH'] = [0.032,-0.093]
+		theorySyst['QCDscale_VH']['VH'] = [0.030,-0.030]
+	theorySyst['QCDscale_ttH']['ttH'] = [0.032,-0.093]
+	# pdf
+	theorySyst['pdf_gg']['ggH'] = [0.076,-0.071] 
+	theorySyst['pdf_qqbar']['qqH'] = [0.025,-0.021]
+	if splitVH:
+		theorySyst['pdf_qqbar']['WH'] = [0.026,-0.026]
+		theorySyst['pdf_qqbar']['ZH'] = [0.027,-0.027]
+	else:
+		theorySyst['pdf_qqbar']['VH'] = [0.037,-0.037]
+	theorySyst['pdf_gg']['ttH'] = [0.81,-0.81]
 # 8 TeV
 else:
-	# pdf
-	pdfSyst['ggH'] = [0.075,-0.069] 
-	pdfSyst['qqH'] = [0.026,-0.028]
-	if splitVH:
-		pdfSyst['WH'] = [0.023,-0.023]
-		pdfSyst['ZH'] = [0.025,-0.025]
-	else:
-		pdfSyst['VH'] = [0.034,-0.034]
-	pdfSyst['ttH'] = [0.081,-0.081]
 	# scale
-	scaleSyst['ggH'] = [0.072,-0.078]
-	scaleSyst['qqH'] = [0.002,-0.002]
+	theorySyst['QCDscale_ggH']['ggH'] = [0.072,-0.078]
+	theorySyst['QCDscale_qqH']['qqH'] = [0.002,-0.002]
 	if splitVH:
-		scaleSyst['WH'] = [0.010,-0.010]
-		scaleSyst['ZH'] = [0.031,-0.031]
+		theorySyst['QCDscale_VH']['WH'] = [0.010,-0.010]
+		theorySyst['QCDscale_VH']['ZH'] = [0.031,-0.031]
 	else:
-		scaleSyst['VH'] = [0.031,-0.031] 
-	scaleSyst['ttH'] = [0.038,-0.093]
+		theorySyst['QCDscale_VH']['VH'] = [0.031,-0.031] 
+	theorySyst['QCDscale_ttH']['ttH'] = [0.038,-0.093]
+	# pdf
+	theorySyst['pdf_gg']['ggH'] = [0.075,-0.069] 
+	theorySyst['pdf_qqbar']['qqH'] = [0.026,-0.028]
+	if splitVH:
+		theorySyst['pdf_qqbar']['WH'] = [0.023,-0.023]
+		theorySyst['pdf_qqbar']['ZH'] = [0.025,-0.025]
+	else:
+		theorySyst['pdf_qqbar']['VH'] = [0.034,-0.034]
+	theorySyst['pdf_gg']['ttH'] = [0.081,-0.081]
 
 # BR uncertainty
 brSyst = [0.050,-0.049]
@@ -240,61 +249,62 @@ if options.isBinnedSignal:
 	globeSysts['E_res'] = 'n_e_res'
 
 # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
-if not options.is2011 and not options.isBinnedSignal and not options.isCutBased:
-	globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
+if not options.isBinnedSignal and not options.isCutBased:
+	globeSysts['pdfWeight_QCDscale'] = 'n_sc'
 	for pdfi in range(1,27):
 		globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
 
 # vbf uncertainties - vbfSysts['name'] = [ggEffect,qqEffect] - append migration effects
-# should consider removing '_hgg' if want to correlate with combination uncertainties
+# naming is important to correlate with combination
+
 vbfSysts={}
-vbfSysts['CMS_hgg_JetVeto_QCDscale'] = []
-vbfSysts['CMS_hgg_UEPS'] = []
-vbfSysts['CMS_hgg_JEC'] = []
+vbfSysts['QCDscale_gg2in'] = [] # on the hgg twiki this is referred to JetVeto_QCDscale
+vbfSysts['UEPS'] = []
+vbfSysts['CMS_scale_j'] = [] # on the hgg twiki this is referred to as JEC
 # pu jet eff = [ggEffect,qqEffect,WHeffect,ZHeffect,ttHeffect] - append for each vbf cat and for each VH hadronic cat
 puJetIdEff = []
 if options.isCutBased:
 	# 7TeV
 	if options.is2011:
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.25,0.]) # All VBF cats -> inclusive
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.05,0.]) # VBF tight -> VBF loose
-		vbfSysts['CMS_hgg_UEPS'].append([0.01,0.01])
-		vbfSysts['CMS_hgg_UEPS'].append([0.02,0.01])
-		vbfSysts['CMS_hgg_JEC'].append([0.11,0.03])
-		vbfSysts['CMS_hgg_JEC'].append([0.02,0.02])
+		vbfSysts['QCDscale_gg2in'].append([0.25,0.]) # All VBF cats -> inclusive
+		vbfSysts['QCDscale_gg2in'].append([0.05,0.]) # VBF tight -> VBF loose
+		vbfSysts['UEPS'].append([0.01,0.01])
+		vbfSysts['UEPS'].append([0.02,0.01])
+		vbfSysts['CMS_scale_j'].append([0.11,0.03])
+		vbfSysts['CMS_scale_j'].append([0.02,0.02])
 		# no PU ID at 7TeV
 	# 8TeV
 	else:
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.25,0.]) # All VBF cats -> inclusive
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.05,0.]) # VBF tight -> VBF loose
-		vbfSysts['CMS_hgg_UEPS'].append([0.01,0.01])
-		vbfSysts['CMS_hgg_UEPS'].append([0.02,0.01])
-		vbfSysts['CMS_hgg_JEC'].append([0.11,0.03])
-		vbfSysts['CMS_hgg_JEC'].append([0.02,0.02])
+		vbfSysts['QCDscale_gg2in'].append([0.25,0.]) # All VBF cats -> inclusive
+		vbfSysts['QCDscale_gg2in'].append([0.05,0.]) # VBF tight -> VBF loose
+		vbfSysts['UEPS'].append([0.01,0.01])
+		vbfSysts['UEPS'].append([0.02,0.01])
+		vbfSysts['CMS_scale_j'].append([0.11,0.03])
+		vbfSysts['CMS_scale_j'].append([0.02,0.02])
 		puJetIdEff.append([0.030,0.029,0.026,0.026,0.011])
 		puJetIdEff.append([0.056,0.055,0.046,0.046,0.023])
 		puJetIdEff.append([0.010,0.010,0.009,0.009,0.009])
 else:
 	# 7TeV
 	if options.is2011:
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.30,0.]) # All VBF cats -> inclusive
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.14,0.]) # VBF tight -> VBF loose
-		vbfSysts['CMS_hgg_UEPS'].append([0.03,0.01])
-		vbfSysts['CMS_hgg_UEPS'].append([0.01,0.02])
-		vbfSysts['CMS_hgg_JEC'].append([0.10,0.04])
-		vbfSysts['CMS_hgg_JEC'].append([0.06,0.01])
+		vbfSysts['QCDscale_gg2in'].append([0.30,0.]) # All VBF cats -> inclusive
+		vbfSysts['QCDscale_gg2in'].append([0.14,0.]) # VBF tight -> VBF loose
+		vbfSysts['UEPS'].append([0.03,0.01])
+		vbfSysts['UEPS'].append([0.01,0.02])
+		vbfSysts['CMS_scale_j'].append([0.10,0.04])
+		vbfSysts['CMS_scale_j'].append([0.06,0.01])
 		# no PU ID at 7TeV
 	# 8TeV
 	else:
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.30,0.]) # All VBF cats -> inclusive
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.14,0.]) # VBF cat5+cat6 -> VBF loose (cat7)
-		vbfSysts['CMS_hgg_JetVeto_QCDscale'].append([0.05,0.]) # VBF cat5 -> VBF cat 6
-		vbfSysts['CMS_hgg_UEPS'].append([0.03,0.01])
-		vbfSysts['CMS_hgg_UEPS'].append([0.01,0.02])
-		vbfSysts['CMS_hgg_UEPS'].append([0.01,0.02])
-		vbfSysts['CMS_hgg_JEC'].append([0.10,0.04])
-		vbfSysts['CMS_hgg_JEC'].append([0.06,0.01])
-		vbfSysts['CMS_hgg_JEC'].append([0.05,0.01])
+		vbfSysts['QCDscale_gg2in'].append([0.30,0.]) # All VBF cats -> inclusive
+		vbfSysts['QCDscale_gg2in'].append([0.14,0.]) # VBF cat5+cat6 -> VBF loose (cat7)
+		vbfSysts['QCDscale_gg2in'].append([0.05,0.]) # VBF cat5 -> VBF cat 6
+		vbfSysts['UEPS'].append([0.03,0.01])
+		vbfSysts['UEPS'].append([0.01,0.02])
+		vbfSysts['UEPS'].append([0.01,0.02])
+		vbfSysts['CMS_scale_j'].append([0.10,0.04])
+		vbfSysts['CMS_scale_j'].append([0.06,0.01])
+		vbfSysts['CMS_scale_j'].append([0.05,0.01])
 		puJetIdEff.append([0.029,0.029,0.023,0.023,0.009])
 		puJetIdEff.append([0.031,0.035,0.024,0.024,0.010])
 		puJetIdEff.append([0.040,0.040,0.023,0.023,0.009])
@@ -459,34 +469,20 @@ def printNuisParams():
 
 def printTheorySysts():
 	print 'Theory...'
-	# scales
-	for proc, uncert in scaleSyst.items():
-		outFile.write('%-35s   lnN   '%('QCDscale_%s'%proc))
+	for systName, systDetails in theorySyst.items():
+		outFile.write('%-35s   lnN   '%systName)
 		for c in range(options.ncats):
 			for p in options.procs:
 				if '%s:%d'%(p,c) in options.toSkip: continue
-				if p==proc:
-					outFile.write('%5.3f/%5.3f '%(1.+uncert[1],1.+uncert[0]))
+				if p in systDetails.keys():
+					outFile.write('%5.3f/%5.3f '%(1.+systDetails[p][1],1.+systDetails[p][0]))
 				else:
 					outFile.write('- ')
 		outFile.write('\n')
 	outFile.write('\n')
 
-	# pdfs
-	for proc, uncert in pdfSyst.items():
-		outFile.write('%-35s   lnN   '%('pdf_%s'%proc))
-		for c in range(options.ncats):
-			for p in options.procs:
-				if '%s:%d'%(p,c) in options.toSkip: continue
-				if p==proc:
-					outFile.write('%5.3f/%5.3f '%(1.+uncert[1],1.+uncert[0]))
-				else:
-					outFile.write('- ')
-		outFile.write('\n')
-	outFile.write('\n')
-	
 	# br
-	outFile.write('%-35s   lnN   '%('br_hgg'))
+	outFile.write('%-35s   lnN   '%('CMS_hgg_BR'))
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: continue
@@ -510,39 +506,59 @@ def printLumiSyst():
 	outFile.write('\n')
 	outFile.write('\n')
 
+def getGlobeLine(proc,cat,name):
+	th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(proc,cat))
+	th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(proc,cat,name))
+	th1f_dn  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sDown01_sigma'%(proc,cat,name))
+	systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up)
+	if options.isBinnedSignal: 
+		line = '0.333 '
+	else:
+		if systVals[0]==1 and systVals[1]==1:
+			line = '- '
+		else:
+			line = '%5.3f/%5.3f '%(systVals[0],systVals[1])
+	return line
+
 def printGlobeSysts():
 	print 'Efficiencies...'
 	for globeSyst, paramSyst in globeSysts.items():
-		if options.isBinnedSignal:
-			outFile.write('%-25s   shape   '%(globeSyst))
-		else:
-			outFile.write('%-35s   lnN   '%('CMS_hgg_%s'%paramSyst))
-		for c in range(options.ncats):
-			for p in options.procs:
-				if '%s:%d'%(p,c) in options.toSkip: continue
-				if p in bkgProcs or ('pdfWeight' in globeSyst and p!='ggH'):
-					if options.isBinnedSignal:
-						outFile.write('0 ')
-					else:
-						outFile.write('- ')
-				else:
-					th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(globeProc[p],c))
-					th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(globeProc[p],c,globeSyst))
-					th1f_dn  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sDown01_sigma'%(globeProc[p],c,globeSyst))
-					systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up)
-					if 'pdfWeight' in globeSyst:
-						if p=='ggH':
-							if options.isBinnedSignal:
-								outFile.write('0.3333 ')
-							else:
-								outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
-						else:
+		if 'pdfWeight' and 'QCDscale' in globeSyst: # special case
+			if options.isBinnedSignal: 
+				outFile.write('%-25s   shape   '%(globeSyst))
+				for c in range(options.ncats):
+					for p in options.procs:
+						if '%s:%d'%(p,c) in options.toSkip: continue
+						if p in bkgProcs:
 							outFile.write('- ')
-					else:
-						if options.isBinnedSignal:
-							outFile.write('0.333 ')
 						else:
-							outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
+							outFile.write('0.333 ')
+			else: 
+				outFile.write('%-35s   lnN   '%('CMS_hgg_%s_ggH'%paramSyst))
+				for c in range(options.ncats):
+					for p in options.procs:
+						if '%s:%d'%(p,c) in options.toSkip: continue
+						if p=='ggH': outFile.write(getGlobeLine(globeProc[p],c,globeSyst))
+						else: outFile.write('- ')
+				outFile.write('\n')
+				outFile.write('%-35s   lnN   '%('CMS_hgg_%s_qqH'%paramSyst))
+				for c in range(options.ncats):
+					for p in options.procs:
+						if '%s:%d'%(p,c) in options.toSkip: continue
+						if p=='qqH': outFile.write(getGlobeLine(globeProc[p],c,globeSyst))
+						else: outFile.write('- ')
+		else:		
+			if options.isBinnedSignal:
+				outFile.write('%-25s   shape   '%(globeSyst))
+			else:
+				outFile.write('%-35s   lnN   '%('CMS_hgg_%s'%paramSyst))
+			for c in range(options.ncats):
+				for p in options.procs:
+					if '%s:%d'%(p,c) in options.toSkip: continue
+					if p in bkgProcs or ('pdfWeight' in globeSyst and (p!='ggH' and p!='qqH')):
+						outFile.write('- ')
+					else:
+						outFile.write(getGlobeLine(globeProc[p],c,globeSyst))
 		outFile.write('\n')
 	outFile.write('\n')
 
@@ -555,6 +571,8 @@ def printVbfSysts():
 	# cat5 -> cat6, cat5+cat6 -> cat7, cat5+cat6+cat7 -> incCats
 	# make arrays for these but then actually reverse them so they match the ordering 
 	# of the numbers written at the top and in the twiki
+	# the other important thing is to adjust the name of the VBFtot -> incCats mig to 
+	# correlate with combination for the QCDscale and UEPS
 
 	vbfMigrateFromCats=[]
 	vbfMigrateToCats=[]
@@ -602,7 +620,9 @@ def printVbfSysts():
 	# now print relevant numbers
 	for vbfSystName, vbfSystValArray in vbfSysts.items():
 		for migIt, vbfSystVal in enumerate(vbfSystValArray):
-			name = vbfSystName+'_migration%d'%migIt
+			name = vbfSystName
+			if migIt>0:
+				name += '_migration%d'%migIt
 			outFile.write('%-35s   lnN   '%name)
 			for c in range(options.ncats):
 				for p in options.procs:
@@ -612,21 +632,24 @@ def printVbfSysts():
 					else:
 						outFile.write('- ')
 						continue
-					if c in vbfMigrateToCats[migIt]:
-						outFile.write('%6.4f '%((vbfMigrateToEvCount[p][migIt]-thisUncert*vbfMigrateFromEvCount[p][migIt])/vbfMigrateToEvCount[p][migIt]))
-					elif c in vbfMigrateFromCats[migIt]:
-						outFile.write('%6.4f '%(1.+thisUncert))
-					else:
+					if thisUncert==0:
 						outFile.write('- ')
+					else:
+						if c in vbfMigrateToCats[migIt]:
+							outFile.write('%6.4f '%((vbfMigrateToEvCount[p][migIt]-thisUncert*vbfMigrateFromEvCount[p][migIt])/vbfMigrateToEvCount[p][migIt]))
+						elif c in vbfMigrateFromCats[migIt]:
+							outFile.write('%6.4f '%(1.+thisUncert))
+						else:
+							outFile.write('- ')
 			outFile.write('\n')
 		outFile.write('\n')
 	
 	# pu id eff  -- NOTE to correlate with combination change to CMS_eff_j
 	# only in 2012
 	if not options.is2011:
-		outFile.write('%-35s   lnN   '%('CMS_hgg_eff_j'))
+		outFile.write('%-35s   lnN   '%('CMS_eff_j'))
+		vbfCatCounter=0
 		for c in range(options.ncats):
-			vbfCatCounter=0
 			for i,p in enumerate(options.procs):
 				if '%s:%d'%(p,c) in options.toSkip: continue
 				if p in bkgProcs:
@@ -634,7 +657,8 @@ def printVbfSysts():
 					continue
 				if c in dijetCats or c in vhHadCat:
 					outFile.write('%6.4f/%6.4f '%(1.-puJetIdEff[vbfCatCounter][i],1.+puJetIdEff[vbfCatCounter][i]))
-					if i==len(options.procs)-1: vbfCatCounter += 1
+					if i==len(options.procs)-2: 
+						vbfCatCounter += 1
 				else:
 					outFile.write('- ')
 					continue
@@ -643,7 +667,7 @@ def printVbfSysts():
 def printLepSysts():
 	print 'Lep...'
 	# electron efficiency -- NOTE to correlate with combination change to CMS_eff_e
-	outFile.write('%-35s   lnN   '%('CMS_hgg_eff_e'))
+	outFile.write('%-35s   lnN   '%('CMS_eff_e'))
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: 
@@ -664,7 +688,7 @@ def printLepSysts():
 	outFile.write('\n')
 	
 	# muon efficiency -- NOTE to correlate with combination change to CMS_eff_m
-	outFile.write('%-35s   lnN   '%('CMS_hgg_eff_m'))
+	outFile.write('%-35s   lnN   '%('CMS_eff_m'))
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: 
@@ -685,7 +709,7 @@ def printLepSysts():
 	outFile.write('\n')
 
 	# met efficiency -- NOTE to correlate with combination change to CMS_scale_met
-	outFile.write('%-35s   lnN   '%('CMS_hgg_scale_met'))
+	outFile.write('%-35s   lnN   '%('CMS_scale_met'))
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: 
@@ -708,7 +732,7 @@ def printLepSysts():
 def printTTHSysts():
 	print 'tth...'
 	# b tag efficiency
-	outFile.write('%-35s   lnN   '%('CMS_hgg_eff_b'))
+	outFile.write('%-35s   lnN   '%('CMS_eff_b'))
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: 
