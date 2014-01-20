@@ -67,6 +67,7 @@ import ROOT as r
 outf = r.TFile('CombinePlotCanvases.root','RECREATE')
 
 if options.batch: r.gROOT.SetBatch()
+r.gStyle.SetOptStat(0)
 
 # set defaults for colors etc.
 while len(options.files)>len(options.colors): options.colors.append(1)
@@ -105,7 +106,7 @@ def pvalPlot(allVals):
     graph = r.TGraph()
     for j in range(len(values)):
       graph.SetPoint(j,values[j][0],values[j][1])
-      if options.verbose: print '\t', j, values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1])
+      if options.verbose or values[j][0]==125: print '\t', j, values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1])
     
     graph.SetLineColor(int(options.colors[k]))
     graph.SetLineStyle(int(options.styles[k]))
@@ -131,7 +132,7 @@ def pvalPlot(allVals):
   dummyHist.Draw("AXIGSAME")
 
   # draw sigma lines
-  sigmas=[1,2,3,4,5]
+  sigmas=[1,2,3,4,5,6]
   lines=[]
   labels=[]
   for i,sig in enumerate(sigmas):
@@ -153,7 +154,7 @@ def pvalPlot(allVals):
         labels[i].Draw('SAME')
 
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
@@ -234,7 +235,7 @@ def maxlhPlot(allVals):
   l2.Draw()
   
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
@@ -350,7 +351,7 @@ def limitPlot(allVals):
   l.Draw()
 
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
@@ -539,7 +540,7 @@ def plot1DNLL(returnErrors=False):
     eplus2 = h2-m
     eminus2 = m-l2
 
-    print "%s : %4.2f +%4.2g -%4.2g" % ( options.names[k], xmin, eplus , eminus )
+    print "%15s : %4.2f +%4.2g -%4.2g" % ( options.names[k], xmin, eplus , eminus )
     #print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( options.names[k], xmin, eplus , eminus, eplus2, eminus2 )
 
     if returnErrors:
@@ -591,7 +592,7 @@ def plot1DNLL(returnErrors=False):
     l.Draw('same')
   
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
 
   # draw fit value
@@ -720,7 +721,7 @@ def OBSOLETEplot1DNLLOld(returnErrors=False):
     l.Draw('same')
   
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
 
   # draw fit value
@@ -833,7 +834,7 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   leg.Draw()
   # draw text
   if options.text:
-    lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+    lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
     lat.DrawLatex(0.67,0.94,options.text)
   
   canv.Modified()
@@ -855,7 +856,7 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   leg.Draw()
   # draw text
   if options.text:
-    lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+    lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
     lat.DrawLatex(0.67,0.94,options.text)
   canv.Modified()
   canv.Update()
@@ -903,6 +904,9 @@ def plotMPdfChComp():
   
   rMin = rMin - 0.7*r.TMath.Abs(rMin)
   rMax = rMax + 0.5*r.TMath.Abs(rMax)
+  if options.xaxis: 
+    rMin = float(options.xaxis.split(',')[0])
+    rMax = float(options.xaxis.split(',')[1])
   if options.verbose:
     print 'ChComp PlotRange: ', rMin, '-', rMax
 
@@ -1012,7 +1016,7 @@ def plotMPdfChComp():
 
   # draw text
   if options.text:
-    lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+    lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
     lat.DrawLatex(0.72,0.94,options.text)
 
   canv.Modified()
@@ -1103,7 +1107,7 @@ def plotMPdfMaxLH():
   bestFit.Draw("Lsame")
 
   # draw text
-  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.12,0.92,"CMS VERY Preliminary")
   lat.DrawLatex(0.67,0.94,options.text)
   
   # draw legend
