@@ -73,7 +73,7 @@ bool PdfWeightSmearer::smearEvent( float & weight, const TLorentzVector & p4, co
   if( genMassPoint == 100 ) { genMassPoint=105; }  // Warning: missing k-factor
 
  
-  double kWeight = getWeight( p4, nPu, syst_shift );
+  double kWeight = getWeight( p4, nPu, syst_shift , process_shift);
   weight = (kWeight > 0) ? kWeight : 0;
   return true;
 }
