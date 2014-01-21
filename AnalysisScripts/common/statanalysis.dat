@@ -65,5 +65,6 @@ efficiencyFile=aux/sig_reweighing_legacy_cic_8TeV.root
 #bkgPolOrderByCat=3,4,3,4,4,5,4,5,4,4,3,3,3,-10,2,3
 
 #Bias studies cic 8TeV
-bkgPolOrderByCat=4,5,4,5,4,5,4,5,4,4,3,3,3,-10,2,3
+#bkgPolOrderByCat=4,5,4,5,4,5,4,5,4,4,3,3,3,-10,2,3
+bkgPolOrderByCat=4,5,4,5,4,5,4,5,3,3,2,4,3,2,2,3
 

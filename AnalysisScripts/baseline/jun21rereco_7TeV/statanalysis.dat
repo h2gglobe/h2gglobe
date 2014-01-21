@@ -10,4 +10,5 @@ efficiencyFile=aux/sig_reweighing_legacy_cic_7TeV.root
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3
 #bkgPolOrderByCat=3,3,3,3,3,3,3,3,4,4,3,3,3,2,3
 #From Bias Studies Cic 7TeV
-bkgPolOrderByCat=4,4,4,4,4,4,4,4,4,4,3,3,3,2,3
+#bkgPolOrderByCat=4,4,4,4,4,4,4,4,4,4,3,3,3,2,3
+bkgPolOrderByCat=4,4,4,4,4,4,4,4,3,3,1,2,2,2,2
