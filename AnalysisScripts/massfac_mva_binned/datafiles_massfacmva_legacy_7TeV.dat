@@ -105,5 +105,5 @@ treevariables massfac_mva_binned/fullmvatrees.dat massfac_mva_binned/treevariabl
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat jun21rereco_7TeV/analysis_settings.dat massfactorizedmvaanalysis.dat jun21rereco_7TeV/massfactorizedmvaanalysis.dat saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1  fillOptTree=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat  massfactorizedmvaanalysis.dat jun21rereco_7TeV/analysis_settings.dat jun21rereco_7TeV/massfactorizedmvaanalysis.dat saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1  fillOptTree=1
 #fillOptTree=1 doSystematics=0

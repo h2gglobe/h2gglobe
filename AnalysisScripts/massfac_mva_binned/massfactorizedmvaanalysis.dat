@@ -137,8 +137,8 @@ doPhotonMvaIdSyst=1
 doR9Smear=0
 doR9Syst=0
 
-doKFactorSmear=0
-doKFactorSyst=0
+# doKFactorSmear=0
+# doKFactorSyst=0
 
 doPdfWeightSmear=0
 doPdfWeightSyst=0
