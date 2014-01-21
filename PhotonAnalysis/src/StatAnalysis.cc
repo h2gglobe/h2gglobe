@@ -130,6 +130,7 @@ void StatAnalysis::Init(LoopAll& l)
         << "doVtxEffSyst "<< doVtxEffSyst << "\n"
         << "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
         << "doKFactorSyst "<< doKFactorSyst << "\n"
+        << "doPdfSmearerSyst "<< doPdfWeightSyst << "\n"
         << "doPtSpinSyst "<< doPtSpinSyst << "\n"
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
@@ -346,6 +347,20 @@ void StatAnalysis::Init(LoopAll& l)
         std::vector<std::string> sys(1,kFactorSmearer->name());
         std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
+    if(doPdfWeightSmear && doPdfWeightSyst) {
+        systGenLevelSmearers_.push_back(pdfWeightSmearer);
+        std::vector<std::string> sys(1,pdfWeightSmearer->name());
+        std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+
+        for (int pdf_i=1;pdf_i<=26;pdf_i++){
+          systGenLevelSmearers_.push_back(pdfWeightSmearer_sets[pdf_i-1]);
+          std::vector<std::string> sys(1,pdfWeightSmearer_sets[pdf_i-1]->name());
+          std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+          l.rooContainer->MakeSystematicStudy(sys,sys_t);
+        }
+
     }
     if(doPtSpinSmear && doPtSpinSyst) {
         systGenLevelSmearers_.push_back(ptSpinSmearer);
