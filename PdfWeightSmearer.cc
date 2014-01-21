@@ -46,10 +46,6 @@ void PdfWeightSmearer::readFile(std::string uId, std::string dId ){
   assert(temp!=0);    kFactorSmearers_[5]=(TH2F*) temp->Clone(("Hmass_down_vbf")); kFactorSmearers_[5]->SetDirectory(0);
 
   // Need to normalize to central integral!
-  C_integral = kFactorSmearers_[0]->Integral();
-  kFactorSmearers_[2]->Scale(C_integral/kFactorSmearers_[2]->Integral());
-  kFactorSmearers_[1]->Scale(C_integral/kFactorSmearers_[1]->Integral());
-
   C_integral = kFactorSmearers_[3]->Integral();
   kFactorSmearers_[5]->Scale(C_integral/kFactorSmearers_[5]->Integral());
   kFactorSmearers_[4]->Scale(C_integral/kFactorSmearers_[4]->Integral());
@@ -107,7 +103,7 @@ double PdfWeightSmearer::getWeight( const TLorentzVector & p4, const int nPu, fl
   int    varId     = syst_shift > 0 ?   1 : 2;
   varId+=process_shift; // this is a ggH or qqH signal
 
-  double nominal   = getPdfWeight( 0, 0, gPT, gY );
+  double nominal   = getPdfWeight( 0, process_shift, gPT, gY );
   double variation = getPdfWeight( 0, varId, gPT, gY );
 
   return ( max( 1. + fabs(syst_shift) * ((variation/nominal)-1), 0.) ) ;
