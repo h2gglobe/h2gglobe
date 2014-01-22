@@ -100,6 +100,8 @@ $(LIBDIR)/lib$(LIBNAME).so:$(OBJS) $(ROOT_OBJ) $(COMBINELIB)
 $(ROOT_DICT): $(SRCS) $(HEADERS)
 	@echo Making dictionary $@
 	@rootcint -f $@ -c -L$(ROOFITSYS)/lib -I$(ROOFITSYS)/include -L$(CMSSW_BASE)/lib -I$(CMSSW_BASE)/src $(HEADERS)
+
+$(ROOT_OBJ): $(ROOT_DICT)
 	@$(CXX) $(CXXFLAGS) -fPIC -c $(ROOT_DICT) -o $(ROOT_OBJ)
 
 lib: $(LIBDIR)/lib$(LIBNAME).so

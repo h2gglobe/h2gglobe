@@ -31,6 +31,7 @@ class InitialFit {
     void plotFits(std::string name);
     void setVerbosity(int v);
 
+    void setFitParams(std::map<int,std::map<std::string,RooRealVar*> >& pars );
   private:
 
     RooRealVar *mass;
