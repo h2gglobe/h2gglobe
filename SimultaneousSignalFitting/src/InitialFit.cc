@@ -73,9 +73,10 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
     map<string,RooGaussian*> tempGaussians;
     
     for (int g=0; g<nGaussians; g++){
-      RooRealVar *dm = new RooRealVar(Form("dm_mh%d_g%d",mh,g),Form("dm_mh%d_g%d",mh,g),0.1,-2.5*(1.+0.5*g),2.5*(1.+0.5*g));
+      //RooRealVar *dm = new RooRealVar(Form("dm_mh%d_g%d",mh,g),Form("dm_mh%d_g%d",mh,g),0.1,-2.5*(1.+g),2.5*(1.+g));
+      RooRealVar *dm = new RooRealVar(Form("dm_mh%d_g%d",mh,g),Form("dm_mh%d_g%d",mh,g),0.1,-10.,10.);
       RooAbsReal *mean = new RooFormulaVar(Form("mean_mh%d_g%d",mh,g),Form("mean_mh%d_g%d",mh,g),"@0+@1",RooArgList(*MH,*dm));
-      RooRealVar *sigma = new RooRealVar(Form("sigma_mh%d_g%d",mh,g),Form("sigma_mh%d_g%d",mh,g),2.,0.7,5.*(1.+0.5*g));
+      RooRealVar *sigma = new RooRealVar(Form("sigma_mh%d_g%d",mh,g),Form("sigma_mh%d_g%d",mh,g),2.,0.4,20.);
       RooGaussian *gaus = new RooGaussian(Form("gaus_mh%d_g%d",mh,g),Form("gaus_mh%d_g%d",mh,g),*mass,*mean,*sigma);
       tempFitParams.insert(pair<string,RooRealVar*>(string(dm->GetName()),dm));
       tempFitParams.insert(pair<string,RooRealVar*>(string(sigma->GetName()),sigma));
@@ -83,7 +84,7 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
       tempGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
       gaussians->add(*gaus);
       if (g<nGaussians-1) {
-        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.01,0.01,0.99);
+        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.1,0.01,0.99);
         tempFitParams.insert(pair<string,RooRealVar*>(string(frac->GetName()),frac));
         coeffs->add(*frac);
       }
