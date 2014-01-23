@@ -29,6 +29,7 @@ namespace po = boost::program_options;
 
 string filename_;
 string outfilename_;
+string mergefilename_;
 string datfilename_;
 string systfilename_;
 string plotDir_;
@@ -53,6 +54,8 @@ string highR9cats_;
 string lowR9cats_;
 int verbose_=0;
 int ncpu_=1;
+vector<int> cats_;
+string catsStr_;
 
 void OptionParser(int argc, char *argv[]){
   po::options_description desc("Allowed options");
@@ -60,6 +63,7 @@ void OptionParser(int argc, char *argv[]){
     ("help,h",                                                                                			"Show help")
     ("infilename,i", po::value<string>(&filename_),                                           			"Input file name")
     ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), 			"Output file name")
+    ("merge,m", po::value<string>(&mergefilename_)->default_value(""),                                	        "Merge the output with the given workspace")
     ("datfilename,d", po::value<string>(&datfilename_)->default_value("dat/config.dat"),      			"Configuration file")
     ("systfilename,s", po::value<string>(&systfilename_)->default_value("dat/photonCatSyst.dat"),		"Systematic model numbers")
     ("plotDir,p", po::value<string>(&plotDir_)->default_value("plots"),						"Put plots in this directory")
@@ -67,6 +71,7 @@ void OptionParser(int argc, char *argv[]){
     ("nThreads,t", po::value<int>(&ncpu_)->default_value(ncpu_),                               			"Number of threads to be used for the fits")
     ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                			"High mass point")
     ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    			"Number of total categories")
+    ("cats,c", po::value<string>(&catsStr_)->default_value(""),                                   			"Comma-separated list of cats to process")
     ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
     ("constraintValueMass,M", po::value<int>(&constraintValueMass_)->default_value(125),                        "Constraint value mass")
     ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
@@ -106,10 +111,19 @@ void OptionParser(int argc, char *argv[]){
 	  for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) cout << *it << " ";
 	  cout << endl;
   }
+  if(vm.count("cats")){
+	  vector<string> els;
+	  split(els,catsStr_,boost::is_any_of(","));
+	  if (els.size()>0 && catsStr_ !="") {
+		  for (vector<string>::iterator it=els.begin(); it!=els.end(); it++) {
+			  cats_.push_back(boost::lexical_cast<int>(*it));
+		  }
+	  }
+  }
   split(procs_,procStr_,boost::is_any_of(","));
 }
 
-void transferMacros(TFile *inFile, TFile *outFile){
+void transferMacros(TFile *inFile, TDirectory *outFile){
   
   TIter next(inFile->GetListOfKeys());
   TKey *key;
@@ -158,9 +172,16 @@ int main(int argc, char *argv[]){
  
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
   RooWorkspace *outWS;
-	if (is2011_) outWS = new RooWorkspace("wsig_7TeV");
-	else outWS = new RooWorkspace("wsig_8TeV");
-
+  if (is2011_) outWS = new RooWorkspace("wsig_7TeV");
+  else outWS = new RooWorkspace("wsig_8TeV");
+  RooWorkspace *mergeWS = 0;
+  TFile *mergeFile = 0;
+  if(!mergefilename_.empty()) {
+	  mergeFile = TFile::Open(mergefilename_.c_str());
+	  if (is2011_) mergeWS = (RooWorkspace*)mergeFile->Get("wsig_7TeV");
+	  else  mergeWS = (RooWorkspace*)mergeFile->Get("wsig_8TeV");
+  }
+  
   transferMacros(inFile,outFile);
 
   system(Form("mkdir -p %s/initialFits",plotDir_.c_str()));
@@ -302,7 +323,7 @@ int main(int argc, char *argv[]){
 	sw.Start();
 	cout << "Starting to combine fits..." << endl;
 	// this guy packages everything up
-	Packager packager(outWS,procs_,nCats_,mhLow_,mhHigh_,skipMasses_,is2011_,plotDir_);
+	Packager packager(outWS,procs_,nCats_,mhLow_,mhHigh_,skipMasses_,is2011_,plotDir_,mergeWS,cats_);
 	packager.packageOutput();
 	sw.Stop();
 	cout << "Combination complete." << endl;

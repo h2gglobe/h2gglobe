@@ -12,18 +12,23 @@
 
 #include "../interface/Packager.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir):
+Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir, 
+		   RooWorkspace *wsMerge, const vector<int>& cats ):
   outWS(ws),
+  mergeWS(wsMerge),
   procs_(procs),
   nCats_(nCats),
+  cats_(cats),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
-	is2011_(is2011),
-	outDir_(outDir),
-	skipMasses_(skipMasses)
+  is2011_(is2011),
+  outDir_(outDir),
+  skipMasses_(skipMasses)
 {
 	if (is2011) sqrts_=7;
 	else sqrts_=8;
@@ -50,8 +55,15 @@ void Packager::packageOutput(){
     RooDataSet *allDataThisMass = 0;
     for (int cat=0; cat<nCats_; cat++) {
       RooDataSet *allDataThisCat = NULL;
+      bool merge = mergeWS != 0 && ( find(cats_.begin(),cats_.end(),cat) == cats_.end() );
       for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
-        RooDataSet *tempData = (RooDataSet*)outWS->data(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
+	RooDataSet *tempData = 0;
+	if( merge ) { 
+		      tempData = (RooDataSet*)mergeWS->data(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
+		      outWS->import(*tempData);
+	} else {
+		      tempData = (RooDataSet*)outWS->data(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
+	}
         if (!tempData) {
           cerr << "WARNING -- dataset: " << Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat) << " not found. It will be skipped" << endl;
           expectedObjectsNotFound.push_back(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
@@ -79,11 +91,13 @@ void Packager::packageOutput(){
   RooArgList *sumPdfs = new RooArgList();
   RooArgList *runningNormSum = new RooArgList();
   for (int cat=0; cat<nCats_; cat++){
+    bool merge = mergeWS != 0 && ( find(cats_.begin(),cats_.end(),cat) == cats_.end() );
+    RooWorkspace * inWS = ( merge ? mergeWS : outWS );
     RooArgList *sumPdfsThisCat = new RooArgList();
     for (vector<string>::iterator proc=procs_.begin(); proc!=procs_.end(); proc++){
       
       // sum eA
-      RooSpline1D *norm = (RooSpline1D*)outWS->function(Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat));
+      RooSpline1D *norm = (RooSpline1D*)inWS->function(Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat));
       if (!norm) {
         cerr << "WARNING -- ea: " << Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat) << "not found. It will be skipped" << endl;
       }
@@ -92,11 +106,15 @@ void Packager::packageOutput(){
       }
       
       // sum pdf
-      RooExtendPdf *tempPdf = (RooExtendPdf*)outWS->pdf(Form("extendhggpdfsmrel_%dTeV_%s_cat%dThisLumi",sqrts_,proc->c_str(),cat));
+      RooExtendPdf *tempPdf = (RooExtendPdf*)inWS->pdf(Form("extendhggpdfsmrel_%dTeV_%s_cat%dThisLumi",sqrts_,proc->c_str(),cat));
       if (!tempPdf) {
         cerr << "WARNING -- pdf: " << Form("extendhggpdfsmrel_%dTeV_%s_cat%d",sqrts_,proc->c_str(),cat) << " not found. It will be skipped" << endl;
         expectedObjectsNotFound.push_back(Form("extendhggpdfsmrel_%dTeV_%s_cat%d",sqrts_,proc->c_str(),cat));
         continue;
+      }
+      if( merge ) {
+	      outWS->import(*norm);
+	      outWS->import(*tempPdf,RecycleConflictNodes());
       }
       sumPdfsThisCat->add(*tempPdf);
       sumPdfs->add(*tempPdf);
@@ -105,7 +123,7 @@ void Packager::packageOutput(){
       cerr << "WARNING -- sumPdfs for cat " << cat << " is EMPTY. Probably because the relevant pdfs couldn't be found. Skipping.. " << endl;
       continue;
     }
-		// Dont put sqrts here as combine never uses this (but our plotting scripts do)
+    // Dont put sqrts here as combine never uses this (but our plotting scripts do)
     RooAddPdf *sumPdfsPerCat = new RooAddPdf(Form("sigpdfrelcat%d_allProcs",cat),Form("sigpdfrelcat%d_allProcs",cat),*sumPdfsThisCat);
     outWS->import(*sumPdfsPerCat,RecycleConflictNodes());
   }
