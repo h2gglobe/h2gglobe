@@ -197,7 +197,7 @@ int main(int argc, char *argv[]){
 
     cout << "-----------------------------------------------------------------" << endl;
     cout << Form("Running fits for proc:%s - cat:%d with nGausRV:%d nGausWV:%d",proc.c_str(),cat,nGaussiansRV,nGaussiansWV) << endl;
-    cout << Form("Will replace parameters using  proc:%s - cat:%d",replaceWith.first.c_str(),replaceWith.second) << endl;
+    if( replace ) { cout << Form("Will replace parameters using  proc:%s - cat:%d",replaceWith.first.c_str(),replaceWith.second) << endl; }
     cout << "-----------------------------------------------------------------" << endl;
     // get datasets for each MH here
     map<int,RooDataSet*> datasetsRV;
