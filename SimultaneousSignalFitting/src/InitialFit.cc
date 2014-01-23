@@ -186,6 +186,22 @@ void InitialFit::runFits(int ncpu){
   }
 }
 
+void InitialFit::setFitParams(std::map<int,std::map<std::string,RooRealVar*> >& pars )
+{
+	for(map<int,map<string,RooRealVar*> >::iterator ipar = pars.begin(); ipar!=pars.end(); ++ipar ) {
+		int mh = ipar->first;
+		map<string,RooRealVar*>& vars = ipar->second;
+		std::map<std::string,RooRealVar*> myParams = fitParams[mh];
+		for(std::map<std::string,RooRealVar*>::iterator ivar=vars.begin(); ivar!=vars.end(); ++ivar){
+			//// std::cout << "Setting " << ivar->first << " to " << ivar->second->getVal() << " " <<
+			//// 	myParams[ivar->first]->getVal() << " " << myParams[ivar->first]->GetName() <<
+			//// 	ivar->second->GetName() << std::endl;
+			myParams[ivar->first]->setVal(ivar->second->getVal());
+		}
+	}
+}
+
+
 void InitialFit::plotFits(string name){
   
   TCanvas *canv = new TCanvas();
