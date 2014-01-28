@@ -224,9 +224,9 @@ else:
 
 # vtx eff
 if options.is2011:
-	vtxSyst = 0.005
+	vtxSyst = 0.015
 else:
-	vtxSyst = 0.02
+	vtxSyst = 0.015
 
 # r9 syst (cut based only)
 if options.isCutBased:
@@ -237,10 +237,12 @@ if options.isCutBased:
 		r9barrelSyst = 0.040 
 		r9mixedSyst = 0.065
 
+trigEff = 0.01
+
 # from globe
 globeSysts={}
 globeSysts['idEff'] = 'n_id_eff'
-globeSysts['triggerEff'] = 'n_trig_eff'
+##globeSysts['triggerEff'] = 'n_trig_eff'
 if not options.isCutBased:
   globeSysts['phoIdMva'] = 'n_id_mva'
   globeSysts['regSig'] = 'n_sigmae'
@@ -249,7 +251,7 @@ if options.isBinnedSignal:
 	globeSysts['E_res'] = 'n_e_res'
 
 # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
-if not options.isBinnedSignal and not options.isCutBased:
+if not options.isBinnedSignal:
 	globeSysts['pdfWeight_QCDscale'] = 'n_sc'
 	for pdfi in range(1,27):
 		globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
@@ -452,7 +454,8 @@ def printObsProcBinLines():
 def printNuisParams():
 	if not options.isBinnedSignal:
 		print 'Nuisances...'
-		outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltafracright'%sqrts,vtxSyst))
+		## outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltafracright'%sqrts,vtxSyst))
+		outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_deltafracright',vtxSyst))
 		if options.isCutBased:
 			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9barrel'%sqrts,r9barrelSyst))
 			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9mixed'%sqrts,r9mixedSyst))
@@ -503,6 +506,19 @@ def printLumiSyst():
 				outFile.write('- ')
 			else:
 				outFile.write('%5.3f '%(1.+lumiSyst))
+	outFile.write('\n')
+	outFile.write('\n')
+
+def printTrigSyst():
+	print 'Lumi...'
+	outFile.write('%-35s   lnN   '%'CMS_hgg_n_trig_eff')
+	for c in range(options.ncats):
+		for p in options.procs:
+			if '%s:%d'%(p,c) in options.toSkip: continue
+			if p in bkgProcs:
+				outFile.write('- ')
+			else:
+				outFile.write('%5.3f '%(1.+trigEff))
 	outFile.write('\n')
 	outFile.write('\n')
 
@@ -784,6 +800,7 @@ printObsProcBinLines()
 printNuisParams()
 printTheorySysts()
 printLumiSyst()
+printTrigSyst()
 printGlobeSysts()
 printVbfSysts()
 printLepSysts()

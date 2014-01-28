@@ -101,19 +101,25 @@ def pvalPlot(allVals):
   else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
 
+  out = open("%s.txt" % options.outname,'w+')
+
   # make graphs from values
   for k, values in enumerate(allVals):
     graph = r.TGraph()
     for j in range(len(values)):
       graph.SetPoint(j,values[j][0],values[j][1])
       if options.verbose or values[j][0]==125: print '\t', j, values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1])
+      if  values[j][0]==125:
+        out.write( "%1.1f %1.4g %1.4g\n" % ( values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1]) ) )
     
     graph.SetLineColor(int(options.colors[k]))
     graph.SetLineStyle(int(options.styles[k]))
     graph.SetLineWidth(int(options.widths[k]))
     if options.names[k]!="-1": leg.AddEntry(graph,options.names[k],'L')
     mg.Add(graph)
- 
+
+  out.close()
+  
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle('Local p-value')
   dummyHist.GetYaxis().SetTitleOffset(0.95)
@@ -373,6 +379,7 @@ def runStandard():
   for k, f in enumerate(options.files):
     tf = r.TFile(f)
     tree = tf.Get('limit')
+    print k,f,tf,tree
     values=[]
     for i in range(tree.GetEntries()):
       tree.GetEntry(i)
@@ -471,6 +478,9 @@ def plot1DNLL(returnErrors=False):
   else:
     sys.exit('Method not recognised for 1D scan %s'%options.method)
 
+  if not returnErrors:
+    out = open("%s.txt" % options.outname,'w+')
+
   if not options.legend: leg  = r.TLegend(0.35,0.65,0.65,0.79)
   else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetLineColor(0)
@@ -540,11 +550,13 @@ def plot1DNLL(returnErrors=False):
     eplus2 = h2-m
     eminus2 = m-l2
 
-    print "%15s : %4.2f +%4.2g -%4.2g" % ( options.names[k], xmin, eplus , eminus )
-    #print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( options.names[k], xmin, eplus , eminus, eplus2, eminus2 )
-
+    
     if returnErrors:
       return [xmin,eplus,eminus,eplus2,eminus2]
+
+    print "%15s : %4.3f +%4.3g -%4.3g" % ( options.names[k], xmin, eplus , eminus )
+    #print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( options.names[k], xmin, eplus , eminus, eplus2, eminus2 )
+    out.write("%15s : %4.3f +%4.3g -%4.3g\n" % ( options.names[k], xmin, eplus , eminus ))
     
     if k==0:
       fit = xmin
@@ -614,6 +626,7 @@ def plot1DNLL(returnErrors=False):
   outf.cd()
   canv.Write()
 
+  out.close()
 
 def OBSOLETEplot1DNLLOld(returnErrors=False):
  
@@ -631,6 +644,9 @@ def OBSOLETEplot1DNLLOld(returnErrors=False):
     xtitle = '#mu_{ggH+ttH}'
   else:
     sys.exit('Method not recognised for 1D scan %s'%options.method)
+
+  if not returnErrors:
+    out = open("%s.txt" % options.outname,'w+')
 
   canv = r.TCanvas(x,x,500,500)
   if not options.legend: leg  = r.TLegend(0.35,0.65,0.65,0.79)
@@ -669,10 +685,12 @@ def OBSOLETEplot1DNLLOld(returnErrors=False):
     eplus  = func.GetX(1.,xmin,func.GetXmax()) - xmin
     eminus2 = xmin - func.GetX(4.,func.GetXmin(),xmin)
     eplus2  = func.GetX(4.,xmin,func.GetXmax()) - xmin
-    print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( graph.GetName(), xmin, eplus , eminus, eplus2, eminus2 )
-
+    
     if returnErrors:
       return [xmin,eplus,eminus,eplus2,eminus2]
+
+    print "%s : %1.5g +%1.5g -%1.5g (2sig) +%1.5g -%1.5g" % ( graph.GetName(), xmin, eplus , eminus, eplus2, eminus2 )
+    out.write("%s : %1.5g +%1.5g -%1.5g (2sig) +%1.5g -%1.5g\n" % ( graph.GetName(), xmin, eplus , eminus, eplus2, eminus2 ))
 
     # for the first passed file only get the intersection lines
     if k==0:
@@ -743,6 +761,8 @@ def OBSOLETEplot1DNLLOld(returnErrors=False):
   outf.cd()
   canv.Write()
 
+  out.close()
+  
 def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   
   if len(options.files)>1: sys.exit('Just one file for 2D scans please')
@@ -1137,11 +1157,25 @@ def run():
   if options.method=='pval' or options.method=='limit' or options.method=='maxlh':
     runStandard()
   elif options.method=='mh' or options.method=='mu' or options.method=='rv' or options.method=='rf' or options.method=='mpdfchcomp' or options.method=='mpdfmaxlh':
-    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/FinalResults/rootPalette.C')
+    basepath = None
+    mypath = os.path.abspath(os.path.dirname(__file__))
+    while mypath != '':
+      if os.path.basename(mypath).startswith('h2gglobe'):
+        basepath = mypath
+        break
+      mypath = os.path.dirname(mypath)
+    if not basepath or basepath == '':
+          basepath = os.path.expandvars('$CMSSW_BASE/src/h2gglobe')
+    if not basepath or basepath == '':
+          basepath = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe')
+    if not basepath or basepath == '':
+      sys.exit('ERROR - Can\'t find path: '+basepath) 
+    path = os.path.join(basepath,'Macros/FinalResults/rootPalette.C')
     if not os.path.exists(path):
       sys.exit('ERROR - Can\'t find path: '+path) 
     r.gROOT.ProcessLine(".x "+path)
-    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/ResultScripts/GraphToTF1.C')
+    ## path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/ResultScripts/GraphToTF1.C')
+    path = os.path.join(basepath,'Macros/ResultScripts/GraphToTF1.C')
     if not os.path.exists(path):
       sys.exit('ERROR - Can\'t find path: '+path) 
     r.gROOT.LoadMacro(path)
