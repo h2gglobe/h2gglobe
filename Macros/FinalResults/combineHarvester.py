@@ -13,6 +13,7 @@ parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
 parser.add_option("-q","--queue",help="Which batch queue")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit")
+parser.add_option("--postFit",default=False,action="store_true",help="Use post-fit nuisances")
 parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--skipWorkspace",default=False,action="store_true",help="Dont remake MultiDim workspace")
 parser.add_option("--hadd",help="Trawl passed directory and hadd files. To be used when jobs are complete.")
@@ -47,7 +48,7 @@ specOpts.add_option("--expectSignal",type="float")
 specOpts.add_option("--expectSignalMass",type="float")
 specOpts.add_option("--splitChannels")
 specOpts.add_option("--toysFile")
-specOpts.add_option("--additionalOptions")
+specOpts.add_option("--additionalOptions",default="",type="string")
 parser.add_option_group(specOpts)
 (opts,args) = parser.parse_args()
 if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combine')):
@@ -59,6 +60,11 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 
 cwd = os.getcwd()
 allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','MuScanMHProf','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly', 'RProcScan', 'RTopoScan', 'MuVsMHScan']
+
+
+def system(exec_line):
+	if opts.verbose: print '\t', exec_line
+	os.system(exec_line)
 
 def checkValidMethod():
 	if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
@@ -101,7 +107,7 @@ def removeRelevantDiscreteNuisances():
 		else: newCard.write(line)
 	card.close()
 	newCard.close()
-	os.system('mv %s %s'%(newCard.name,card.name))
+	system('mv %s %s'%(newCard.name,card.name))
 
 def splitCard():
 	if not opts.splitChannels: sys.exit('Channel splitting options not specified')
@@ -121,8 +127,7 @@ def splitCard():
 	splitCardName = opts.datacard.replace('.txt','')
 	for cat in opts.splitChannels: splitCardName += '_'+cat
 	splitCardName += '.txt'
-	if opts.verbose: print 'combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName)
-	os.system('combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName))
+	system('combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName))
 	opts.datacard = splitCardName
 	removeRelevantDiscreteNuisances()
 
@@ -182,14 +187,14 @@ def writePostamble(sub_file, exec_line):
 	sub_file.write('fi\n')
 	sub_file.write('rm -f %s.run\n'%os.path.abspath(sub_file.name))
 	sub_file.close()
-	os.system('chmod +x %s'%os.path.abspath(sub_file.name))
+	system('chmod +x %s'%os.path.abspath(sub_file.name))
 	if not opts.dryRun and opts.queue:
-		os.system('rm -f %s.done'%os.path.abspath(sub_file.name))
-		os.system('rm -f %s.fail'%os.path.abspath(sub_file.name))
-		os.system('rm -f %s.log'%os.path.abspath(sub_file.name))
-		os.system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
+		system('rm -f %s.done'%os.path.abspath(sub_file.name))
+		system('rm -f %s.fail'%os.path.abspath(sub_file.name))
+		system('rm -f %s.log'%os.path.abspath(sub_file.name))
+		system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
 	if opts.runLocal:
-		os.system('bash %s'%os.path.abspath(sub_file.name))
+		system('bash %s'%os.path.abspath(sub_file.name))
 
 def writeAsymptotic():
 	print 'Writing Asymptotic'
@@ -204,6 +209,7 @@ def writeAsymptotic():
 		exec_line = ''
 		for mass in mass_set:
 			exec_line +=	'combine %s -M Asymptotic -m %6.2f --cminDefaultMinimizerType=Minuit2'%(opts.datacard,mass)
+			if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions
 			if opts.expected: exec_line += ' --run=expected'
 			if mass!=mass_set[-1]: exec_line += ' && '
 		writePostamble(file,exec_line)
@@ -223,22 +229,21 @@ def writeAsymptoticGrid():
 	if not opts.skipWorkspace:
 		print 'Creating workspace for %s...'%opts.method
 		ws_exec_line = 'text2workspace.py %s -o %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt','.root')) 
-		if opts.verbose: print '\t', ws_exec_line 
-		os.system(ws_exec_line)
+		system(ws_exec_line)
 	opts.datacard = opts.datacard.replace('.txt','.root')
 
 	# sub jobs through combine
 	for j, mass_set in enumerate(opts.masses_per_job):
 		for mass in mass_set:
-			os.system('python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py -w %s -m %6.2f -n 10 -r %3.1f %3.1f --runLimit --nCPU=3 -d %s'%(opts.datacard,mass,opts.muLow,opts.muHigh,os.path.abspath(opts.outDir)))
+			system('python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py -w %s -m %6.2f -n 10 -r %3.1f %3.1f --runLimit --nCPU=3 -d %s'%(opts.datacard,mass,opts.muLow,opts.muHigh,os.path.abspath(opts.outDir)))
 			sub_file_name = os.path.abspath(opts.outDir+'/limitgrid_%5.1f.sh'%(mass))
 			if opts.verbose:
 				print 'bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name))
 			if not opts.dryRun and opts.queue:
-				os.system('rm -f %s.log'%os.path.abspath(sub_file_name))
-				os.system('bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name)))
+				system('rm -f %s.log'%os.path.abspath(sub_file_name))
+				system('bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name)))
 			if opts.runLocal:
-				os.system('bash %s'%os.path.abspath(sub_file_name))
+				system('bash %s'%os.path.abspath(sub_file_name))
 
 	# switch back
 	opts.datacard = opts.datacard.replace('.root','.txt')
@@ -266,6 +271,7 @@ def writeProfileLikelhood():
 		exec_line = ''
 		for mass in mass_set:
 			exec_line +=	'combine %s -M ProfileLikelihood -m %6.2f --signif --pval --cminDefaultMinimizerType=Minuit2'%(opts.datacard,mass)
+			if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions
 			if opts.expected: exec_line += ' -t -1'
 			if opts.expectSignal: exec_line += ' --expectSignal=%3.1f'%opts.expectSignal
 			if opts.expectSignalMass: exec_line += ' --expectSignalMass=%6.2f'%opts.expectSignalMass
@@ -311,7 +317,7 @@ def writeGenerateOnly():
 				opts.splitChannels = [cat]
 				splitCard()
 				opts.outDir += '/'+cat
-				os.system('mkdir -p %s'%opts.outDir)
+				system('mkdir -p %s'%opts.outDir)
 				writeSingleGenerateOnly()
 				opts.datacard = backupcard
 				opts.outDir = backupdir
@@ -334,13 +340,13 @@ def writeMultiPdfChannelCompatibility():
 		opts.splitChannels = [cat]
 		splitCard()
 		opts.outDir += '/'+cat
-		os.system('mkdir -p %s'%opts.outDir)
+		system('mkdir -p %s'%opts.outDir)
 		opts.method = 'MuScan'
 		writeMultiDimFit()
 		opts.datacard = backupcard
 		opts.outDir = backupdir
 	
-def writeMultiDimFit():
+def writeMultiDimFit(method=None,wsOnly=False):
 
 	print 'Writing MultiDim Scan'
 	ws_args = { "RVRFScan" 	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
@@ -372,7 +378,7 @@ def writeMultiDimFit():
 		"MHScanStat"			: "--floatOtherPOIs=1 -P MH",
 		"MHScanNoGlob"		: "--floatOtherPOIs=1 -P MH",
 		"MuMHScan"	 	 		: "-P r -P MH",
-		"RProcScan"	    : "--floatOtherPOIs=1 -P %s -P MH"%(opts.poix), # need to add option to run specific process
+		"RProcScan"	    : "--floatOtherPOIs=1 -P %s"%(opts.poix), # need to add option to run specific process
 		"RTopoScan"	    : "--floatOtherPOIs=1 -P %s"%(opts.poix) # need to add option to run specific topologic categories
 		}
 	par_ranges = {}
@@ -401,24 +407,35 @@ def writeMultiDimFit():
 		par_ranges["MuMHScan"]				= "r=%4.2f,%4.2f:MH=%6.2f,%6.2f"%(opts.muLow,opts.muHigh,opts.mhLow,opts.mhHigh)
 
 	# create specialised MultiDimFit workspace
+	if not method:
+		method = opts.method
 	backupcard = opts.datacard
-	if opts.method=='MHScanStat':
+	if method=='MHScanStat':
 		makeStatOnlyCard()
-	if opts.method=='MHScanNoGlob':
+	if method=='MHScanNoGlob':
 		makeNoGlobCard()
 	if not opts.skipWorkspace:
-		print 'Creating workspace for %s...'%opts.method
-		ws_exec_line = 'text2workspace.py %s -o %s %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt',opts.method+'.root'),ws_args[opts.method]) 
-		if opts.verbose: print '\t', ws_exec_line 
-		os.system(ws_exec_line)
-	opts.datacard = opts.datacard.replace('.txt',opts.method+'.root')
+		datacardname = os.path.basename(opts.datacard).replace('.txt','')
+		print 'Creating workspace for %s...'%method
+		ws_exec_line = 'text2workspace.py %s -o %s %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt',method+'.root'),ws_args[method]) 
+		system(ws_exec_line)
+		if opts.postFit:
+			system('combine -m 125 -M MultiDimFit --saveWorkspace -n %s_postFit %s' % ( datacardname, os.path.abspath(opts.datacard).replace('.txt',method+'.root') ))
+			system('mv higgsCombine%s_postFit.MultiDimFit.mH125.root %s' % ( datacardname, os.path.abspath(opts.datacard).replace('.txt',method+'_postFit.root') ))
+			
+	if wsOnly:
+		return
 
+	if opts.postFit:
+		opts.datacard = opts.datacard.replace('.txt',method+'_postFit.root')
+	else:
+		opts.datacard = opts.datacard.replace('.txt',method+'.root')
 	# make job scripts
 	for i in range(opts.jobs):
-		file = open('%s/sub_m%6.2f_job%d.sh'%(opts.outDir,opts.mh,i),'w')
+		file = open('%s/sub_m%1.2g_job%d.sh'%(opts.outDir,getattr(opts,"mh",0.),i),'w')
 		writePreamble(file)
-		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --keepFailures --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n Job%d'%(opts.datacard,par_ranges[opts.method],combine_args[opts.method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i)
-		if opts.mh: exec_line += ' -m %6.2f'%opts.mh
+		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --keepFailures --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n Job%d'%(opts.datacard,par_ranges[method],combine_args[method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i)
+		if getattr(opts,"mh",None): exec_line += ' -m %6.2f'%opts.mh
 		if opts.expected: exec_line += ' -t -1'
 		if opts.expectSignal: exec_line += ' --expectSignal %4.2f'%opts.expectSignal
 		if opts.expectSignalMass: exec_line += ' --expectSignalMass %6.2f'%opts.expectSignalMass
@@ -431,10 +448,23 @@ def writeMultiDimFit():
 
 def run():
 	# setup
-	os.system('mkdir -p %s'%opts.outDir)
+	system('mkdir -p %s'%opts.outDir)
 	if opts.verbose: print 'Made directory', opts.outDir
 	checkValidMethod()
 	# submit
+	storecard = opts.datacard
+	if opts.postFit:
+		if not opts.additionalOptions:
+			opts.additionalOptions = " --snapshotName MultiDimFit"
+		else:
+			opts.additionalOptions += " --snapshotName MultiDimFit"
+		if opts.expected:
+			opts.additionalOptions += " --toysFrequentist --bypassFrequentistFit"
+		if ( opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood' or  opts.method=='ChannelCompatibilityCheck' or  opts.method=='MultiPdfChannelCompatibility' or  opts.method=='MultiPdfChannelCompatibility'):
+			writeMultiDimFit("MuMHScan",True)
+			opts.datacard = opts.datacard.replace('.txt','MuMHScan_postfit.root')
+			if opts.expected:
+				opts.additionalOptions += " ---overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
 	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
 	if opts.method=='Asymptotic':
@@ -451,7 +481,8 @@ def run():
 		writeGenerateOnly()
 	else:
 		writeMultiDimFit()
-
+	opts.datacard = storecard
+		
 def resetDefaultConfig():
 	for opt in specOpts.option_list:
 		opt_name = opt.dest.strip('--')
@@ -513,7 +544,7 @@ def trawlHadd():
 			print root, ' -- ', len(list_of_files.split())
 			exec_line = 'hadd -f %s/%s.root%s'%(dir,os.path.basename(dir),list_of_files)
 			if opts.verbose: print exec_line
-			os.system(exec_line)
+			system(exec_line)
 
 if opts.hadd:
 	trawlHadd()
