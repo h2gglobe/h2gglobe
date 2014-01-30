@@ -16,6 +16,7 @@ parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit
 parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--skipWorkspace",default=False,action="store_true",help="Dont remake MultiDim workspace")
 parser.add_option("--hadd",help="Trawl passed directory and hadd files. To be used when jobs are complete.")
+parser.add_option("--resubfail",help="Trawl passed directory and resubmit failde jobs.")
 parser.add_option("-v","--verbose",default=False,action="store_true")
 #parser.add_option("--blindStd",default=False,action="store_true",help="Run standard suite of blind plots")
 #parser.add_option("--unblindSimple",default=False,action="store_true",help="Run simple set of unblind plots (limit, pval, best fit mu)")
@@ -479,6 +480,26 @@ def configure(config_line):
 	if opts.verbose: print opts
 	run()
 
+def trawlResubmit():
+	list_of_jobs=set()
+	for root, dirs, files, in os.walk(opts.resubfail):
+		for x in files:
+			if '.fail' in x:
+				list_of_jobs.add( root +"/"+ x.replace('.fail',''))
+	for file_name in list_of_jobs:
+		if not opts.dryRun and opts.queue:
+			os.system('rm -f %s.done'%os.path.abspath(file_name))
+			os.system('rm -f %s.fail'%os.path.abspath(file_name))
+			os.system('rm -f %s.log'%os.path.abspath(file_name))
+			os.system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(file_name),os.path.abspath(file_name)))
+		if opts.runLocal and not opts.dryRun:
+			os.system('bash %s'%os.path.abspath(file_name))
+		if opts.dryRun:
+			print 'rm -f %s.done'%os.path.abspath(file_name)
+			print 'rm -f %s.fail'%os.path.abspath(file_name)
+			print 'rm -f %s.log'%os.path.abspath(file_name)
+			print 'bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(file_name),os.path.abspath(file_name))
+
 def trawlHadd():
 	list_of_dirs=set()
 	for root, dirs, files in os.walk(opts.hadd):
@@ -498,6 +519,8 @@ def trawlHadd():
 
 if opts.hadd:
 	trawlHadd()
+elif opts.resubfail:
+	trawlResubmit()
 elif opts.datfile:
 	datfile = open(opts.datfile)
 	for line in datfile.readlines():
