@@ -498,10 +498,11 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 
 RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name){
 
-	string formula="@0*(1.";
+	string formula="@0*";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*sig_fit); // sig_fit sits at @0
-	if (quadraticSigmaSum_) formula += "+TMath::Sqrt(0.";
+	if (quadraticSigmaSum_) formula += "TMath::Sqrt(TMath::Max(1.e-4,1.";
+	else formula += "TMath::Max(1.e-2,(1.";
 	
 	for (unsigned int i=0; i<systematicsList.size(); i++){
 		string syst = systematicsList[i];
@@ -513,10 +514,13 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 				RooRealVar *nuisVar = photonSystematics[Form("CMS_hgg_nuisance_%s",syst.c_str())];
 				if (constVar->getVal()>=0.0001) {
 					hasEffect = true;
-					formula += Form("+@%d*@%d",formPlace,formPlace+1);
-					if (quadraticSigmaSum_) formula += Form("*@%d*@%d",formPlace,formPlace+1);
-					dependents->add(*constVar);
+					if( quadraticSigmaSum_ ) { 
+						formula += Form("+@%d*@%d*(2.+@%d)",formPlace,formPlace+1,formPlace+1);
+					} else {
+						formula += Form("+@%d*@%d",formPlace,formPlace+1);
+					}
 					dependents->add(*nuisVar);
+					dependents->add(*constVar);
 				}
 			}
 			if (verbosity_ && !hasEffect) {
@@ -524,9 +528,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			}
 		}
 	}
-	if (quadraticSigmaSum_) formula+=")";
-	formula+=")";
-	formula = Form("TMath::Max(%s,1.e-6)",formula.c_str()); // consider smooth cutoff ? 
+	formula+="))";
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
 	return formVar;
 }

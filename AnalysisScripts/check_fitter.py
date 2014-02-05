@@ -92,7 +92,12 @@ if len(groups["done"]) == len(jobs):
             os.system("python combiner.py --mountEos -i %s" % filestocmb[0] )
             if postProc:
                 os.system("%s %s | tee -a %s/post_proc.log" % ( postProc, taskdir, taskdir ) )
-
+    elif len( glob.glob("%s/higgsCombineJob*" % taskdir ) ) == len(jobs):
+        if not os.path.isfile('%s/%s.root' % ( taskdir, os.path.basename(taskdir) ) ):
+            mypath = os.path.abspath(os.path.dirname(__file__))
+            combineHarvester = os.path.join(os.path.dirname(mypath),"Macros/FinalResults/combineHarvester.py")
+            os.system("python %s --hadd %s" % (combineHarvester,taskdir) )
+        
     sys.exit(0)
             
             
