@@ -4,7 +4,7 @@ nPtOverMCategories=2
 
 # efficiecny scale factors
 #efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
-efficiencyFile=aux/sig_reweighing_legacy_cic_7TeV_v2.root
+efficiencyFile=aux/sig_reweighing_legacy_cic_7TeV_v3.root
 
 # bkg pol orders 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3
