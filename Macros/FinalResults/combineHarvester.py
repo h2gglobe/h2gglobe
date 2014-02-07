@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim: ai sw=2 ts=2 mouse=a number
 
 import os
 import numpy
@@ -381,7 +380,6 @@ def writeGenerateOnly():
 			opts.outDir = backupdir
 	else:
 		writeSingleGenerateOnly()
-
 def writeMultiPdfChannelCompatibility():
 	
 	print 'Writing MultiPdfChannelCompatibility'
@@ -416,6 +414,7 @@ def writeMultiDimFit(method=None,wsOnly=False):
 							"MuMHScan"	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
 							"RProcScan"	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=120,130",
 							"RTopoScan"	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel %s --PO higgsMassRange=120,130" % opts.catsMap
+							"RProcScan"	 		: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=120,130"
 						}
 
         setpois = {
