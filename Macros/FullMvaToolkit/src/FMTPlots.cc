@@ -404,17 +404,18 @@ void FMTPlots::plotAll(double mh){
   vector<pair<TH1F*,TH1F*> > sigSyst;
   vector<string> theSystematics = getsystematics();
   for (vector<string>::iterator syst = theSystematics.begin(); syst != theSystematics.end(); syst++){
-    TH1F *up = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f_%sUp01_sigma",mh,syst->c_str())))->Clone();
-    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f_%sUp01_sigma",mh,syst->c_str())));
-    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_wzh_%3.1f_%sUp01_sigma",mh,syst->c_str())));
-    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_tth_%3.1f_%sUp01_sigma",mh,syst->c_str())));
-    up->SetName(Form("th1f_sig_grad_%3.1f_%sUp01_sigma",mh,syst->c_str()));
+    double systmass = 125.0;
+    TH1F *up = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f_%sUp01_sigma",systmass,syst->c_str())))->Clone();
+    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f_%sUp01_sigma",systmass,syst->c_str())));
+    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_wzh_%3.1f_%sUp01_sigma",systmass,syst->c_str())));
+    up->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_tth_%3.1f_%sUp01_sigma",systmass,syst->c_str())));
+    up->SetName(Form("th1f_sig_grad_%3.1f_%sUp01_sigma",systmass,syst->c_str()));
     write(tFile,up);
-    TH1F *down = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f_%sUp01_sigma",mh,syst->c_str())))->Clone();
-    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f_%sDown01_sigma",mh,syst->c_str())));
-    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_wzh_%3.1f_%sDown01_sigma",mh,syst->c_str())));
-    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_tth_%3.1f_%sDown01_sigma",mh,syst->c_str())));
-    down->SetName(Form("th1f_sig_grad_%3.1f_%sDown01_sigma",mh,syst->c_str()));
+    TH1F *down = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f_%sUp01_sigma",systmass,syst->c_str())))->Clone();
+    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f_%sDown01_sigma",systmass,syst->c_str())));
+    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_wzh_%3.1f_%sDown01_sigma",systmass,syst->c_str())));
+    down->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_tth_%3.1f_%sDown01_sigma",systmass,syst->c_str())));
+    down->SetName(Form("th1f_sig_grad_%3.1f_%sDown01_sigma",systmass,syst->c_str()));
     write(tFile,down);
     sigSyst.push_back(pair<TH1F*,TH1F*>(up,down));
   }
@@ -507,13 +508,22 @@ void FMTPlots::makeNormPlot(){
   TGraph *dataN = new TGraph(getNumMHMasses());  
   TGraph *datadiff = new TGraph(getNumMHMasses());  
   vector<double> allMasses = getAllMH();
-  int i=0;
+  int i=0; int di=0;
   for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
     RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",*mh));
     TH1F *dataHist = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
     normG->SetPoint(i,*mh,val->getVal());
-    dataN->SetPoint(i,*mh,dataHist->Integral());
-    datadiff->SetPoint(i,*mh,dataHist->Integral()-val->getVal());
+    if (blind_) {
+	if (*mh<110 || *mh > 150) {
+	  dataN->SetPoint(di,*mh,dataHist->Integral());
+          datadiff->SetPoint(di,*mh,dataHist->Integral()-val->getVal());
+	  di++;
+	}
+    } else {
+	  dataN->SetPoint(di,*mh,dataHist->Integral());
+          datadiff->SetPoint(di,*mh,dataHist->Integral()-val->getVal());
+	  di++;
+    }
     i++;
   }
   TCanvas *canv = new TCanvas();

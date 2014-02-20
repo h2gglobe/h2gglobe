@@ -37,7 +37,7 @@ class FMTFit : public FMTBase{
 
 	private:
 		RooRealVar *r1, *r2, *r3, *f1, *f2;
-		RooAbsPdf *fit;
+		RooAbsPdf *fit,*fit2011,*fit2012;
 		RooRealVar *nBkgInSigReg;
 		RooWorkspace *inWS;
 		RooWorkspace *outWS;

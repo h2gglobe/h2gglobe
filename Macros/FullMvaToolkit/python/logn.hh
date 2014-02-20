@@ -4,7 +4,7 @@
 #include <cmath>
 
 double logn(double x, unsigned p=2) {
-  static const double logx0(-1000.0);
+  static const double logx0(-10000.0);
   static const double x0(exp(logx0));
   static const double x02(x0*x0);
 

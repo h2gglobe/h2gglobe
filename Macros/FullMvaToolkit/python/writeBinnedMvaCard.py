@@ -1,5 +1,47 @@
-import ROOT
 import os,numpy,sys,math,array
+import datetime
+from optparse import OptionParser
+
+
+parser = OptionParser()
+parser.add_option("-i","--input",dest="tfileName",help="Input file")
+parser.add_option("","--intLumi",dest="intLumi",type="float")
+parser.add_option("","--is2011",dest="is2011",action="store_true",default=False)
+parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
+#parser.add_option("","--addBias",dest="biasFile",default=None)
+parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
+parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
+parser.add_option("","--noTheorySys",action="store_false",dest="theorySys",default=True)
+parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
+parser.add_option("","--throwGlobalToy",action="store_true",dest="throwGlobalToy",default=False)
+parser.add_option("","--throwAsimov",action="store_true",dest="throwAsimov",default=False)
+parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
+parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
+parser.add_option("","--blind",dest="blind",default=False,action="store_true")
+parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
+parser.add_option("","--noVHTag",dest="includeVH",default=True,action="store_false")
+parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
+parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="/vols/cms02/h2g/latest_workspace/CMS-HGG_massfac_full_110_150_1.root")
+parser.add_option("","--outputMassFacToy",dest="outputmassfactoy",default="massfac_toy_ws.root")
+parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace")
+parser.add_option("","--outputBdtPdf",dest="outputpdfworkspace",default="combToyWS.root")
+parser.add_option("","--inputTrees",dest="treefilename")
+parser.add_option("","--dataBdtTree",dest="datatreename",default="dataTree")
+parser.add_option("","--signalModelTree",dest="signaltreename",default="sigtree")
+parser.add_option("","--randomizeBackground",dest="randomizeBackground",default=False,action="store_true")
+parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_19Feb/")
+parser.add_option("","--reweightSignalYields",dest="signalyieldsweight",default=-999.,type="float")
+parser.add_option("-b","--specificBin",dest="binfromright",default=-1,type="int")
+parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
+parser.add_option("-t","--type",dest="bdtType",default="grad");
+parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
+parser.add_option("-p","--outputPlot",dest="outputPlot")
+parser.add_option("-l","--mhLow",dest="mhLow",type="float",default=110.)
+parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
+parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
+(options,args)=parser.parse_args()
+
+import ROOT
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
@@ -8,7 +50,6 @@ ROOT.gROOT.ProcessLine("gSystem->SetIncludePath(\"-I$ROOTSYS/include -I$ROOFITSY
 ROOT.gROOT.ProcessLine(".L python/quadInterpolate.C+")
 from ROOT import quadInterpolate
 
-from optparse import OptionParser
 
 #from BdtToyMaker import BdtToyMaker
 from CombinedToyMaker import CombinedToyMaker
@@ -25,58 +66,86 @@ g_expdijet		= 0.00495 # means nothing now
 
 # Some "Global" Variables, for exclusive tags
 # Map out the EXCL bins -- (start from 1), these are for systematics
-Bins_vbf  = [1,2,3]
-Bins_vh   = [4,5,6,7,8,9,10]
-nBins_vbf = len(Bins_vbf)
-nBins_vh  = len(Bins_vh)
+if options.is2011:
+ Bins_vbf  = [1,2]
+ Bins_vh   = [3,4,5,6,7]
+ nBins_vbf = len(Bins_vbf)
+ nBins_vh  = len(Bins_vh)
+else:
+ Bins_vbf  = [1,2,3]
+ Bins_vh   = [4,5,6,7,8,9]
+ nBins_vbf = len(Bins_vbf)
+ nBins_vh  = len(Bins_vh)
 
 # Now the bins which are for the plots, assume 1 is the first non-incl bin 
-pl_VBF_bins = [1,2,3]
-pl_VH_bins  = [4,5,6,9,10]
-pl_ttH_bins = [7,8,9]
+if options.is2011:
+ pl_VBF_bins = [1,2]
+ pl_VH_bins  = [3,4,5,7]
+ pl_ttH_bins = [6]
+else:
+ pl_VBF_bins = [1,2,3]
+ pl_VH_bins  = [4,5,6,9]
+ pl_ttH_bins = [7,8]
 
 
 # Now decide which bins (starting from lowest vh bin) 
 # are the muon, electron and met tags
-Muon_tags 	= [4]
-Elec_tags       = [5]
-MET_tags 	= [7,8]
+if options.is2011:
+ Muon_tags 	= [3,4]
+ Elec_tags       = [3,4]
+ MET_tags 	= [5]
+ ttH_tags 	= [6]
+ ttHlep_tags 	= [6]
+ 
+
+else:
+ Muon_tags 	= [4,5]
+ Elec_tags       = [4,5]
+ MET_tags 	= [6]
+ ttHlep_tags 	= [7]
+ ttH_tags 	= [7,8]
 
 # PLOT OPS ----------------
 sigscale   = 1.
+sysmass=125.0  # Always use the systematics calculated at 125 GeV 
 # THEORY SYSTEMATICS ------
-lumi          = "1.044"
-PDF_ggH       = "0.930/1.076"
+lumi          = "1.022" if options.is2011 else "1.025"
+PDF_ggH       = "0.931/1.075"
 PDF_qqH       = "0.972/1.026"
-PDF_VH        = "0.958/1.042"
-PDF_ttH       = "0.920/1.080" 
-QCDscale_ggH  = "0.918/1.076"
-QCDscale_qqH  = "0.992/1.003"
+PDF_VH        = "0.976/1.024"
+PDF_ttH       = "0.919/1.081" 
+QCDscale_ggH  = "0.922/1.072"
+QCDscale_qqH  = "0.998/1.002"
 QCDscale_VH   = "0.982/1.021"
-QCDscale_ttH  = "0.906/1.041"
-
-# SHAPE SYSTEMATICS -------
+QCDscale_ttH  = "0.907/1.038"
+br_hgg 	      = "0.951/1.050" 
+# SHAPE SYSTEMATICS ------- put in [name,nsigmavariation]
 systematics = [
-	       "E_res"
-	      ,"E_scale"
-	      ,"idEff"
+	       ["E_res",3]
+	      ,["E_scale",3]
+	      ,["idEff",3]
 	      #,"r9Eff"
-	      ,"phoIdMva"
-	      ,"regSig"
+	      ,["phoIdMva",3]
+	      ,["regSig",3]
 	      #,"kFactor"
-	      ,"triggerEff"
-	      #,"pdfWeight"
-	      ,"vtxEff"
+	      ,["triggerEff",3]
+	      ,["vtxEff",3]
+	      ,["pdfWeight_QCDscale_ggH",1]
+	      ,["pdfWeight_QCDscale_qqH",1]
 	      ]
+for i in range(1,27): systematics.append(["pdfWeight_pdfset%d"%i,1])
+
+#if options.is2011: systematics.append("kFactor")
 
 # ADDITIONAL EXLUSIVE TAG SYSTEMATICS --
+
 UEPS_ggH = 0.260
 UEPS_qqH = 0.076
 UEPS_VH  = 0.260
 UEPS_ttH = 0.260
 
 JEC_ggH = 0.110
-JEC_qqH = 0.034
+JEC_qqH = 0.035
 JEC_VH  = 0.110
 JEC_ttH = 0.110
 
@@ -105,6 +174,13 @@ met_tag_eff_qqH  = 0.15
 met_tag_eff_VH   = 0.04
 met_tag_eff_ttH  = 0.04
 
+b_tag_eff_ggH=0.02
+b_tag_eff_ttH=0.01 
+b_tag_eff_qqH=0.00
+b_tag_eff_VH=0.00
+
+#tthLepRateScale = 0.980
+#tthHadRateScale = 0.995
 #JetID_gg = 0.5
 #JetID_qq = 0.07
 #JEC_gg = 0.07
@@ -187,7 +263,10 @@ def plainBin(hist,label=False):
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
+	ROOT.gROOT.SetBatch(1)
 	lumistring = "%1.1f fb^{-1}"%((options.intLumi)/1000.)
+	if options.is2011: SQRTS = 7 
+	else: SQRTS = 8 
 	if options.splitSignal: # last signal is separated off
 	  for i in range(1,len(signals)-1):
 		signals[0].Add(signals[i])
@@ -221,8 +300,12 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	for b in range(1,nbins+1):
 		additional = errors[b-1]
+		#if fNew.GetBinError(b)/fNew.GetBinContent(b) < 0.0001 : 
+		#	fNew.SetBinError(b,50.*additional)
+		#	fNew2.SetBinError(b,50.*additional)
   		fNew.SetBinError(b,((fNew.GetBinError(b)**2)+((fNew.GetBinContent(b)*additional)**2))**0.5)
   		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
+		print "Error, bin ",b,fNew.GetBinError(b)
 	c = ROOT.TCanvas();c.SetLogy()
 	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
 	flatdata.GetYaxis().SetRangeUser(0.1,1e4)
@@ -251,7 +334,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 8 TeV ");
 	mytext.SetTextSize(0.04)
 	mytext.SetTextFont(42)
-	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = 8 TeV"%(lumistring))
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = %d TeV"%(lumistring,SQRTS))
 	leg.Draw()
 	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/macro/model_m%3.1f.C"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
 	
@@ -294,22 +377,13 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg2.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");
 	mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = 8 TeV"%(lumistring))
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = %d TeV"%(lumistring,SQRTS))
 	d.SaveAs(plotOutDir+"/pdf/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/macro/diff_model_m%3.1f.C"%mass);d.SaveAs(plotOutDir+"/png/diff_model_m%3.1f.png"%mass)
 	
 
-
-#def getBinningMass(mass):
-
-#	if mass >= 115.0 and mass <= 117.0: return "115"
-#	if mass >= 117.5 and mass <= 122.0: return "120"
-#	if mass >= 122.5 and mass <= 127.0: return "125"
-#	if mass >= 127.5 and mass <= 132.0: return "130"
-#	if mass >= 132.5 and mass <= 137.0: return "135"
-#	if mass >= 137.5 and mass <= 144.5: return "140"
-#	if mass >= 145.0 and mass <= 150.0: return "150"
-
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
+	if abs(Y1) <0.00001 or abs(Y1) <0.00001 :return " - " 
+	if abs(Y1-Y2) < 0.00001 or abs(Y3-Y2) < 0.00001: return " - " 
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
@@ -320,7 +394,7 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 def getBinContent(hist,b):
   
 	res = hist.GetBinContent(b)
-	if res==0: return 0.0001
+	if res<=0: return 0.0001
 	else: return res
 
 def getPoissonBinContent(hist,b,exp):
@@ -362,6 +436,8 @@ def writeCard(tfile,mass,scaleErr):
   # Write the basics
   outPut.write("Mva Binned Analysis DataCard (mH=%3.1f) \n"%mass)
   outPut.write("DataCard extracted from %s \n"%tfile.GetName())
+  stime = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+  outPut.write("At  %s \n"%st)
   outPut.write("--------------------------------------------------------------\n")
   outPut.write("imax *\n")
   outPut.write("jmax *\n")
@@ -383,7 +459,13 @@ def writeCard(tfile,mass,scaleErr):
   backgroundContents = []
   if options.Bias:
 	print "Using Bkg Model Corrected for mass bias"
-	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
+	backgroundContents = []
+	for b in  range(1,nBins+1):
+	  bval =  bkgHistCorr.GetBinContent(b)
+	  if bval <=0 : 
+		bkgHistCorr.SetBinContent(b,0.0001)
+		backgroundContents.append(0.0001)
+	  else: backgroundContents.append(bval)
   else: sys.exit("Simple Background model no longer available !!!! ")
 
   if options.throwToy or options.throwGlobalToy or options.throwAsimov:
@@ -439,20 +521,21 @@ def writeCard(tfile,mass,scaleErr):
         bias = quadInterpolate(1.,-1.,0.,1.,bkgCont-berr,bkgCont,bkgCont+berr)
         randBkg = randBkg*(bias**(1+g_r.Gaus()))
       
-      outPut.write(" %.3f   %.3f   %.3f   %.3f   %.3f "\
+      outPut.write(" %.7f   %.7f   %.7f   %.7f   %.7f "\
       %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
        ,randBkg))
     outPut.write("\n--------------------------------------------------------------\n")
 
   else:
-    for b in range(binL,binH): outPut.write(" %.3f   %.3f   %.3f   %.3f   %.3f "\
+    for b in range(binL,binH): outPut.write(" %.7f   %.7f   %.7f   %.7f   %.7f "\
       %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
        ,backgroundContents[b-1]))
     outPut.write("\n--------------------------------------------------------------\n")
 
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
-  outPut.write("\nlumi       lnN ")
+  if options.is2011: outPut.write("\nlumi_7TeV       lnN ")
+  else: outPut.write("\nlumi       lnN ")
   for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
 
   if options.theorySys:
@@ -472,6 +555,8 @@ def writeCard(tfile,mass,scaleErr):
     for b in range(binL,binH): outPut.write(" -   -   %s  -   -  "%(PDF_VH))
     outPut.write("\nPDF_ttH  lnN ")
     for b in range(binL,binH): outPut.write(" -   -   -   %s  -  "%(PDF_ttH))
+    outPut.write("\nbr_hgg  lnN ")
+    for b in range(binL,binH): outPut.write(" %s   %s   %s   %s  -  "%(br_hgg,br_hgg,br_hgg,br_hgg))
 
   outPut.write("\n")
 
@@ -644,6 +729,12 @@ def writeCard(tfile,mass,scaleErr):
   for b in Bins_vh : 
  	if b in MET_tags :  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
   	else: outPut.write(" -   -   -   -   -")
+  # b  tag
+  outPut.write("\nCMS_eff_b   lnN    ")
+  for b in range(binL,nBins_inclusive+nBins_vbf+binL+2): outPut.write(" -   -   -   -   -")
+  for b in Bins_vh : 
+ 	if b in ttH_tags :  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-b_tag_eff_ggH,1.+b_tag_eff_ggH,1.-b_tag_eff_qqH,1.+b_tag_eff_qqH,1.-b_tag_eff_VH,1.+b_tag_eff_VH,1.-b_tag_eff_ttH,1.+b_tag_eff_ttH))
+  	else: outPut.write(" -   -   -   -   -")
   
   outPut.write("\n")
 
@@ -651,19 +742,58 @@ def writeCard(tfile,mass,scaleErr):
   
   if options.signalSys:
    print "Writing Systematics Part (could be slow)"
-   for sys in systematics:
+   gghHistS  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f"%sysmass)
+   vbfHistS  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f"%sysmass)
+   wzhHistS  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f"%sysmass)
+   tthHistS  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f"%sysmass)
 
-    gghHistU  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sUp01_sigma"%(mass,sys))
-    vbfHistU  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sUp01_sigma"%(mass,sys))
-    wzhHistU  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sUp01_sigma"%(mass,sys))
-    tthHistU  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sUp01_sigma"%(mass,sys))
-    gghHistD  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sDown01_sigma"%(mass,sys))
-    vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sDown01_sigma"%(mass,sys))
-    wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sDown01_sigma"%(mass,sys))
-    tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sDown01_sigma"%(mass,sys))
-    
+   for syst in systematics:
+    sys = syst[0]
+    sigma = syst[1]
+
+    if sys=="pdfWeight_QCDscale_ggH": # Only effect ggH
+	sysn="pdfWeight_QCDscale"
+   	gghHistS  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_central"%sysmass)
+
+    elif sys=="pdfWeight_QCDscale_qqH":	# Only effect qqH
+	sysn="pdfWeight_QCDscale"
+   	vbfHistS  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_central"%sysmass)
+
+    else: sysn=sys
+    # mname in histogram is always 01 sigma(historically)
+    gghHistU  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sUp01_sigma"%(sysmass,sysn))
+    vbfHistU  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sUp01_sigma"%(sysmass,sysn))
+    wzhHistU  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sUp01_sigma"%(sysmass,sysn))
+    tthHistU  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sUp01_sigma"%(sysmass,sysn))
+    gghHistD  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sDown01_sigma"%(sysmass,sysn))
+    vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sDown01_sigma"%(sysmass,sysn))
+    wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sDown01_sigma"%(sysmass,sysn))
+    tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sDown01_sigma"%(sysmass,sysn))
+   
     #print gghHistU.GetName(), vbfHistU.GetName(), wzhHistU.GetName(), tthHistU.GetName() 
     #print gghHistD.GetName(), vbfHistD.GetName(), wzhHistD.GetName(), tthHistD.GetName() 
+
+    if sys=="pdfWeight_QCDscale_ggH": # Only effect ggH
+	vbfHistU=vbfHistS.Clone()
+	vbfHistD=vbfHistS.Clone()
+	wzhHistU=wzhHistS.Clone()
+	wzhHistD=wzhHistS.Clone()
+	tthHistU=tthHistS.Clone()
+	tthHistD=tthHistS.Clone()
+    
+    if sys=="pdfWeight_QCDscale_qqH":	# Only effect qqH
+	gghHistU=gghHistS.Clone()
+	gghHistD=gghHistS.Clone()
+	wzhHistU=wzhHistS.Clone()
+	wzhHistD=wzhHistS.Clone()
+	tthHistU=tthHistS.Clone()
+	tthHistD=tthHistS.Clone()
+	
+    if "pdfWeight_pdfset" in sys:
+	wzhHistU=wzhHistS.Clone()
+	wzhHistD=wzhHistS.Clone()
+	tthHistU=tthHistS.Clone()
+	tthHistD=tthHistS.Clone()
 
     if options.signalyieldsweight > 0:
       gghHistU.Scale(signalyieldsweight)
@@ -675,29 +805,34 @@ def writeCard(tfile,mass,scaleErr):
       wzhHistD.Scale(signalyieldsweight)
       tthHistD.Scale(signalyieldsweight)
 
-    if options.is2011: outPut.write("\n%s lnN "%sys)
+	
+    if options.is2011 and sys=="vtxEff":
+    	outPut.write("\n%s_7TeV lnN "%sys)
     else: outPut.write("\n%s lnN "%sys)
 
     for b in range(binL,binH):
-	 outPut.write(" %s %s %s %s - "%(\
-				     py_quadInterpolate(1.,-3.,0.,3.,gghHistD.GetBinContent(b)  \
-				        			  ,gghHist.GetBinContent(b)  \
+	 if b>gghHistU.GetNbinsX() : 	
+	   outPut.write(" - - - - - ")
+	 else:
+	   outPut.write(" %s %s %s %s - "%(\
+				     py_quadInterpolate(1.,-1*sigma,0.,sigma,gghHistD.GetBinContent(b)  \
+				        			  ,gghHistS.GetBinContent(b)  \
                                         			  ,gghHistU.GetBinContent(b)) \
-				    ,py_quadInterpolate(1.,-3.,0.,3.,vbfHistD.GetBinContent(b)  \
-				        			  ,vbfHist.GetBinContent(b)  \
+				    ,py_quadInterpolate(1.,-1*sigma,0.,sigma,vbfHistD.GetBinContent(b)  \
+				        			  ,vbfHistS.GetBinContent(b)  \
                                         			  ,vbfHistU.GetBinContent(b)) \
-				    ,py_quadInterpolate(1.,-3.,0.,3.,wzhHistD.GetBinContent(b)  \
-				        			  ,wzhHist.GetBinContent(b)  \
+				    ,py_quadInterpolate(1.,-1*sigma,0.,sigma,wzhHistD.GetBinContent(b)  \
+				        			  ,wzhHistS.GetBinContent(b)  \
                                         			  ,wzhHistU.GetBinContent(b)) \
-				    ,py_quadInterpolate(1.,-3.,0.,3.,tthHistD.GetBinContent(b)  \
-				        			  ,tthHist.GetBinContent(b)  \
+				    ,py_quadInterpolate(1.,-1*sigma,0.,sigma,tthHistD.GetBinContent(b)  \
+				        			  ,tthHistS.GetBinContent(b)  \
                                         			  ,tthHistU.GetBinContent(b)) \
  				    ))
   outPut.write("\n")
   # Finally the background errors, these are realtively simple
   if options.is2011: outPut.write("\nbkg_norm lnN ")
   else: outPut.write("\nbkg_norm_8TeV lnN ")
-  for b in range(binL,binH): outPut.write(" -   -   -   -  %.3f "%(scaleErr))
+  for b in range(binL,binH): outPut.write(" -   -   -   -  %.5f/%.5f "%(1-(scaleErr-1),scaleErr))
 
   ## now for the David errors
   if options.Bias:
@@ -724,7 +859,7 @@ def writeCard(tfile,mass,scaleErr):
         if options.is2011: outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
         else: outPut.write("\nbkg_stat%d_8TeV gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(binL,binH):
-		if q==b: outPut.write(" - - - - %.3f "%bkgScale)
+		if q==b: outPut.write(" - - - - %.5f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
 
   # Finally make a plot of what will go into the limit
@@ -741,45 +876,6 @@ def writeCard(tfile,mass,scaleErr):
   outPut.close()
     
 #################################################################################  
-
-parser = OptionParser()
-parser.add_option("-i","--input",dest="tfileName",help="Input file")
-parser.add_option("","--intLumi",dest="intLumi",type="float")
-parser.add_option("","--is2011",dest="is2011",action="store_true",default=False)
-parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
-#parser.add_option("","--addBias",dest="biasFile",default=None)
-parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
-parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
-parser.add_option("","--noTheorySys",action="store_false",dest="theorySys",default=True)
-parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
-parser.add_option("","--throwGlobalToy",action="store_true",dest="throwGlobalToy",default=False)
-parser.add_option("","--throwAsimov",action="store_true",dest="throwAsimov",default=False)
-parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
-parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
-parser.add_option("","--blind",dest="blind",default=False,action="store_true")
-parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
-parser.add_option("","--noVHTag",dest="includeVH",default=True,action="store_false")
-parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
-parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="/vols/cms02/h2g/latest_workspace/CMS-HGG_massfac_full_110_150_1.root")
-parser.add_option("","--outputMassFacToy",dest="outputmassfactoy",default="massfac_toy_ws.root")
-parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace")
-parser.add_option("","--outputBdtPdf",dest="outputpdfworkspace",default="combToyWS.root")
-parser.add_option("","--inputTrees",dest="treefilename")
-parser.add_option("","--dataBdtTree",dest="datatreename",default="dataTree")
-parser.add_option("","--signalModelTree",dest="signaltreename",default="sigtree")
-parser.add_option("","--randomizeBackground",dest="randomizeBackground",default=False,action="store_true")
-parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_19Feb/")
-parser.add_option("","--reweightSignalYields",dest="signalyieldsweight",default=-999.,type="float")
-parser.add_option("-b","--specificBin",dest="binfromright",default=-1,type="int")
-parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
-parser.add_option("-t","--type",dest="bdtType",default="grad");
-parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
-parser.add_option("-p","--outputPlot",dest="outputPlot")
-parser.add_option("-l","--mhLow",dest="mhLow",type="float",default=110.)
-parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
-parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
-(options,args)=parser.parse_args()
-
 if options.throwGlobalToy: sys.exit("Global toy NOT implemented in current version")
 if options.throwAsimov : options.throwGlobalToy = True
 
@@ -817,14 +913,17 @@ if options.makePlot:
 #	biasROOTFile = ROOT.TFile(options.biasFile)
 
 genMasses     = [110,115,120,125,130,135,140,145,150]
-# PAUL NUMBERS - MASS FAC - HCP2012 - 73575 events with 12.2fb-1 - [1.00578,1.00586,1.0056,1.00544,1.00554,1.00542,1.00589,1.00728,1.00884]
-# PAUL NUMBERS - MASS FAC - MOR2013 - [1.00444,1.00405,1.00341,1.00342,1.0041,1.00444,1.00447,1.00455,1.00501]
-# Paul NUMBERS - Legacy pass v1  - [1.00412,1.00380,1.00377,1.00399,1.00437,1.00442,1.00443,1.00472,1.00503]
+if options.is2011:
+  #scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
+  # Preapproval numbers 
+  #scalingErrors= [ 1.00694, 1.00596, 1.00866, 1.00713, 1.01120, 1.00796, 1.00748, 1.00886, 1.00939] -> 2 pow law
+  scalingErrors= [1.00757,1.00749,1.00727,1.00647,1.00704,1.00726,1.00791,1.00911,1.00962] # 1 power law
 
-# CUT-BASED at 19.6fb has 141981 events - [1.00957,1.00916,1.00903,1.01011,1.01236,1.01224,1.01257,1.01251,1.01334]
-
-scalingErrors = [1.00412,1.00380,1.00377,1.00399,1.00437,1.00442,1.00443,1.00472,1.00503]
-
+#Legacy 8TeV Freeze numbers
+else:
+  #scalingErrors = [1.00486, 1.00468, 1.00464, 1.00489, 1.00535, 1.00545, 1.00550, 1.00579, 1.00609]
+#  scalingErrors = [1.00321,1.00400,1.00500,1.00552,1.00573,1.00535,1.00456,1.00408,1.00428] # -> double power Law
+  scalingErrors = [1.00314,1.00323,1.00350,1.00371,1.00388,1.00380,1.00356,1.00370,1.00414] # -> 2-Laurent series
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
 evalMasses    = numpy.arange(options.mhLow,options.mhHigh+options.mhStep,options.mhStep)

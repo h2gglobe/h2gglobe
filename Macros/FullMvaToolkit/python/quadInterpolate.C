@@ -41,7 +41,7 @@ double quadInterpolate(double C, double X1,double X2,double X3,double Y1,double 
 
 	// Check for Nan
 	double RESULT = func.Eval(C);
-	if (RESULT != RESULT || fabs(1-RESULT/Y2) < 0.001 ) RESULT=Y2;
+	if (RESULT != RESULT || fabs(1-RESULT/Y2) < 0.00001 ) RESULT=Y2;
 
         //delete [] entries;
         return RESULT/Y2; // relative difference

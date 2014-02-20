@@ -33,6 +33,9 @@ cp fmt_workspace.root fmt_workspace_safe.root
 # Interpolate and make background model
 ./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v  --use2DcatMap -N -I -b -P 
 
+# At Theory migration systematics 
+python python/makeMigrationsSystematics.py -i histograms_CMS-HGG_7(8)TeV_systematics.root -o fmt_workspace.root -m SidebandTrainingOut_7(8)TeV.root -s 7(8)
+
 # Datacards
 ./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v  --use2DcatMap -N -d  -P 
 
