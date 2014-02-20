@@ -142,6 +142,7 @@ void FMTSigInterp::runInterpolation(){
           else allSig->Add(sig);
           vector<string> theSystematics = getsystematics();
           if (verbose_) cout << "["; printVec(theSystematics); cout << "]" << endl;
+	  if ( fabs(*mh-125.0)>0.01 ) continue;
           for (vector<string>::iterator syst=theSystematics.begin(); syst!=theSystematics.end(); syst++){
             if (verbose_) cout << Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sUp01_sigma",prod->c_str(),*mh,*mh,syst->c_str()) << endl;
             if (verbose_) cout << Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sDown01_sigma",prod->c_str(),*mh,*mh,syst->c_str()) << endl;

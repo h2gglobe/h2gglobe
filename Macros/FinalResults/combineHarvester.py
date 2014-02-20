@@ -88,12 +88,19 @@ specOpts.add_option("--cfLow",type="float",default=None)
 specOpts.add_option("--cfHigh",type="float",default=None)
 specOpts.add_option("--jobs",type="int",default=None)
 specOpts.add_option("--pointsperjob",type="int",default=1)
+<<<<<<< HEAD
 specOpts.add_option("--expectSignal",type="float",default=None)
 specOpts.add_option("--expectSignalMass",type="float",default=None)
 specOpts.add_option("--splitChannels",default=None)
 specOpts.add_option("--toysFile",default=None)
 specOpts.add_option("--additionalOptions",default="",type="string")
 specOpts.add_option("--postFit",default=False,action="store_true",help="Use post-fit nuisances")
+=======
+specOpts.add_option("--expectSignal",type="float")
+specOpts.add_option("--expectSignalMass",type="float")
+specOpts.add_option("--splitChannels")
+specOpts.add_option("--additionalOptions")
+>>>>>>> nckw-addPT-Y-vbf-variations-for-sideband
 parser.add_option_group(specOpts)
 (opts,args) = parser.parse_args()
 if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combine')):
@@ -167,7 +174,6 @@ def splitCard():
 			for el in line.split()[1:]:
 				allCats.add(el)
 	f.close()
-	if opts.verbose: print 'Found these categories in card: ', allCats
 	veto = ""
 	for cat in allCats:
 		if cat in opts.splitChannels: continue
@@ -220,14 +226,10 @@ def writePreamble(sub_file):
 	sub_file.write('cd scratch\n')
 	sub_file.write('cp -p $CMSSW_BASE/bin/$SCRAM_ARCH/combine .\n')
 	sub_file.write('cp -p %s .\n'%os.path.abspath(opts.datacard))
-	if opts.toysFile: 
-		for f in opts.toysFile.split(','):
-			sub_file.write('cp -p %s .\n'%os.path.abspath(f))
 	for file in opts.files.split(','):
 		sub_file.write('cp -p %s .\n'%os.path.abspath(file))
 
 def writePostamble(sub_file, exec_line):
-
 	sub_file.write('if ( %s ) then\n'%exec_line)
 	sub_file.write('\t mv higgsCombine*.root %s\n'%os.path.abspath(opts.outDir))
 	sub_file.write('\t touch %s.done\n'%os.path.abspath(sub_file.name))
@@ -310,15 +312,8 @@ def writeProfileLikelhood():
 
 	tempcardstore = opts.datacard
 	if opts.splitChannels: splitCard()
-	toysfilestore = opts.toysFile
-
-	# write
 	for j, mass_set in enumerate(opts.masses_per_job):
 		file = open('%s/sub_job%d.sh'%(opts.outDir,j),'w')
-		if opts.toysFile:
-			opts.toysFile = ''
-			for mass in mass_set:
-				opts.toysFile += toysfilestore.replace('${m}',str(mass)).replace('.0','')
 		writePreamble(file)
 		exec_line = ''
 		for mass in mass_set:
@@ -327,13 +322,10 @@ def writeProfileLikelhood():
 			if opts.expected: exec_line += ' -t -1'
 			if opts.expectSignal: exec_line += ' --expectSignal=%3.1f'%opts.expectSignal
 			if opts.expectSignalMass: exec_line += ' --expectSignalMass=%6.2f'%opts.expectSignalMass
-			if opts.toysFile: exec_line += ' --toysFile %s'%toysfilestore.replace('${m}',str(mass)).replace('.0','')
 			if mass!=mass_set[-1]: exec_line += ' && '
-		
 		writePostamble(file,exec_line)
-	# change back
-	opts.datacard = tempcardstore
-	opts.toysFile = toysfilestore
+		# change back
+		opts.datacard = tempcardstore
 
 def writeChannelCompatibility():
 
@@ -518,8 +510,7 @@ def writeMultiDimFit(method=None,wsOnly=False):
 		if opts.expected: exec_line += ' -t -1'
 		if opts.expectSignal: exec_line += ' --expectSignal %4.2f'%opts.expectSignal
 		if opts.expectSignalMass: exec_line += ' --expectSignalMass %6.2f'%opts.expectSignalMass
-		if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions
-		if opts.toysFile: exec_line += ' --toysFile %s'%opts.toysFile
+		if opts.additionalOptions: exec_line += ' %s'%opts.additionalOptions 
 		if opts.verbose: print '\t', exec_line
 		writePostamble(file,exec_line)
 
@@ -554,8 +545,6 @@ def run():
 		writeChannelCompatibility()
 	elif opts.method=='MultiPdfChannelCompatibility':
 		writeMultiPdfChannelCompatibility()
-	elif opts.method=='GenerateOnly':
-		writeGenerateOnly()
 	else:
 		writeMultiDimFit()
 	opts.datacard = storecard
@@ -584,7 +573,6 @@ def configure(config_line):
 		if option.startswith('jobs='): opts.jobs = int(option.split('=')[1])
 		if option.startswith('pointsperjob='): opts.pointsperjob = int(option.split('=')[1])
 		if option.startswith('splitChannels='): opts.splitChannels = option.split('=')[1].split(',')
-		if option.startswith('toysFile='): opts.toysFile = option.split('=')[1]
 		if option.startswith('mh='): opts.mh = float(option.split('=')[1])
 		if option.startswith('poix='): opts.poix = option.split('=')[1]
 		if option.startswith('muLow='): opts.muLow = float(option.split('=')[1])

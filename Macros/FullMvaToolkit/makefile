@@ -32,7 +32,7 @@ USERLIBS += -L$(CMSSW_BASE)/lib/ -L $(CMSSW_RELEASE_BASE)/lib/
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
 CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib
  
-CXXFLAGS+=-DH2GGLOBE_BASE=\"$(CURDIR)\"
+CXXFLAGS+=-DH2GGLOBE_BASE=\"$(CURDIR)/../../\"
 LDFLAGS = -shared -W 
 
 CXX=g++

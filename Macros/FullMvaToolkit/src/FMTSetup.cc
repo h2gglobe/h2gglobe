@@ -357,7 +357,12 @@ void FMTSetup::ReadRunConfig(FMTBase *base){
     if (sline.find("doPhotonMvaIdSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) base->setsystematic("phoIdMva"); 
     if (sline.find("doR9Syst=")!=string::npos)                    if (getOptFromConfig<bool>(sline)) base->setsystematic("r9Eff"); 
     if (sline.find("doKFactorSyst=")!=string::npos)               if (getOptFromConfig<bool>(sline)) base->setsystematic("kFactor");
-    if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) base->setsystematic("pdfWeight");
+    if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) { // eigenvector set and scale (need to uncorrelate scales later in card
+	base->setsystematic("pdfWeight_QCDscale");
+        for (int pdf_i=1;pdf_i<=26;pdf_i++){
+	  base->setsystematic(Form("pdfWeight_pdfset%d",pdf_i));
+	}
+    }
 
     if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   base->setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
     
@@ -586,25 +591,20 @@ void FMTSetup::interpolateBDT(){
 }
 
 void FMTSetup::writeDataCards(){
-	if (!cleaned) cleanUp();
-	if (datacards_){
-		cout << "Preparing to write datacards...." << endl;
-		if (is2011_){
-     // cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
-     // exit(0);
-		
-      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
-      else system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
-    }
-    else {
-		// can ignore the tags
-		std::string tagsString = "";
-		if (! includeVBF_) tagsString += " --noVbfTag ";
-		if (! includeLEP_) tagsString += " --noVHTag ";
-      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind %s ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_,tagsString.c_str()));
-      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f %s ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_,tagsString.c_str()));
-    }
-	}
+  if (!cleaned) cleanUp();
+  if (datacards_){
+	cout << "Preparing to write datacards...." << endl;
+	
+	// can ignore the tags
+	std::string tagsString = "";
+	if (! includeVBF_) tagsString += " --noVbfTag ";
+	if (! includeLEP_) tagsString += " --noVHTag ";
+	std::string blindOpt = "";
+	std::string yearOpt = "";
+	if (blinding_) blindOpt= " --blind ";
+	if (is2011_) yearOpt = " --is2011 ";
+	system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f %s %s %s ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_,blindOpt.c_str(),yearOpt.c_str(),tagsString.c_str()));
+  }
 }
 
 void FMTSetup::makePlots(){

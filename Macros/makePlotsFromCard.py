@@ -4,6 +4,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-i","--input",dest="tfileName")
 parser.add_option("-m","--mass",dest="mass",type="float")
+parser.add_option("-L","--lumistr",dest="lumistr",type="str",default="19.6")
+parser.add_option("-S","--sqrts",dest="sqrts",type="int",default=8)
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
 
 (options,args)=parser.parse_args()
@@ -15,25 +17,52 @@ ROOT.gStyle.SetOptStat(0)
 
 # make defaults
 # PLOT OPS ----------------
-lumistring = "5.3 fb^{-1}"
+lumistring = options.lumistr+ " fb^{-1}"
 sigscale   = 1.
 plotOutDir="./"
 mass=float(options.mass)
 fNew =0
 fNew2=0
+
+is2011 = options.sqrts==7
+
+if is2011:
+ Bins_vbf  = [1,2]
+ Bins_vh   = [3,4,5,6,7]
+ nBins_vbf = len(Bins_vbf)
+ nBins_vh  = len(Bins_vh)
+else:
+ Bins_vbf  = [1,2,3]
+ Bins_vh   = [4,5,6,7,8,9]
+ nBins_vbf = len(Bins_vbf)
+ nBins_vh  = len(Bins_vh)
+
+# Now the bins which are for the plots, assume 1 is the first non-incl bin 
+if is2011:
+ pl_VBF_bins = [1,2]
+ pl_VH_bins  = [3,4,5,7]
+ pl_ttH_bins = [6]
+else:
+ pl_VBF_bins = [1,2,3]
+ pl_VH_bins  = [4,5,6,9]
+ pl_ttH_bins = [7,8]
+
 def plainBin(hist):
 	nb = hist.GetNbinsX()
 	h2 = ROOT.TH1F(hist.GetName()+"new","",nb,0,nb)
+	numInclBins=h2.GetNbinsX()-nBins_vbf-nBins_vh
 	for i in range (1,nb+1):
 		h2.SetBinContent(i,hist.GetBinContent(i))
 		h2.SetBinError(i,hist.GetBinError(i))
-		if (options.includeVBF):
-			if hist.GetBinLowEdge(i+1) <= 1.:
-			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
-			elif hist.GetBinLowEdge(i+1)<1.05: 
-			  h2.GetXaxis().SetBinLabel(i,"Loose Dijet")
-			else: 
-			  h2.GetXaxis().SetBinLabel(i,"Tight Dijet")
+		if i<=numInclBins:
+		  h2.GetXaxis().SetBinLabel(i,"Inc. Bin %d "%(i))
+		elif i-numInclBins in pl_VBF_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"Di-jet ")
+		elif i-numInclBins in pl_VH_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"VH tag ")
+		elif i-numInclBins in pl_ttH_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"ttH tag ")
+
 	h2.GetXaxis().SetNdivisions(nb)
 	h2.GetYaxis().SetTitle("Events / BDT Bin")
 	h2.GetXaxis().SetLabelSize(0.055)
@@ -89,7 +118,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	if options.splitSignal: 
 	  sigst = ROOT.THStack();sigst.Add(flatsignal);sigst.Add(flatsignal1);sigst.Draw("9samehist")
 	else:  flatsignal.Draw("9samehist")
-	flatdata.Draw("9sameP");flatdata.SetMinimum(1.0);flatdata.SetMaximum(20*flatdata.Integral())
+	flatdata.Draw("9sameP");flatdata.SetMinimum(0.1);flatdata.SetMaximum(20*flatdata.Integral())
 
 	leg.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
@@ -101,8 +130,9 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.05);mytext.SetNDC();mytext.SetTextFont(42);mytext.DrawLatex(0.15,0.82,"CMS preliminary");
 	mytext.SetTextSize(0.05)
-	mytext.DrawLatex(0.15,0.75,"#sqrt{s} = 8 TeV L = %s"%(lumistring))
+	mytext.DrawLatex(0.15,0.75,"#sqrt{s} = %d TeV L = %s"%(options.sqrts,lumistring))
 	leg.Draw()
+	c.RedrawAxis()
 	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass);c.SaveAs(plotOutDir+"/model_m%d.C"%mass)
 	
 	d = ROOT.TCanvas()
@@ -142,8 +172,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 # First read the data-card
 tfile = open(options.tfileName,"r")
 dcardlines = tfile.readlines()
-# we need observation, rate, bkg_norm and massBias lines 
-infoDict = {"data":[],"rate":[],"bkg_norm_8TeV":[],"massBias_8TeV":[],"ncat":int(1),"bkg":[],"ggh":[],"vbf":[],"wzh":[],"tth":[]}
+# we need observation, rate, bkg_norm and massBias lines
+infoDict = {"data":[],"rate":[],"bkg_norm":[],"massBias":[],"ncat":int(1),"bkg":[],"ggh":[],"vbf":[],"wzh":[],"tth":[]}
 for dl in dcardlines:
 	info = dl.split()
 	if len(info)<1: continue
@@ -152,10 +182,10 @@ for dl in dcardlines:
 		infoDict["ncat"]=len(info[1:])
 	elif info[0]=="rate":
 		infoDict["rate"]=info[1:]
-	elif info[0]=="bkg_norm_8TeV":
-		infoDict["bkg_norm_8TeV"]=info[2:]
+	elif "bkg_norm" in info[0]:
+		infoDict["bkg_norm"]=info[2:]
 	elif "massBias" in info[0]:
-		infoDict["massBias_8TeV"].append(info[2:])
+		infoDict["massBias"].append(info[2:])
 
 # make some bins
 binEdges = [-1.+2*float(n)/infoDict["ncat"] for n in range(infoDict["ncat"]-2)]
@@ -190,7 +220,7 @@ for b in range(infoDict["ncat"]):
 
 # final thing is to make the errors
 binErrors=[0 for b in range(infoDict["ncat"])]
-for mb in infoDict["massBias_8TeV"]:
+for mb in infoDict["massBias"]:
   
   for b in range(infoDict["ncat"]):
 	errVal = mb[b*5+4]
@@ -205,6 +235,7 @@ for b in range(infoDict["ncat"]):
 #finall norm errors
 normErrors = []
 for b in range(infoDict["ncat"]): 
-	normErrors.append(float(infoDict["bkg_norm_8TeV"][b*5+4])-1)
+	nerror = ((infoDict["bkg_norm"][b*5+4]).split("/"))[1]
+	normErrors.append(float(nerror)-1)
 # Can finally make plots
 plotDistributions(options.mass,dataHist.Clone("dataClone"),[gghHist.Clone("gghClone"),wzhHist.Clone("wzhClone"),tthHist.Clone("tthClone"),vbfHist.Clone("vbfClone")],bkgHist.Clone("bkgClone"),normErrors)

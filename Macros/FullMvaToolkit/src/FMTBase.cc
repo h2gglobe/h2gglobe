@@ -612,7 +612,7 @@ void FMTBase::dumpDatFile(string filename){
     if (*sys=="phoIdMva") outFile << "doPhotonMvaIdSyst=1" << endl;
     if (*sys=="r9Eff") outFile << "doR9Syst=1" << endl;
     if (*sys=="kFactor") outFile << "doKFactorSyst=1" << endl;
-    if (*sys=="pdfWeight") outFile << "doPdfWeight=1" << endl;
+    if (*sys=="pdfWeight") outFile << "doPdfWeightSyst=1" << endl;
   }
   
   outFile.close();

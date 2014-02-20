@@ -8,10 +8,10 @@ Optimizations::Optimizations(TH2F *signalHisto, TH2F *backgroundHisto){
 	// set some defaults 
 	maxNumberOfBins = 12;
         nNewBins = 100;
-	predefMin = 20; // Min number of expected bkg events	
+	predefMin = 10; // Min number of expected bkg events	
 	
 	nFinalBins = 0;
-	delta = 0.000001;
+	delta = 0.0001;
 	threshold = 0.001; // % imporovement on significance for extra bin
 	
 	targetS2d = (TH2F*)signalHisto->Clone();
@@ -45,8 +45,8 @@ void Optimizations::runOptimization(){
 	double RMS = 0.;
 	double mean = findRMS(hsoverb,&RMS);
 	std::cout << "Median = " << mean << ", RMS = " << RMS  << std::endl;
-	double altmax = mean+5*RMS;
-        std::cout << "mean+5*sigma = " << altmax << std::endl;	
+	double altmax = mean+4*RMS;
+        std::cout << "mean+4*sigma = " << altmax << std::endl;	
 	maximumSoverB = maximumSoverB < altmax ? maximumSoverB : altmax;
 	std::cout << "Setting max of hist to " << maximumSoverB << std::endl;
 

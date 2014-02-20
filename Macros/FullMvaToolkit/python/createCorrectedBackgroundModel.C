@@ -320,7 +320,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 	tMinuit.mninit(5,6,7);
 	tMinuit.SetFCN(fcnFit);
 	tMinuit.SetPrintLevel(9);
-	tMinuit.SetMaxIterations(10000);
+	tMinuit.SetMaxIterations(20000);
 
 
 	int ell[5]={0,0,0,0,0};
@@ -332,11 +332,11 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 
 	for(int i(1);i<global_nMaxBdtBins;i++) {
-		double initVal = global_parameters.npb[i] >  0 ? global_parameters.npb[i]:1.;
+		double initVal = global_parameters.npb[i] >  0 ? global_parameters.npb[i]:10.;
 		tMinuit.DefineParameter(2*i-2,(std::string("Par")+label[i]+"0").c_str(),
-				initVal/global_parameters.ntot,sqrt(initVal)/global_parameters.ntot,0.0,0.0);
+				initVal/global_parameters.ntot,sqrt(initVal)/global_parameters.ntot + 0.001,0.0,0.0);
 		tMinuit.DefineParameter(2*i-1,(std::string("Par")+label[i]+"1").c_str(),
-			   0.0,0.00001,0.0,0.0);
+			   0.0,0.01,-0.5,0.5);
 
 		if(i>=global_nBdtBins) {
 			tMinuit.FixParameter(2*i-2);
@@ -377,6 +377,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 	}
 
 	tMinuit.mnemat(&(global_parameters.errMat[0][0]),maxPar);
+	// Repeat!
 
 	//   for(int i(0);i<2*(global_nBdtBins-1)+nMassBins;i++) {
 	//	std::cout << "AFTER MNEMAT ERR2 " << i << " = "
@@ -441,6 +442,12 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 			//std::cout << std::setw(14) << fracCor[i][j];
 
+			if (fabs(fracErr[i][j])< 10E-16) fracErr[i][j]=0.;
+			if (fabs(fracCor[i][j])< 10E-16) fracCor[i][j]=0.;
+			if (i==j && i<global_nBdtBins-1 && fabs(fracErr[i][j])< 10E-16){
+				 double relErr=fracErr[i+1][j+1]/global_parameters.parAll[2*(j+2)-2];
+				 fracErr[i][j]=relErr*global_parameters.parAll[2*(j+1)-2];
+			}
 			hFCovar->SetBinContent(i+1,j+1,fracErr[i][j]);
 			hFCorr->SetBinContent(i+1,j+1,fracCor[i][j]);
 		}
