@@ -14,7 +14,8 @@ fitSM = r.TGraphErrors()
 fitGrav = r.TGraphErrors()
 fitRatio = r.TGraphErrors()
 
-for p, mu2 in enumerate([0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5]):
+#for p, mu2 in enumerate([0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5]):
+for p, mu2 in enumerate([1.0]):
   print '---------------------------'
   print '---------', mu2, '---------'
   print '---------------------------'

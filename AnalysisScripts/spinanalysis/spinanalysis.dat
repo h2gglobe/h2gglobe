@@ -28,7 +28,7 @@ includeTTHlep=0
 
 doPtSpinSmear=1
 doPtSpinSyst=1
-ptspinHist=spinanalysis/ptweights.root
+ptspinHist=spinanalysis/ptweights_8TeV.root
 runJetsForSpin=0
 
 doInterferenceSmear=0

@@ -13,6 +13,8 @@ parser.add_option("-c","--cosThetaBoundaries",dest="cTbounds",default="0.0,0.2,0
 parser.add_option("-D","--outDir",default="./")
 parser.add_option("-u","--unblind",action="store_true",default=False)
 parser.add_option("-b","--isBatch",action="store_true",default=False)
+parser.add_option("-s","--sqrtS",default="comb")
+parser.add_option("-y","--yaxis",default="-3,6.")
 (options,args)=parser.parse_args()
 
 import ROOT as r
@@ -20,6 +22,9 @@ if options.isBatch: r.gROOT.SetBatch()
 r.TH1.SetDefaultSumw2()
 
 os.system('mkdir -p %s'%options.outDir)
+
+ymin = float(options.yaxis.split(",")[0])
+ymax = float(options.yaxis.split(",")[1])
 
 if not os.path.isfile('extractSignificanceStats.C'):
   sys.exit('Can\'t find file - extractSignificanceStats.C')
@@ -35,12 +40,18 @@ pt.SetTextSize(0.04);
 pt.SetFillColor(0);
 pt.AddText("CMS Preliminary");
 pt.SetBorderSize(0);
-pt2 = r.TPaveText(0.55,0.91,0.9,0.99,"NDC");
+pt2 = r.TPaveText(0.75,0.90,0.9,0.99,"NDC");
 pt2.SetTextAlign(32);
 pt2.SetTextSize(0.04);
 pt2.SetFillColor(0);
-pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.1 fb^{-1}; #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
-#pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+if options.sqrtS=="comb":
+	pt2.AddText("#splitline{#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}}{#sqrt{s} = 8 TeV, L = 19.7 fb^{-1}}");
+elif options.sqrtS=="7":
+	pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.1 fb^{-1}");
+elif options.sqrtS=="8":
+	pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.7 fb^{-1}");
+else:
+	sys.exit("Invalid sqrtS"+sqrtS)
 pt2.SetBorderSize(0);
 
 def doChannelCompatiblity():
@@ -292,6 +303,7 @@ def doChannelCompatiblity():
   f.Draw("same")
   pt.Draw('same')
   pt2.Draw('same')
+  if options.unblind: graphDataE.Draw("PEsame")
   th2.Draw("AXISGsame")
   canv.Update()
   if not options.isBatch: raw_input("Looks ok?")
@@ -560,8 +572,12 @@ def doqqbar():
   canv.Update()
   if not options.isBatch: raw_input("Looks ok?")
   canv.Update()
-  canv.Print(options.outDir+'/fqqbar.pdf')
-  canv.Print(options.outDir+'/fqqbar.png')
+  if options.unblind:
+    canv.Print(options.outDir+'/fqqbar_unblind.pdf')
+    canv.Print(options.outDir+'/fqqbar_unblind.png')
+  else:
+    canv.Print(options.outDir+'/fqqbar_blind.pdf')
+    canv.Print(options.outDir+'/fqqbar_blind.png')
 
   grSM.SetName('fqqSM')
   grGRAV.SetName('fqqGRAV')
@@ -581,7 +597,7 @@ def makeStandardChannelCompatibilityPlot(file,xlow,xhigh,outextension):
   
   if not os.path.isfile('plotSingleMassSignalStrength.py'):
     sys.exit('Can\'t find fine plotSingleMassSignalStrength.py')
-  os.system('./plotSingleMassSignalStrength.py -i %s -l %.1f -u %.1f -o %s -O %s'%(file,xlow,xhigh,outextension,options.outDir))
+  os.system('./plotSingleMassSignalStrength.py -i %s -l %.1f -u %.1f -o %s -O %s -S %s'%(file,xlow,xhigh,outextension,options.outDir,options.sqrtS))
 
 def doChannelCompatiblityStandard():
 
@@ -592,8 +608,11 @@ def makeCombineStyleSeparationPlot(ifile,leg,ofile,rebin,xlow,xhigh):
 
   print 'Plotting combine style separartion'
   setTDRStyle()
-  extractSignificanceStats(options.unblind,leg,options.outDir+'/'+ofile,ifile,rebin,xlow,xhigh)
+  expCLs = r.Double(0)
+  obsCLs = r.Double(0)
+  extractSignificanceStats(expCLs,obsCLs,options.unblind,leg,options.outDir+'/'+ofile,ifile,rebin,xlow,xhigh,options.sqrtS)
   if not options.isBatch: raw_input('Looks ok?')
+  return [expCLs,obsCLs]
 
 def doSeparationComb():
   makeCombineStyleSeparationPlot(options.inputfiles[0],"2_{m}^{+} (gg)","sep_2mpgg",640,-10.,10)
@@ -603,6 +622,7 @@ def doqqbarComb():
   for b in options.qqbarPoints.split(','):
     qqbarPoints.append(float(b))
 
+  clsVals=[]
   for p, filename in enumerate(options.inputfiles):
     fqq = qqbarPoints[p]
     print '----------------------'
@@ -613,7 +633,13 @@ def doqqbarComb():
     rebin = int(info.split(';')[0])
     low = float(info.split(';')[1])
     high = float(info.split(';')[2])
-    makeCombineStyleSeparationPlot(fname,'2_{m}^{+} (%1.0f%% qq)'%(fqq*100.),'sep_fqq%3.2f'%(fqq),rebin,low,high)
+    cls = makeCombineStyleSeparationPlot(fname,'2_{m}^{+} (%1.0f%% qq)'%(fqq*100.),'sep_fqq%3.2f'%(fqq),rebin,low,high)
+    clsVals.append([fqq]+cls)
+	
+  print 'RESULTS:'
+  print 'fqq   expCLs   obsCLs'
+  for fqq, expCLs, obsCLs in clsVals:
+    print '%4.2f  %5.3f    %5.3f'%(fqq,expCLs,obsCLs)
     
 if options.datfile:
   df = open(options.datfile)
@@ -638,9 +664,10 @@ if options.datfile:
 else:
   if len(options.methods)==0: options.methods=['ChannelCompatibility','Separation','qqbar','SeparationComb','qqbarComb']
   if 'ChannelCompatibility' in options.methods: doChannelCompatiblity()
+  if 'ChannelCompatibilityStandard' in options.methods: doChannelCompatiblityStandard()
   if 'Separation' in options.methods: doSeparation()
   if 'qqbar' in options.methods: doqqbar()
-  if 'SeparationComb' in option.methods: doSeparationComb()
+  if 'SeparationComb' in options.methods: doSeparationComb()
   if 'qqbarComb' in options.methods: doSeparationComb()
 
 outf.Close()
