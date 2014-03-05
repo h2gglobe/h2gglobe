@@ -51,6 +51,19 @@ class Parallel:
         self.running.task_done()
         return ret
 
+def getFilesFromDatacard(datacard):
+    card = open(datacard,"r")
+    files = set()
+    for l in card.read().split("\n"):
+        if l.startswith("shape"):
+            toks = [t for t in l.split(" ") if t != "" ]
+            files.add(toks[3])
+    files = list(files)
+    ret = files[0]
+    for f in files[1:]:
+        ret += ",%s" % f
+    return ret
+
 parser = OptionParser()
 parser.add_option("-d","--datfile",help="Pick up running options from datfile")
 parser.add_option("-q","--queue",help="Which batch queue")
@@ -108,6 +121,9 @@ allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelComp
 
 if opts.parallel:
     parallel = Parallel(cpu_count())
+
+if not opts.files and opts.datacard:
+    opts.files = getFilesFromDatacard(opts.datacard)
 
 defaults = copy(opts)
 
@@ -244,7 +260,7 @@ def writePostamble(sub_file, exec_line):
 		system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
 	if opts.runLocal:
 		if opts.parallel:
-			parallel.run(system,'bash %s'%os.path.abspath(sub_file.name))
+			parallel.run(system,['bash %s'%os.path.abspath(sub_file.name)])
 		else:
 			system('bash %s'%os.path.abspath(sub_file.name))
 
@@ -513,7 +529,7 @@ def writeMultiDimFit(method=None,wsOnly=False):
 	for i in range(opts.jobs):
 		file = open('%s/sub_m%1.5g_job%d.sh'%(opts.outDir,getattr(opts,"mh",0.),i),'w')
 		writePreamble(file)
-		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --keepFailures --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n Job%d'%(opts.datacard,par_ranges[method],combine_args[method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,i)
+		exec_line = 'combine %s -M MultiDimFit --X-rtd ADDNLL_FASTEXIT --keepFailures --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n %sJob%d'%(opts.datacard,par_ranges[method],combine_args[method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,method,i)
 		if getattr(opts,"mh",None): exec_line += ' -m %6.2f'%opts.mh
 		if opts.expected: exec_line += ' -t -1'
 		if opts.expectSignal: exec_line += ' --expectSignal %4.2f'%opts.expectSignal
@@ -644,12 +660,15 @@ elif opts.datfile:
 			opts.datacard = line.split('=')[1]
                         defaults.datacard = opts.datacard
 			assert('.txt' in opts.datacard)
+                        opts.files = getFilesFromDatacard(opts.datacard)
+                        defaults.files = opts.files
 			continue
 		if line.startswith('files'):
 			opts.files = line.split('=')[1]
                         defaults.files = opts.files
 			continue
 		configure(line)
+
 else:
 	# default setup here
 	print 'Not yet implemented'
