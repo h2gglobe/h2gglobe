@@ -293,6 +293,8 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 			}
 			string phoSystName = els[0];
 			double meanCh = lexical_cast<double>(els[1]);
+			// round up scale syst if less than 1.e-4
+			if (meanCh<1.e-4 && meanCh>=5.e-5 && phoSystName.find("smear")==string::npos) meanCh=1.e-4;
 			if( meanCh != 0. ) { 
 				addToSystMap(meanSysts,proc,diphotonCat,phoSystName,meanCh);
 				RooConstVar *meanChVar = new RooConstVar(Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),meanCh);
@@ -479,7 +481,7 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 			if (photonSystematicConsts.find(Form("const_%s_cat%d_mean_%s",proc_.c_str(),cat_,syst.c_str())) != photonSystematicConsts.end() ) {
 				RooConstVar *constVar = photonSystematicConsts[Form("const_%s_cat%d_mean_%s",proc_.c_str(),cat_,syst.c_str())];
 				RooRealVar *nuisVar = photonSystematics[Form("CMS_hgg_nuisance_%s",syst.c_str())];
-				if (constVar->getVal()>=0.0001) {
+				if ( constVar->getVal()>=1.e-4) { 
 					hasEffect = true;
 					formula += Form("+@%d*@%d",formPlace,formPlace+1);
 					dependents->add(*constVar);
@@ -512,7 +514,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			if (photonSystematicConsts.find(Form("const_%s_cat%d_sigma_%s",proc_.c_str(),cat_,syst.c_str())) != photonSystematicConsts.end() ) {
 				RooConstVar *constVar = photonSystematicConsts[Form("const_%s_cat%d_sigma_%s",proc_.c_str(),cat_,syst.c_str())];
 				RooRealVar *nuisVar = photonSystematics[Form("CMS_hgg_nuisance_%s",syst.c_str())];
-				if (constVar->getVal()>=0.0001) {
+				if (constVar->getVal()>=1.e-4) {
 					hasEffect = true;
 					if( quadraticSigmaSum_ ) { 
 						formula += Form("+@%d*@%d*(2.+@%d)",formPlace,formPlace+1,formPlace+1);
@@ -546,7 +548,7 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 			if (photonSystematicConsts.find(Form("const_%s_cat%d_rate_%s",proc_.c_str(),cat_,syst.c_str())) != photonSystematicConsts.end() ) {
 				RooConstVar *constVar = photonSystematicConsts[Form("const_%s_cat%d_rate_%s",proc_.c_str(),cat_,syst.c_str())];
 				RooRealVar *nuisVar = photonSystematics[Form("CMS_hgg_nuisance_%s",syst.c_str())];
-				if (constVar->getVal()>=0.001) {
+				if (constVar->getVal()>=5.e-4) {
 					hasEffect = true;
 					formula += Form("+@%d*@%d",formPlace,formPlace+1);
 					dependents->add(*constVar);
