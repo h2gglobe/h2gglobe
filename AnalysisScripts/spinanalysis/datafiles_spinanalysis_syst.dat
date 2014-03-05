@@ -1,0 +1,36 @@
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/MattLegacyTest/spinanalysis/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=8
+
+#
+# Signal
+#
+
+# SM
+
+typ=-1 ind=1 draw=1   Nam=ggh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+typ=-1 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+typ=-1 ind=4 draw=1   Nam=wzh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+typ=-1 ind=3 draw=1   Nam=tth_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/TTH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+# Spin2
+typ=-1 ind=1 draw=1   Nam=gg_grav_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/Graviton2PMGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1    red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+typ=-1 ind=2 draw=1   Nam=qq_grav_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/Graviton2PMqqbarToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+#
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches minimal_statanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+inputBranches TTVH_analysis_input.dat
+
+plotvariables spinanalysis/spin_plotvariables.dat
+treevariables spinanalysis/spin_treevariables.dat
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat spinanalysis.dat saveSpinTrees_=1 dumpAscii=1 scaleClusterShapes=1 scaleR9Only=1 scaleR9ForCicOnly=1 saveDatacardTrees_=0 systs_settings.dat 

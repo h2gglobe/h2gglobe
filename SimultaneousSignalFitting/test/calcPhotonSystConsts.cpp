@@ -406,9 +406,9 @@ int main(int argc, char *argv[]){
 					outfile << Form("%-30s",(*phoCat+"_"+sqrtS_+"TeVscale").c_str());
 					if( scaleUp != 0 && scaleDown != 0 && nominal != 0) {
 						plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
 					} else {
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",0.,0.,0.) << endl;
 					}
 				}
 			}
@@ -426,9 +426,9 @@ int main(int argc, char *argv[]){
 					outfile << Form("%-30s",(*phoCat+"_"+sqrtS_+"TeVsmear").c_str());
 					if( smearUp != 0 && smearDown != 0 && nominal != 0) {
 						plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
 					} else {
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",0.,0.,0.) << endl;
 					}
 				}
 			}
@@ -446,9 +446,9 @@ int main(int argc, char *argv[]){
 					outfile << Form("%-30s",(*phoCat+"_scale").c_str());
 					if( scaleUp != 0 && scaleDown != 0 && nominal != 0) {
 						plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
 					} else {
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",0.,0.,0.) << endl;
 					}
 				}
 			}
@@ -466,9 +466,9 @@ int main(int argc, char *argv[]){
 					outfile << Form("%-30s",(*phoCat+"_smear").c_str());
 					if( smearUp != 0 && smearDown != 0 && nominal != 0) {
 						plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
 					} else {
-						outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.) << endl;
+						outfile << Form("%1.4g     %1.4g     %1.4g    ",0.,0.,0.) << endl;
 					}
 				}
 			}

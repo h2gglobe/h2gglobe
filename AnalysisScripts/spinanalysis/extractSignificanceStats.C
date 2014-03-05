@@ -24,13 +24,20 @@
 void setTDRStyle();
 
 int extractSignificanceStats(
+					 double &expCLs,
+					 double &obsCLs,
+					 double &expSigSM,
+					 double &expSigALT,
+					 double &obsSigSM,
+					 double &obsSigALT,
 			     bool unblind=true,
 			     TString legALT="2^{+}_{m}(gg)",
 			     TString nameALT="2pmgg",
 			     TString input="qmu_*.root",
            int rebin=500,
            float xlow=-10.,
-           float xhigh=10.
+           float xhigh=10.,
+					 string sqrtS="comb"
 			     ){
 
 	float labelCLs=0;
@@ -44,8 +51,8 @@ int extractSignificanceStats(
   float q,m,w;
   int type;
   t->SetBranchAddress("q",&q);
-  t->SetBranchAddress("mh",&m);
-  t->SetBranchAddress("weight",&w);
+  //t->SetBranchAddress("mh",&m);
+  //t->SetBranchAddress("weight",&w);
   t->SetBranchAddress("type",&type);
 
   unsigned long ntoysALT = t->Draw("","type>0","goff");
@@ -60,7 +67,7 @@ int extractSignificanceStats(
   for(int i=0;i<t->GetEntries();i++){
     t->GetEntry(i);
 
-    if(i==0) cout<<"MASS in the TREE = "<<m<<endl<<endl;
+    //if(i==0) cout<<"MASS in the TREE = "<<m<<endl<<endl;
 
     q *= -2.0;
     if(type<0){ //SM hypothesis 
@@ -153,6 +160,12 @@ int extractSignificanceStats(
   cout<<"Median point prob SM : "<<tailSM <<"  ("<<ROOT::Math::normal_quantile_c(tailSM, 1.0) <<" sigma)"<<endl;
   cout<<"Median point prob ALT: "<<tailALT<<"  ("<<ROOT::Math::normal_quantile_c(tailALT,1.0) <<" sigma)"<<"\t Exp 1-CLS: "<< 1.0-tailALT/0.5 << endl;
   labelCLs=tailALT/0.5;
+	expCLs=tailALT/0.5;
+	expSigSM=tailSM;
+	expSigALT=tailALT;
+	obsCLs=0.;
+	obsSigSM=0.;
+	obsSigALT=0.;
 
   diff=10.0;
   coverage=0.0;
@@ -187,6 +200,9 @@ int extractSignificanceStats(
       float obsCLsRatio = obsTailALT / (1.0 - obsTailSM);
       cout<<"CLs criterion P(ALT > Obs) / P(SM > Obs) : "<<obsCLsRatio<<"  ("<<ROOT::Math::normal_quantile_c(obsCLsRatio,1.0) <<" sigma)"<< "\t Obs 1-CLS="<<1.0-obsCLsRatio <<endl;
       labelCLs=obsCLsRatio;
+			obsCLs=obsCLsRatio;
+			obsSigSM = obsTailSM;
+			obsSigALT = obsTailALT;
     }
 
     cout << "\n\nOBSERVED SIGNIFICANCE" << endl;
@@ -311,7 +327,16 @@ int extractSignificanceStats(
   pt->SetTextFont(42);
   pt->SetTextSize(0.03);
   pt->AddText(0.01,0.5,"CMS preliminary");
-  pt->AddText(0.3,0.6,"#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}  #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+	if (sqrtS=="comb")
+		pt->AddText(0.3,0.6,"#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}  #sqrt{s} = 8 TeV, L = 19.7 fb^{-1}");
+	else if (sqrtS=="7")
+		pt->AddText(0.6,0.6,"#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}");
+	else if (sqrtS=="8")
+		pt->AddText(0.6,0.6,"#sqrt{s} = 8 TeV, L = 19.7 fb^{-1}");
+	else {
+		std::cout << sqrtS << " is not a valid value for sqrtS" << endl;
+		exit(1);
+	}
   //pt->AddText(0.6,0.6,"#sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
   pt->Draw();   
   
@@ -501,3 +526,17 @@ TCanvas *c1 =  new TCanvas("paddy","paddy",700,700)
 
 }
 */
+int extractSignificanceStatsSimp(TString fileName="qmu_*.root", bool unblind=false){
+	double dummyExpCLs;
+	double dummyObsCLs;
+	double dummyExpSM;
+	double dummyExpALT;
+	double dummyObsSM;
+	double dummyObsALT;
+	TString dummLeg = "2^{+}_{m}";
+	TString dummName = "2pm";
+
+	extractSignificanceStats(dummyExpCLs,dummyObsCLs,dummyExpSM,dummyExpALT,dummyObsSM,dummyObsALT,unblind,dummLeg,dummName,fileName);
+
+}
+

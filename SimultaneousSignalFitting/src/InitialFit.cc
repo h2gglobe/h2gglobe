@@ -157,6 +157,15 @@ map<int,map<string,RooRealVar*> > InitialFit::getFitParams(){
   return fitParams;
 }
 
+void InitialFit::printFitParams(){
+	cout << "Printing fit param map: " << endl;
+	for (map<int,map<string,RooRealVar*> >::iterator it = fitParams.begin(); it != fitParams.end(); it++){
+		for (map<string,RooRealVar*>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++){
+			cout << it->first << " : " << it2->first << " -- " << it2->second->getVal() << endl; 
+		}
+	}
+}
+
 void InitialFit::runFits(int ncpu){
   
   for (unsigned int i=0; i<allMH_.size(); i++){

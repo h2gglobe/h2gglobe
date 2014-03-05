@@ -9,7 +9,7 @@ xs['8TeV'] = {'ggh':19.27,'vbf':1.578,'wzh':0.7046+0.4153,'tth':0.1293}
 br = 8.57E-02
 
 if len(sys.argv)!=3 and len(sys.argv)!=4 and len(sys.argv)!=5:
-	print 'usage makeCosThetaPlots.py <before_file> <after_file>'
+	print 'usage makeCosThetaPlots.py <before_file> <after_file> <sqrtS> <binedges>'
 	sys.exit()
 
 if len(sys.argv)==4: sqrtS = int(sys.argv[3])

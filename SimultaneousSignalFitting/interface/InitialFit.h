@@ -25,6 +25,7 @@ class InitialFit {
     void saveParamsToFile(std::string filename);
     void saveParamsToFileAtMH(std::string filename, int setMH);
     std::map<int,std::map<std::string,RooRealVar*> > getFitParams();
+		void printFitParams();
     void setDatasets(std::map<int,RooDataSet*> data);
     void addDataset(int mh, RooDataSet *data);
     void runFits(int ncpu);
