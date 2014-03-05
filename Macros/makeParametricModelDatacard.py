@@ -203,7 +203,7 @@ if options.is2011:
 		theorySyst['pdf_qqbar']['ZH'] = [0.027,-0.027]
 	else:
 		theorySyst['pdf_qqbar']['VH'] = [0.037,-0.037]
-	theorySyst['pdf_gg']['ttH'] = [0.081,-0.081]
+	theorySyst['pdf_gg']['ttH'] = [0.084,-0.084]
 # 8 TeV
 else:
 	# scale
