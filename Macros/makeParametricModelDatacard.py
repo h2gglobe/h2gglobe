@@ -17,7 +17,7 @@ parser.add_option("--photonCatScalesCorr",default="MaterialEBCentral,MaterialEBO
 parser.add_option("--photonCatSmears",default="EBlowR9,EBhighR9,EBlowR9Phi,EBhighR9Phi,EElowR9,EEhighR9",help="String list of photon smearing nuisance names - WILL NOT correlate across years (default: %default)")
 parser.add_option("--photonCatSmearsCorr",default="",help="String list of photon smearing nuisance names - WILL correlate across years (default: %default)")
 parser.add_option("--globalScales",default="NonLinearity:0.001",help="String list of global scale nuisances names with value separated by a \':\' - WILL NOT correlate across years (default: %default)")
-parser.add_option("--globalScalesCorr",default="Geant4:0.005",help="String list of global scale nuisances names with value separated by a \':\' - WILL correlate across years (default: %default)")
+parser.add_option("--globalScalesCorr",default="Geant4:0.0005",help="String list of global scale nuisances names with value separated by a \':\' - WILL correlate across years (default: %default)")
 parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
 parser.add_option("--isSpinModel",default=False,action="store_true")
@@ -495,6 +495,7 @@ def printNuisParams():
 		outFile.write('\n')
 
 def printTheorySysts():
+	# as these are antisymmetric lnN systematics - implement as [1/(1.+err_down)] for the lower and [1.+err_up] for the upper
 	print 'Theory...'
 	for systName, systDetails in theorySyst.items():
 		outFile.write('%-35s   lnN   '%systName)
@@ -502,7 +503,7 @@ def printTheorySysts():
 			for p in options.procs:
 				if '%s:%d'%(p,c) in options.toSkip: continue
 				if p in systDetails.keys():
-					outFile.write('%5.3f/%5.3f '%(1.+systDetails[p][1],1.+systDetails[p][0]))
+					outFile.write('%5.3f/%5.3f '%(1./(1.-systDetails[p][1]),1.+systDetails[p][0]))
 				else:
 					outFile.write('- ')
 		outFile.write('\n')
@@ -516,7 +517,7 @@ def printTheorySysts():
 			if p in bkgProcs or p in spin2Procs:
 				outFile.write('- ')
 			else:
-				outFile.write('%5.3f/%5.3f '%(1.+brSyst[1],1.+brSyst[0]))
+				outFile.write('%5.3f/%5.3f '%(1./(1.-brSyst[1]),1.+brSyst[0]))
 	outFile.write('\n')
 	outFile.write('\n')
 
