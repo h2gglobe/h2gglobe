@@ -18,6 +18,7 @@ parser.add_option("-D","--drawLabel",action="store_true",default=False)
 parser.add_option("-L","--drawLines",action="store_true",default=False)
 parser.add_option("-o","--outname",default="")
 parser.add_option("-O","--outDir",default="./")
+parser.add_option("-S","--sqrtS",default="comb")
 (options,args)=parser.parse_args()
 
 import ROOT as r
@@ -29,17 +30,24 @@ r.gStyle.SetPadLeftMargin(0.28);
 r.gStyle.SetPadRightMargin(0.05);
 
 print "Setting Initial Parameters."
-pt = r.TPaveText(0.02,0.91,0.12,0.99,"NDC");
+pt = r.TPaveText(0.1,0.91,0.45,0.99,"NDC");
 pt.SetTextAlign(12);
 pt.SetTextSize(0.03);
 pt.SetFillColor(0);
-pt.AddText("#splitline{CMS Preliminary}{#sqrt{s}=8TeV L=19.6fb^{-1}}");
+pt.AddText("CMS Preliminary");
 pt.SetBorderSize(0);
-pt2 = r.TPaveText(0.02,0.90,0.12,0.91,"NDC");
+pt2 = r.TPaveText(0.7,0.90,0.9,0.99,"NDC");
 pt2.SetTextAlign(12);
 pt2.SetTextSize(0.028);
 pt2.SetFillColor(0);
-pt2.AddText("#sqrt{s}=8TeV L=19.6fb^{-1}");
+if options.sqrtS=="comb":
+	pt2.AddText("#splitline{#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}}{#sqrt{s} = 8 TeV, L = 19.7 fb^{-1}}");
+elif options.sqrtS=="7":
+	pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.1 fb^{-1}");
+elif options.sqrtS=="8":
+	pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.7 fb^{-1}");
+else:
+	sys.exit("Invalid sqrtS"+sqrtS)
 pt2.SetBorderSize(0);
 pt3 = r.TPaveText(0.4,0.92,0.8,0.99,"NDC")
 pt3.SetTextSize(0.045)
@@ -235,10 +243,10 @@ if options.drawLines:
   cosline1.Draw()
   cosline2.Draw()
   cosline3.Draw()
+pt3.Draw()
 leg.Draw()
 pt.Draw()
-#pt2.Draw()
-pt3.Draw()
+pt2.Draw()
 #dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
 can.SaveAs("%s/BestFit%5.1f%s.pdf"%(options.outDir,Mass,options.outname))
 can.SaveAs("%s/BestFit%5.1f%s.png"%(options.outDir,Mass,options.outname))

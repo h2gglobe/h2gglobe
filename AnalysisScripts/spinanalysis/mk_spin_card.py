@@ -75,7 +75,56 @@ procs.append('bkg')
 iprocs.append('1')
 rates.append('1')
 
-lumi_err = '1.044' if options.sqrtS==8 else '1.045'
+lumi_err = '1.025' if options.sqrtS==8 else '1.022'
+br_err = [1.050,0.951]
+
+theorySyst = {}
+theorySyst['QCDscale_ggH'] = {}
+theorySyst['QCDscale_qqH'] = {}
+theorySyst['QCDscale_VH'] = {}
+theorySyst['QCDscale_ttH'] = {}
+theorySyst['pdf_gg'] = {}
+theorySyst['pdf_qqbar'] = {}
+# 7 TeV
+if options.sqrtS==7:
+	# scale
+	theorySyst['QCDscale_ggH']['ggH'] = [0.071,-0.078] 
+	theorySyst['QCDscale_ggH']['ggH_ALT'] = [0.071,-0.078] 
+	theorySyst['QCDscale_qqH']['qqH'] = [0.003,-0.003]
+	theorySyst['QCDscale_qqH']['qqbarH_ALT'] = [0.003,-0.003]
+	theorySyst['QCDscale_VH']['WH'] = [0.009,-0.009]
+	theorySyst['QCDscale_VH']['ZH'] = [0.029,-0.029]
+	theorySyst['QCDscale_ttH']['ttH'] = [0.032,-0.093]
+	# pdf
+	theorySyst['pdf_gg']['ggH'] = [0.076,-0.071] 
+	theorySyst['pdf_gg']['ggH_ALT'] = [0.076,-0.071] 
+	theorySyst['pdf_qqbar']['qqH'] = [0.025,-0.021]
+	theorySyst['pdf_qqbar']['qqbarH_ALT'] = [0.025,-0.021]
+	theorySyst['pdf_qqbar']['WH'] = [0.026,-0.026]
+	theorySyst['pdf_qqbar']['ZH'] = [0.027,-0.027]
+	theorySyst['pdf_gg']['ttH'] = [0.81,-0.81]
+# 8 TeV
+elif options.sqrtS==8:
+	# scale
+	theorySyst['QCDscale_ggH']['ggH'] = [0.072,-0.078]
+	theorySyst['QCDscale_ggH']['ggH_ALT'] = [0.072,-0.078]
+	theorySyst['QCDscale_qqH']['qqH'] = [0.002,-0.002]
+	theorySyst['QCDscale_qqH']['qqbarH_ALT'] = [0.002,-0.002]
+	theorySyst['QCDscale_VH']['WH'] = [0.010,-0.010]
+	theorySyst['QCDscale_VH']['ZH'] = [0.031,-0.031]
+	theorySyst['QCDscale_ttH']['ttH'] = [0.038,-0.093]
+	# pdf
+	theorySyst['pdf_gg']['ggH'] = [0.075,-0.069] 
+	theorySyst['pdf_gg']['ggH_ALT'] = [0.075,-0.069] 
+	theorySyst['pdf_qqbar']['qqH'] = [0.026,-0.028]
+	theorySyst['pdf_qqbar']['qqbarH_ALT'] = [0.026,-0.028]
+	theorySyst['pdf_qqbar']['WH'] = [0.023,-0.023]
+	theorySyst['pdf_qqbar']['ZH'] = [0.025,-0.025]
+	theorySyst['pdf_gg']['ttH'] = [0.081,-0.081]
+else:
+	sys.exit(str(options.sqrtS)+'TeV is not a valid sqrtS')
+
+"""
 scale_ggH = '0.930/1.076'
 scale_qqH = '0.972/1.026'
 #scale_VH  = '0.958/1.042'
@@ -88,6 +137,7 @@ pdf_qqH   = '0.992/1.003'
 pdf_WH    = '0.982/1.021'
 pdf_ZH    = '0.982/1.021'
 pdf_ttH   = '0.906/1.041'
+"""
 
 binned_systs = ['E_res','E_scale','idEff','triggerEff','vtxEff','r9Eff','ptSpin']
 
@@ -124,7 +174,27 @@ for cat in range (ncats):
   for i,proc in enumerate(procs):
     if proc=='bkg': card.write(' -')
     else: card.write(' %s'%lumi_err)
+card.write('\n')
    
+card.write('\nCMS_hgg_BR    lnN  ')
+for cat in range (ncats):
+  for i,proc in enumerate(procs):
+    if proc=='bkg': card.write(' -')
+    else: card.write(' %s/%s'%(br_err[1],br_err[0]))
+card.write('\n')
+   
+for systName, systDetails in theorySyst.items():
+	card.write('%-35s   lnN   '%systName)
+	for c in range(ncats):
+		for p in procs:
+			if p in systDetails.keys():
+				card.write('%5.3f/%5.3f '%(1.+systDetails[p][1],1.+systDetails[p][0]))
+			else:
+				card.write('- ')
+	card.write('\n')
+card.write('\n')
+
+"""
 card.write('\nQCDscale_ggH    lnN  ')
 for cat in range(ncats):
   for i,proc in enumerate(procs):
@@ -184,6 +254,7 @@ for cat in range(ncats):
   for i,proc in enumerate(procs):
     if 'ttH' in proc: card.write(' %s'%pdf_ttH)
     else: card.write(' -')
+"""
    
 for syst in binned_systs:
   card.write('\n%s    shape  '%syst)
@@ -214,7 +285,6 @@ if options.justSM or options.justGravGG or options.justGravQQ or options.qqbarCa
     new_card.write(line)
   new_card.close()
   os.system('rm -f %s'%old_card.name)
-
 
 
   

@@ -57,23 +57,26 @@ void fillDists(vector<TTree*> trees, TH1F *nom, TH1F *up, TH1F *down, double pt_
 
 }
 
-void reweightPt(string infile, double pt_shift=0.1){
+void reweightPt(string infile, int sqrts=8, double pt_shift=0.1){
 
   TFile *inFile = TFile::Open(infile.c_str());
 
-  TFile *outFile = new TFile("ptweights.root","RECREATE");
+  TFile *outFile = new TFile(Form("ptweights_%dTeV.root",sqrts),"RECREATE");
   vector<int> masses;
   masses.push_back(125);
-  masses.push_back(126);
+	masses.push_back(126);
 
   TCanvas *canv = new TCanvas();
   for (vector<int>::iterator mass=masses.begin(); mass!=masses.end(); mass++){
-    TTree *gghTree = (TTree*)inFile->Get(Form("spin_trees/ggh_m%d_8TeV",*mass));
-    TTree *vbfTree = (TTree*)inFile->Get(Form("spin_trees/vbf_m%d_8TeV",*mass));
-    TTree *wzhTree = (TTree*)inFile->Get(Form("spin_trees/wzh_m%d_8TeV",*mass));
-    TTree *tthTree = (TTree*)inFile->Get(Form("spin_trees/tth_m%d_8TeV",*mass));
-    TTree *ggh_gravTree = (TTree*)inFile->Get(Form("spin_trees/ggh_grav_m%d_8TeV",*mass));
-    TTree *vbf_gravTree = (TTree*)inFile->Get(Form("spin_trees/vbf_grav_m%d_8TeV",*mass));
+    
+		int fmass=*mass;
+		if (sqrts==7) fmass=125;
+		TTree *gghTree = (TTree*)inFile->Get(Form("spin_trees/ggh_m%d_%dTeV",fmass,sqrts));
+    TTree *vbfTree = (TTree*)inFile->Get(Form("spin_trees/vbf_m%d_%dTeV",fmass,sqrts));
+    TTree *wzhTree = (TTree*)inFile->Get(Form("spin_trees/wzh_m%d_%dTeV",fmass,sqrts));
+    TTree *tthTree = (TTree*)inFile->Get(Form("spin_trees/tth_m%d_%dTeV",fmass,sqrts));
+    TTree *ggh_gravTree = (TTree*)inFile->Get(Form("spin_trees/gg_grav_m%d_%dTeV",fmass,sqrts));
+    TTree *vbf_gravTree = (TTree*)inFile->Get(Form("spin_trees/qq_grav_m%d_%dTeV",fmass,sqrts));
 
     vector<TTree*> smTrees;
     smTrees.push_back(gghTree);

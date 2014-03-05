@@ -20,9 +20,11 @@ parser.add_option("--globalScales",default="NonLinearity:0.001",help="String lis
 parser.add_option("--globalScalesCorr",default="Geant4:0.005",help="String list of global scale nuisances names with value separated by a \':\' - WILL correlate across years (default: %default)")
 parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
+parser.add_option("--isSpinModel",default=False,action="store_true")
 parser.add_option("--isMultiPdf",default=False,action="store_true")
 parser.add_option("--isBinnedSignal",default=False,action="store_true")
 parser.add_option("--is2011",default=False,action="store_true")
+parser.add_option("--scaleFactors",help="Scale factor for spin model pass as e.g. gg_grav:1.351,qq_grav:1.027")
 parser.add_option("--quadInterpolate",type="int",default=0,help="Do a quadratic interpolation of globe templates back to 1 sigma from this sigma. 0 means off (default: %default)")
 (options,args)=parser.parse_args()
 
@@ -33,9 +35,9 @@ r.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimi
 r.gROOT.ProcessLine(".L ../libLoopAll.so")
 
 # convert globe style to combine style process
-combProc = {'ggh':'ggH','vbf':'qqH','wzh':'VH','wh':'WH','zh':'ZH','tth':'ttH','bkg_mass':'bkg_mass'}
-globeProc = {'ggH':'ggh','qqH':'vbf','VH':'wzh','WH':'wh','ZH':'zh','ttH':'tth','bkg_mass':'bkg_mass'}
-procId = {'ggH':0,'qqH':-1,'VH':-2,'WH':-2,'ZH':-3,'ttH':-4,'bkg_mass':1}
+combProc = {'ggh':'ggH','vbf':'qqH','wzh':'VH','wh':'WH','zh':'ZH','tth':'ttH','bkg_mass':'bkg_mass','gg_grav':'ggH_ALT','qq_grav':'qqbarH_ALT'}
+globeProc = {'ggH':'ggh','qqH':'vbf','VH':'wzh','WH':'wh','ZH':'zh','ttH':'tth','bkg_mass':'bkg_mass','ggH_ALT':'gg_grav','qqbarH_ALT':'qq_grav'}
+procId = {'ggH':0,'qqH':-1,'VH':-2,'WH':-2,'ZH':-3,'ttH':-4,'ggH_ALT':-5,'qqbarH_ALT':-6,'bkg_mass':1}
 
 # setup
 if options.is2011: sqrts=7
@@ -47,6 +49,7 @@ if 'wh' in options.procs.split(',') and 'zh' in options.procs.split(','):
 inFile = r.TFile.Open(options.infilename)
 outFile = open(options.outfilename,'w')
 bkgProcs = ['bkg_mass']
+spin2Procs = ['ggH_ALT','qqbarH_ALT']
 vbfProcs = ['qqH']
 # FOR MVA:
 if options.is2011:
@@ -111,40 +114,26 @@ inWS = inFile.Get('cms_hgg_workspace')
 intL = inWS.var('IntLumi').getVal()
 
 # info = [file,workspace,name]
-if options.isCutBased:
-	if options.isMultiPdf:
-		dataFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
-		bkgFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
-		dataWS = 'multipdf'
-		bkgWS = 'multipdf'
-	else:
-		dataFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
-		bkgFile = 'CMS-HGG_cic_%dTeV_data.root'%sqrts
-		dataWS = 'multipdf'
-		bkgWS = 'cms_hgg_workspace'
-	if options.isBinnedSignal:
-		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
-		sigWS = 'cms_hgg_workspace'
-	else:
-		sigFile = 'CMS-HGG_cic_%dTeV_sigfit.root'%sqrts
-		sigWS = 'wsig_%dTeV'%sqrts
+file_ext = 'mva'
+if options.isCutBased: file_ext = 'cic'
+if options.isSpinModel: file_ext = 'spin'
+
+if options.isMultiPdf:
+	dataFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
+	bkgFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
+	dataWS = 'multipdf'
+	bkgWS = 'multipdf'
 else:
-	if options.isMultiPdf:
-		dataFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
-		bkgFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
-		dataWS = 'multipdf'
-		bkgWS = 'multipdf'
-	else:
-		dataFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
-		bkgFile = 'CMS-HGG_mva_%dTeV_data.root'%sqrts
-		dataWS = 'multipdf'
-		bkgWS = 'cms_hgg_workspace'
-	if options.isBinnedSignal:
-		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
-		sigWS = 'cms_hgg_workspace'
-	else:
-		sigFile = 'CMS-HGG_mva_%dTeV_sigfit.root'%sqrts
-		sigWS = 'wsig_%dTeV'%sqrts
+	dataFile = 'CMS-HGG_%s_%dTeV_multipdf.root'%(file_ext,sqrts)
+	bkgFile = 'CMS-HGG_%s_%dTeV_data.root'%(file_ext,sqrts)
+	dataWS = 'multipdf'
+	bkgWS = 'cms_hgg_workspace'
+if options.isBinnedSignal:
+	sigFile = 'CMS-HGG_%s_%dTeV_sig_interpolated.root'%(file_ext,sqrts)
+	sigWS = 'cms_hgg_workspace'
+else:
+	sigFile = 'CMS-HGG_%s_%dTeV_sigfit.root'%(file_ext,sqrts)
+	sigWS = 'wsig_%dTeV'%(sqrts)
 
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
@@ -162,6 +151,9 @@ if options.isBinnedSignal:
 	else:
 		fileDetails['VH'] 			=	[sigFile,sigWS,'roohist_sig_vh_mass_m$MASS_$CHANNEL']
 	fileDetails['ttH'] 			= [sigFile,sigWS,'roohist_sig_tth_mass_m$MASS_$CHANNEL']
+	if options.isSpinModel:
+		fileDetails['ggH_ALT'] 			= [sigFile,sigWS,'roohist_sig_gg_grav_mass_m$MASS_$CHANNEL']
+		fileDetails['qqbarH_ALT'] 			= [sigFile,sigWS,'roohist_sig_qq_grav_mass_m$MASS_$CHANNEL']
 else:
 	fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
 	fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
@@ -171,6 +163,9 @@ else:
 	else:
 		fileDetails['VH'] 			=	[sigFile,sigWS,'hggpdfsmrel_%dTeV_wzh_$CHANNEL'%sqrts]
 	fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_tth_$CHANNEL'%sqrts]
+	if options.isSpinModel:
+		fileDetails['ggH_ALT'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_gg_grav_$CHANNEL'%sqrts]
+		fileDetails['qqbarH_ALT'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_qq_grav_$CHANNEL'%sqrts]
 
 # theory systematics arr=[up,down]
 # these come in specific types (as must be correlated with combination)
@@ -262,6 +257,8 @@ if not options.isCutBased:
 if options.isBinnedSignal:
 	globeSysts['E_scale'] = 'n_e_scale'
 	globeSysts['E_res'] = 'n_e_res'
+if options.isSpinModel:
+	globeSysts['ptSpin'] = 'n_pt'
 
 # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
 if not options.isBinnedSignal:
@@ -370,6 +367,12 @@ tightLepRateScale = 0.9886
 tthLepRateScale = 0.980
 tthHadRateScale = 0.995
 
+# for spin
+scaleFactors = {}
+if options.scaleFactors and options.isSpinModel:
+	for fac in options.scaleFactors.split(','):
+		scaleFactors[fac.split(':')[0]] = float(fac.split(':')[1])
+
 def interp1Sigma(th1f_nom,th1f_down,th1f_up):
 	nomE = th1f_nom.Integral()
 	if nomE==0:
@@ -405,6 +408,7 @@ def printFileOptions():
 			file = info[0]
 			wsname = info[1]
 			pdfname = info[2].replace('$CHANNEL','cat%d'%c)
+			if typ not in options.procs and typ!='data_obs': continue
 			if options.isBinnedSignal:
 				outFile.write('shapes %-10s %-15s %-30s %-30s %-30s_$SYSTEMATIC01_sigma\n'%(typ,'cat%d_%dTeV'%(c,sqrts),file,wsname+':'+pdfname,wsname+':'+pdfname))
 			else:
@@ -460,6 +464,10 @@ def printObsProcBinLines():
 					if c in tthCats:
 						if c in tthLepCat: scale *= tthLepRateScale
 						else: scale *= tthHadRateScale
+					if options.isSpinModel: 
+						scale=1.
+						if globeProc[p] in scaleFactors.keys():
+							scale = scaleFactors[globeProc[p]]
 					outFile.write('%7.1f '%(intL*scale))
 	outFile.write('\n')
 	outFile.write('\n')
@@ -505,7 +513,7 @@ def printTheorySysts():
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: continue
-			if p in bkgProcs:
+			if p in bkgProcs or p in spin2Procs:
 				outFile.write('- ')
 			else:
 				outFile.write('%5.3f/%5.3f '%(1.+brSyst[1],1.+brSyst[0]))
@@ -526,7 +534,7 @@ def printLumiSyst():
 	outFile.write('\n')
 
 def printTrigSyst():
-	print 'Lumi...'
+	print 'Trig...'
 	outFile.write('%-35s   lnN   '%'CMS_hgg_n_trig_eff')
 	for c in range(options.ncats):
 		for p in options.procs:
@@ -819,14 +827,15 @@ printTheorySysts()
 printLumiSyst()
 printTrigSyst()
 printGlobeSysts()
-printVbfSysts()
-printLepSysts()
-printTTHSysts()
+if not options.isSpinModel:
+	printVbfSysts()
+	printLepSysts()
+	printTTHSysts()
 printMultiPdf()
 
 
 # DEFUNCT OLD FUNCTIONS........
-
+"""
 def printLepSystsOld():
 
 	print 'Lep...'
@@ -1024,4 +1033,4 @@ def printTTHSystsOld():
 				else:
 					outFile.write('- ')
 		outFile.write('\n')
-
+"""
