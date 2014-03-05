@@ -16,7 +16,7 @@ class Packager {
 
   public:
 
-    Packager(RooWorkspace *ws, std::vector<std::string> procs, int nCats, int mhLow, int mhHigh, std::vector<int> skipMasses, bool is2011=false, string outDir="plots",
+    Packager(RooWorkspace *ws, std::vector<std::string> procs, int nCats, int mhLow, int mhHigh, std::vector<int> skipMasses, bool is2011=false, bool skipPlots=false, string outDir="plots",
 	     RooWorkspace *mergeWs=0, const std::vector<int>& cats=std::vector<int>() );
     ~Packager();
 
@@ -32,6 +32,7 @@ class Packager {
     int mhLow_;
     int mhHigh_;
     bool is2011_;
+		bool skipPlots_;
     string outDir_;
     int sqrts_;
     std::vector<int> skipMasses_;

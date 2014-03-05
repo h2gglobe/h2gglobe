@@ -12,10 +12,12 @@ parser.add_option("-i","--infilename", help="Input file (binned signal from glob
 parser.add_option("-o","--outfilename",default="cms_hgg_datacard.txt",help="Name of card to print (default: %default)")
 parser.add_option("-p","--procs",default="ggh,vbf,wh,zh,tth",help="String list of procs (default: %default)")
 parser.add_option("-c","--ncats",default=9,type="int",help="Number of cats (default: %default)")
-parser.add_option("--photonNuisancesScale",default="EBlowR9,EBhighR9,EElowR9,EEhighR9",help="String list of photon scale nuisance names - WILL NOT correlate across years (default: %default)")
-parser.add_option("--photonNuisancesSmear",default="EBlowR9,EBhighR9,EBlowR9Phi,EBhighR9Phi,EElowR9,EEhighR9",help="String list of photon smear nuisance names - WILL NOT correlate across years (default: %default)")
-parser.add_option("--photonNuisancesMaterial",default="MaterialEBCentral,MaterialEBOuterEE",help="String list of material related photon scale nuisance names - WILL correlate across years (default: %default)")
-parser.add_option("--photonNuisancesNonLinearity",default="NonLinearity:0.001",help="String list of non-linearity related photon scale nuisance names with value separted by a \':\'. Get implemented as global scales - WILL NOT correlate across years (default: %default)")
+parser.add_option("--photonCatScales",default="EBlowR9,EBhighR9,EElowR9,EEhighR9",help="String list of photon scale nuisance names - WILL NOT correlate across years (default: %default)")
+parser.add_option("--photonCatScalesCorr",default="MaterialEBCentral,MaterialEBOuterEE,LightColl",help="String list of photon scale nuisance names - WILL correlate across years (default: %default)")
+parser.add_option("--photonCatSmears",default="EBlowR9,EBhighR9,EBlowR9Phi,EBhighR9Phi,EElowR9,EEhighR9",help="String list of photon smearing nuisance names - WILL NOT correlate across years (default: %default)")
+parser.add_option("--photonCatSmearsCorr",default="",help="String list of photon smearing nuisance names - WILL correlate across years (default: %default)")
+parser.add_option("--globalScales",default="NonLinearity:0.001",help="String list of global scale nuisances names with value separated by a \':\' - WILL NOT correlate across years (default: %default)")
+parser.add_option("--globalScalesCorr",default="Geant4:0.005",help="String list of global scale nuisances names with value separated by a \':\' - WILL correlate across years (default: %default)")
 parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
 parser.add_option("--isMultiPdf",default=False,action="store_true")
@@ -91,10 +93,20 @@ if options.isCutBased:
 options.procs += ',bkg_mass'
 options.procs = [combProc[p] for p in options.procs.split(',')]
 options.toSkip = options.toSkip.split(',')
-options.photonNuisancesScale = options.photonNuisancesScale.split(',')
-options.photonNuisancesSmear = options.photonNuisancesSmear.split(',')
-options.photonNuisancesMaterial = options.photonNuisancesMaterial.split(',')
-options.photonNuisancesNonLinearity = options.photonNuisancesNonLinearity.split(',')
+
+if options.photonCatScales=='': options.photonCatScales = []
+else: options.photonCatScales = options.photonCatScales.split(',')
+if options.photonCatScalesCorr=='': options.photonCatScalesCorr = []
+else: options.photonCatScalesCorr = options.photonCatScalesCorr.split(',')
+if options.photonCatSmears=='': options.photonCatSmears = []
+else: options.photonCatSmears = options.photonCatSmears.split(',')
+if options.photonCatSmearsCorr=='': options.photonCatSmearsCorr = []
+else: options.photonCatSmearsCorr = options.photonCatSmearsCorr.split(',')
+if options.globalScales=='': options.globalScales = []
+else: options.globalScales = options.globalScales.split(',')
+if options.globalScalesCorr=='': options.globalScalesCorr = []
+else: options.globalScalesCorr = options.globalScalesCorr.split(',')
+
 inWS = inFile.Get('cms_hgg_workspace')
 intL = inWS.var('IntLumi').getVal()
 
@@ -106,9 +118,9 @@ if options.isCutBased:
 		dataWS = 'multipdf'
 		bkgWS = 'multipdf'
 	else:
-		dataFile = 'CMS-HGG_cic_%dTeV_data.root'%sqrts
+		dataFile = 'CMS-HGG_cic_%dTeV_multipdf.root'%sqrts
 		bkgFile = 'CMS-HGG_cic_%dTeV_data.root'%sqrts
-		dataWS = 'cms_hgg_workspace'
+		dataWS = 'multipdf'
 		bkgWS = 'cms_hgg_workspace'
 	if options.isBinnedSignal:
 		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
@@ -123,9 +135,9 @@ else:
 		dataWS = 'multipdf'
 		bkgWS = 'multipdf'
 	else:
-		dataFile = 'CMS-HGG_mva_%dTeV_data.root'%sqrts
+		dataFile = 'CMS-HGG_mva_%dTeV_multipdf.root'%sqrts
 		bkgFile = 'CMS-HGG_mva_%dTeV_data.root'%sqrts
-		dataWS = 'cms_hgg_workspace'
+		dataWS = 'multipdf'
 		bkgWS = 'cms_hgg_workspace'
 	if options.isBinnedSignal:
 		sigFile = 'CMS-HGG_cic_%dTeV_sig_interpolated.root'%sqrts
@@ -191,7 +203,7 @@ if options.is2011:
 		theorySyst['pdf_qqbar']['ZH'] = [0.027,-0.027]
 	else:
 		theorySyst['pdf_qqbar']['VH'] = [0.037,-0.037]
-	theorySyst['pdf_gg']['ttH'] = [0.81,-0.81]
+	theorySyst['pdf_gg']['ttH'] = [0.081,-0.081]
 # 8 TeV
 else:
 	# scale
@@ -220,7 +232,7 @@ brSyst = [0.050,-0.049]
 if options.is2011:
 	lumiSyst = 0.022
 else:
-	lumiSyst = 0.025
+	lumiSyst = 0.026
 
 # vtx eff
 if options.is2011:
@@ -240,6 +252,7 @@ if options.isCutBased:
 trigEff = 0.01
 
 # from globe
+globeSystDump = open('globeSystDump.dat','w')
 globeSysts={}
 globeSysts['idEff'] = 'n_id_eff'
 ##globeSysts['triggerEff'] = 'n_trig_eff'
@@ -459,15 +472,18 @@ def printNuisParams():
 		if options.isCutBased:
 			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9barrel'%sqrts,r9barrelSyst))
 			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9mixed'%sqrts,r9mixedSyst))
-		for phoSyst in options.photonNuisancesScale:
+		for phoSyst in options.photonCatScales:
 			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst,sqrts)))
-		for phoSyst in options.photonNuisancesSmear:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVsmear'%(phoSyst,sqrts)))
-		for phoSyst in options.photonNuisancesMaterial:
+		for phoSyst in options.photonCatScalesCorr:
 			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst)))
-		# get implemented as global scales	
-		for phoSyst in options.photonNuisancesNonLinearity:
+		for phoSyst in options.photonCatSmears:
+			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVsmear'%(phoSyst,sqrts)))
+		for phoSyst in options.photonCatSmearsCorr:
+			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_smear'%(phoSyst)))
+		for phoSyst in options.globalScales:
 			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst.split(':')[0],sqrts),float(phoSyst.split(':')[1])))
+		for phoSyst in options.globalScalesCorr:
+			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst.split(':')[0]),float(phoSyst.split(':')[1])))
 		outFile.write('\n')
 
 def printTheorySysts():
@@ -527,6 +543,7 @@ def getGlobeLine(proc,cat,name):
 	th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(proc,cat,name))
 	th1f_dn  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sDown01_sigma'%(proc,cat,name))
 	systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up)
+	globeSystDump.write('%s nom: %5.3f up: %5.3f down: %5.3f vals: [%5.3f,%5.3f] \n'%(name,th1f_nom.Integral(),th1f_up.Integral(),th1f_dn.Integral(),systVals[0],systVals[1]))
 	if options.isBinnedSignal: 
 		line = '0.333 '
 	else:

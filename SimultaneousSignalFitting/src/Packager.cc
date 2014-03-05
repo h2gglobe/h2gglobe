@@ -17,7 +17,7 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir, 
+Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, bool skipPlots, string outDir, 
 		   RooWorkspace *wsMerge, const vector<int>& cats ):
   outWS(ws),
   mergeWS(wsMerge),
@@ -27,6 +27,7 @@ Packager::Packager(RooWorkspace *ws, vector<string> procs, int nCats, int mhLow,
   mhLow_(mhLow),
   mhHigh_(mhHigh),
   is2011_(is2011),
+	skipPlots_(skipPlots),
   outDir_(outDir),
   skipMasses_(skipMasses)
 {
@@ -142,33 +143,35 @@ void Packager::packageOutput(){
   else {
     RooAddition *normSum = new RooAddition("normSum","normSum",*runningNormSum);
     outWS->import(*normSum,RecycleConflictNodes());
-    
-    RooRealVar *MH = (RooRealVar*)outWS->var("MH");
-    RooRealVar *intLumi = (RooRealVar*)outWS->var("IntLumi");
-    RooAddition *norm = (RooAddition*)outWS->function("normSum");
-    TGraph *effAccGraph = new TGraph();
-    TGraph *expEventsGraph = new TGraph();
-    int p=0;
-    for (double mh=mhLow_; mh<mhHigh_+0.5; mh+=1){
-      MH->setVal(mh);
-      expEventsGraph->SetPoint(p,mh,intLumi->getVal()*norm->getVal());
-      effAccGraph->SetPoint(p,mh,norm->getVal()/(normalization->GetXsection(mh)*normalization->GetBR(mh)));
-      p++;
-    }
-    TCanvas *canv = new TCanvas();
-    effAccGraph->SetLineWidth(3);
-    effAccGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
-    effAccGraph->GetYaxis()->SetTitle("efficiency #times acceptance");
-    effAccGraph->Draw("AL");
-    canv->Print(Form("%s/effAccCheck.pdf",outDir_.c_str()));
-    canv->Print(Form("%s/effAccCheck.png",outDir_.c_str()));
-    expEventsGraph->SetLineWidth(3);
-    expEventsGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
-    expEventsGraph->GetYaxis()->SetTitle(Form("Expected Events for %4.1ffb^{-1}",intLumi->getVal()/1000.));
-    expEventsGraph->Draw("AL");
-    canv->Print(Form("%s/expEventsCheck.pdf",outDir_.c_str()));
-    canv->Print(Form("%s/expEventsCheck.png",outDir_.c_str()));
-		makePlots();
+   
+	 	if (!skipPlots_) {
+			RooRealVar *MH = (RooRealVar*)outWS->var("MH");
+			RooRealVar *intLumi = (RooRealVar*)outWS->var("IntLumi");
+			RooAddition *norm = (RooAddition*)outWS->function("normSum");
+			TGraph *effAccGraph = new TGraph();
+			TGraph *expEventsGraph = new TGraph();
+			int p=0;
+			for (double mh=mhLow_; mh<mhHigh_+0.5; mh+=1){
+				MH->setVal(mh);
+				expEventsGraph->SetPoint(p,mh,intLumi->getVal()*norm->getVal());
+				effAccGraph->SetPoint(p,mh,norm->getVal()/(normalization->GetXsection(mh)*normalization->GetBR(mh)));
+				p++;
+			}
+			TCanvas *canv = new TCanvas();
+			effAccGraph->SetLineWidth(3);
+			effAccGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
+			effAccGraph->GetYaxis()->SetTitle("efficiency #times acceptance");
+			effAccGraph->Draw("AL");
+			canv->Print(Form("%s/effAccCheck.pdf",outDir_.c_str()));
+			canv->Print(Form("%s/effAccCheck.png",outDir_.c_str()));
+			expEventsGraph->SetLineWidth(3);
+			expEventsGraph->GetXaxis()->SetTitle("m_{H} (GeV)");
+			expEventsGraph->GetYaxis()->SetTitle(Form("Expected Events for %4.1ffb^{-1}",intLumi->getVal()/1000.));
+			expEventsGraph->Draw("AL");
+			canv->Print(Form("%s/expEventsCheck.pdf",outDir_.c_str()));
+			canv->Print(Form("%s/expEventsCheck.png",outDir_.c_str()));
+			makePlots();
+		}
   }
 }
 
