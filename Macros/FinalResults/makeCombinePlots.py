@@ -35,6 +35,7 @@ parser.add_option("","--noComb",dest="noComb",default=False,action="store_true",
 parser.add_option("","--smoothNLL",dest="smoothNLL",default=False,action="store_true",help="Smooth 1D likelihood scans")
 parser.add_option("","--shiftNLL",dest="shiftNLL",type="float",help="Correct NLL to this value")
 parser.add_option("","--correctNLL",dest="correctNLL",default=False,action="store_true",help="Correct NLL (occasionally required for failed jobs)")
+parser.add_option("","--cleanNLL",dest="cleanNll",default=False,action="store_true",help="Try to remove pike from NLL curve")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -42,6 +43,7 @@ parser.add_option("","--mh",dest="mh",default=False,action="store_true",help="Do
 parser.add_option("","--mu",dest="mu",default=False,action="store_true",help="Do NLL mu scan plot")
 parser.add_option("","--rv",dest="rv",default=False,action="store_true",help="Do NLL rv scan plot")
 parser.add_option("","--rf",dest="rf",default=False,action="store_true",help="Do NLL rf scan plot")
+parser.add_option("","--draw2dhist",dest="draw2dhist",default=False,action="store_true",help="Ue 2D hist drawing for the 2D NLL")
 parser.add_option("","--mumh",dest="mumh",default=False,action="store_true",help="Do NLL mu vs mh scan plot")
 parser.add_option("","--rvrf",dest="rvrf",default=False,action="store_true",help="Do NLL rv vs rf scan plot")
 parser.add_option("","--mpdfchcomp",dest="mpdfchcomp",default=False,action="store_true",help="Do MultiPdf channel compatbility plot")
@@ -122,6 +124,69 @@ lat = r.TLatex()
 lat.SetNDC()
 lat.SetTextSize(0.03)
 lat.SetTextFont(42)
+
+if options.draw2dhist :
+  r.gROOT.ProcessLine(".L scanLH2D.C")
+  from ROOT import scanLH2D as r_scanLH2D
+
+
+def cleanSpikes1D(rfix):
+
+ # cindex is where deltaNLL = 0 (pre anything)
+ MAXDER = 1.0
+ for i,r in enumerate(rfix):
+   if abs(r[1]) <0.001: cindex = i
+
+ lhs = rfix[0:cindex]; lhs.reverse()
+ rhs= rfix[cindex:-1]
+ keeplhs = []
+ keeprhs = []
+
+ for i,lr in enumerate(lhs): 
+   if i==0: 
+   	prev = lr[1]
+	idiff = 1
+   if abs(lr[1]-prev) > MAXDER :
+   	idiff+=1
+   	continue 
+   keeplhs.append(lr)
+   prev = lr[1]
+   idiff=1
+ keeplhs.reverse()
+
+ for i,rr in enumerate(rhs):
+   if i==0: 
+   	prev = rr[1]
+	idiff = 1
+   if abs(rr[1]-prev) > MAXDER : 
+   	idiff+=1
+   	continue 
+   keeprhs.append(rr)
+   prev = rr[1]
+   idiff=1
+ 
+ rfix = keeplhs+keeprhs
+ 
+ rkeep = []
+ #now try to remove small jagged spikes
+ for i,r in enumerate(rfix):
+   if i==0 or i==len(rfix)-1: 
+   	rkeep.append(r)
+   	continue
+   tres = [rfix[i-1][1],r[1],rfix[i+1][1]]
+   mean = float(sum(tres))/3.
+   mdiff = abs(max(tres)-min(tres))
+   if abs(tres[1] - mean) > 0.6*mdiff :continue
+   rkeep.append(r)
+ return rkeep
+
+def Make2DHistFromTree(tree,x,y):
+  print "Generating 2D hist from ", tree  
+  mhist = (r_scanLH2D(tree,x,y)).Clone()
+  print " ... Done"
+  return mhist 
+  
+
 
 def pvalPlot(allVals):
   
@@ -518,7 +583,7 @@ def shiftNLL(gr,bf):
     gr.GetPoint(p,x,y)
     gr.SetPoint(p,x+shift,y)
 
-def plot1DNLL(returnErrors=False,xvar=""):
+def plot1DNLL(returnErrors=False,xvar="", ext=""):
 
   if options.method=='mh':
     x = 'MH'
@@ -547,6 +612,7 @@ def plot1DNLL(returnErrors=False,xvar=""):
   clean_graphs=[]
 
   for k, f in enumerate(options.files):
+    ntitle = options.names[k]
     tf = r.TFile(f)
     tree = tf.Get('limit')
     gr = r.TGraph()
@@ -566,16 +632,23 @@ def plot1DNLL(returnErrors=False,xvar=""):
       if 2*tree.deltaNLL < 100:
         res.append([xv,2*tree.deltaNLL])
     res.sort()
-    minNLL = min([re[1] for re in res])
+
     # remove weird points again
     rfix = []
     for re in res: 
       if re[1]<100: rfix.append(re) 
+    
+    # clean out spikes :(
+    if options.cleanNll: rfix = cleanSpikes1D(rfix)
+
+    res = rfix[:] 
+
+    minNLL = min([re[1] for re in res])
+
     for re in res: 
       if options.correctNLL and re[1]==0.: re[1]=-1
       re[1]-=minNLL
   
-    res = rfix[:] 
     p=0
     for re, nll in res: 
       if nll>=0.:
@@ -611,7 +684,7 @@ def plot1DNLL(returnErrors=False,xvar=""):
     eplus2 = h2-m
     eminus2 = m-l2
 
-    print "%15s : %4.3f +%4.3g -%4.3g" % ( options.names[k], xmin, eplus , eminus )
+    print "%15s : %4.3f +%4.3g -%4.3g" % ( ntitle+" "+ext, xmin, eplus , eminus )
     #print "%s : %1.4f +%1.3g -%1.3g (2sig) +%1.3g -%1.3g" % ( options.names[k], xmin, eplus , eminus, eplus2, eminus2 )
 
     if returnErrors:
@@ -842,41 +915,60 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
 
     mems.append(tf)
 
-    tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(xvar,fi,xvar,xmin,xmax),"deltaNLL>0.","goff")
-    tempX = r.gROOT.FindObject('h%d%s'%(fi,xvar))
-    tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(yvar,fi,yvar,ymin,ymax),"deltaNLL>0.","goff")
-    tempY = r.gROOT.FindObject('h%d%s'%(fi,yvar))
-  
-    # x binning
-    if options.xbinning: 
-      xbins = int(options.xbinning.split(',')[0])
-      xmin = float(options.xbinning.split(',')[1])
-      xmax = float(options.xbinning.split(',')[2])
+    if options.draw2dhist: 
+      th2 = Make2DHistFromTree(tree,xvar,yvar)
+      if options.xaxis :
+	xmin = float(options.xaxis.split(',')[0])
+	xmax = float(options.xaxis.split(',')[1])
+      	th2.GetXaxis.SetRangeUser(xmin,xmax)
+      if options.yaxis :
+	ymin = float(options.yaxis.split(',')[0])
+	ymax = float(options.yaxis.split(',')[1])
+      	th2.GetYaxis.SetRangeUser(ymin,ymax)
+
     else:
-      xbins=0
-      xmin = tree.GetMinimum(xvar)
-      xmax = tree.GetMaximum(xvar)
+
       tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(xvar,fi,xvar,xmin,xmax),"deltaNLL>0.","goff")
       tempX = r.gROOT.FindObject('h%d%s'%(fi,xvar))
-      for bin in range(1,tempX.GetNbinsX()+1):
-        if tempX.GetBinContent(bin)!=0: xbins+=1
-  
-    # y binning
-    if options.ybinning: 
-      ybins = int(options.ybinning.split(',')[0])
-      ymin = float(options.ybinning.split(',')[1])
-      ymax = float(options.ybinning.split(',')[2])
-    else:
-      ybins=0
-      ymin = tree.GetMinimum(yvar)
-      ymax = tree.GetMaximum(yvar)
       tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(yvar,fi,yvar,ymin,ymax),"deltaNLL>0.","goff")
       tempY = r.gROOT.FindObject('h%d%s'%(fi,yvar))
-      for bin in range(1,tempY.GetNbinsX()+1):
-        if tempY.GetBinContent(bin)!=0: ybins+=1
+    
+      # x binning
+      if options.xbinning: 
+	xbins = int(options.xbinning.split(',')[0])
+	xmin = float(options.xbinning.split(',')[1])
+	xmax = float(options.xbinning.split(',')[2])
+      else:
+	xbins=0
+	xmin = tree.GetMinimum(xvar)
+	xmax = tree.GetMaximum(xvar)
+	if options.xaxis:
+	  xmin = float(options.xaxis.split(',')[0])
+	  xmax = float(options.xaxis.split(',')[1])
+	tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(xvar,fi,xvar,xmin,xmax),"deltaNLL>0.","goff")
+	tempX = r.gROOT.FindObject('h%d%s'%(fi,xvar))
+	for bin in range(1,tempX.GetNbinsX()+1):
+	  if tempX.GetBinContent(bin)!=0: xbins+=1
+    
+      # y binning
+      if options.ybinning: 
+	ybins = int(options.ybinning.split(',')[0])
+	ymin = float(options.ybinning.split(',')[1])
+	ymax = float(options.ybinning.split(',')[2])
+      else:
+	ybins=0
+	ymin = tree.GetMinimum(yvar)
+	ymax = tree.GetMaximum(yvar)
+	if options.yaxis:
+	  ymin = float(options.yaxis.split(',')[0])
+	  ymax = float(options.yaxis.split(',')[1])
+	tree.Draw("%s>>h%d%s(10000,%1.4f,%1.4f)"%(yvar,fi,yvar,ymin,ymax),"deltaNLL>0.","goff")
+	tempY = r.gROOT.FindObject('h%d%s'%(fi,yvar))
+	for bin in range(1,tempY.GetNbinsX()+1):
+	  if tempY.GetBinContent(bin)!=0: ybins+=1
 
-    tree.Draw("2.*deltaNLL:%s:%s>>h%d%s%s(%d,%1.4f,%1.4f,%d,%1.4f,%1.4f)"%(yvar,xvar,fi,yvar,xvar,xbins,xmin,xmax,ybins,ymin,ymax),"deltaNLL>0.","prof")
-    th2 = r.gROOT.FindObject('h%d%s%s'%(fi,yvar,xvar))
+      tree.Draw("2.*deltaNLL:%s:%s>>h%d%s%s(%d,%1.4f,%1.4f,%d,%1.4f,%1.4f)"%(yvar,xvar,fi,yvar,xvar,xbins,xmin,xmax,ybins,ymin,ymax),"deltaNLL>0.","prof")
+      th2 = r.gROOT.FindObject('h%d%s%s'%(fi,yvar,xvar))
 
     gBF = r.TGraph()
     printedOK = False
@@ -1007,12 +1099,21 @@ def plotMPdfChComp():
   loffiles = options.files
 
   k=0
+
+  ppergraph = len(loffiles)/options.groups
+  if not options.noComb:  ppergraph = (len(loffiles)-1)/options.groups
+
   while len(loffiles)>0:
+    ext=''
+    if options.groups>1: 
+    	gr=k/ppergraph
+    	ext = options.groupnames[gr]
+
     options.files = [loffiles[0]]
     options.method = 'mu'
     r.gROOT.SetBatch()
     print '%15s'%options.names[k],
-    ps = plot1DNLL(True,options.xvar[k])
+    ps = plot1DNLL(True,options.xvar[k],ext)
     ps.insert(0,options.names[k])
     points.append(ps)
     k+=1
@@ -1042,12 +1143,12 @@ def plotMPdfChComp():
   bestFit = points[0]
   catFits = points[1:]
   if options.noComb: catFits = points[0:] # dont assume a combined fit
+  ppergraph = len(catFits)/options.groups
 
   if options.verbose:
     print bestFit
     print catFits
 
-  ppergraph = len(catFits)/options.groups
 
   dummyHist = r.TH2F("dummy",";#sigma/#sigma_{SM};",1,rMin,rMax,ppergraph,0,ppergraph)
   dummyHist.GetYaxis().SetLabelFont(62)
@@ -1055,7 +1156,8 @@ def plotMPdfChComp():
   catGraph1sig = [r.TGraphAsymmErrors() for gr in range(options.groups)]
   catGraph2sig = [r.TGraphAsymmErrors() for gr in range(options.groups)]
 
-  
+  runningChi2 = 0
+  ndof = 0 # should be number of categories - 1
   for p, point in enumerate(catFits):
     grIndex = p//ppergraph
     pIndex  = p%ppergraph
@@ -1096,6 +1198,24 @@ def plotMPdfChComp():
     catGraph2sig[grIndex].SetMarkerColor(int(options.colors[grIndex]))
     catGraph2sig[grIndex].SetMarkerSize(1.5)
 
+    # for chi2 
+    pcen   = bestFit[1]
+    ppoint = point[1]
+    if options.chcompShift: ppoint = options.chcompShift
+    if options.noComb : pcen = 1.
+    chierr = 0
+    if ppoint > pcen : chierr = point[3]
+    else : chierr = point[2]
+    additive = 0
+    if chierr != 0 and  (ppoint<rMax and ppoint>rMin): 
+    	ndof+=1
+    	runningChi2 += ((ppoint-pcen)/chierr)**2
+	additive = ((ppoint-pcen)/chierr)**2
+	
+
+  if not options.noComb:
+  	print "Compatibility Chi2 (ndof) = ", runningChi2, ndof-1, " p-val = ", r.TMath.Prob(runningChi2,ndof-1)
+
   dummyHist.SetLineColor(r.kBlack)
   dummyHist.SetFillColor(r.kGreen+2)
 
@@ -1109,8 +1229,8 @@ def plotMPdfChComp():
   leg.SetFillColor(0)
   if not options.noComb: leg.AddEntry(dummyHist,"Combined #pm 1#sigma","LF")
   if not options.chcomp1sig and not options.noComb: leg.AddEntry(dummyHist2,"Combined #pm 2#sigma","LF")
-  if not options.noComb: leg.AddEntry(catGraph1sig[0],"Per category #pm 1#sigma","LEP");
-  if not options.chcomp1sig and not options.noComb: leg.AddEntry(catGraph2sig[0],"Per category #pm 2#sigma","LEP");
+  if not options.noComb: leg.AddEntry(catGraph1sig[0],"Per category #pm 1#sigma","LP");
+  if not options.chcomp1sig and not options.noComb: leg.AddEntry(catGraph2sig[0],"Per category #pm 2#sigma","LP");
 
   if options.groups>1: 
     for gr in range(options.groups):
@@ -1155,13 +1275,13 @@ def plotMPdfChComp():
     line.Draw("same")
     label1=r.TText()
     label1.SetNDC()
-    label1.SetText(0.26,0.23,"7TeV")
+    label1.SetText(0.26,0.23,"8TeV")
     label1.SetTextFont(62)
     label1.SetTextSize(.07)
     label1.SetTextAngle(90)
     label2=r.TText()
     label2.SetNDC()
-    label2.SetText(0.26,0.65,"8TeV")
+    label2.SetText(0.26,0.65,"7TeV")
     label2.SetTextFont(62)
     label2.SetTextSize(.07)
     label2.SetTextAngle(90)
