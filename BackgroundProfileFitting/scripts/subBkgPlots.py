@@ -38,7 +38,7 @@ for cat in range(options.cats):
 	f.write('#!/bin/bash\n')
 	f.write('cd %s\n'%os.getcwd())
 	f.write('eval `scramv1 runtime -sh`\n')
-	execLine = './bin/makeBkgPlots -b %s -s %s -o %s/BkgPlots_cat%d.root -d %s -c %d -l \"%s\"'%(options.bkgfilename,options.sigfilename,options.outDir,cat,options.outDir,cat,options.catLabels[cat])
+	execLine = '$CMSSW_BASE/src/h2gglobe/BackgroundProfileFitting/bin/makeBkgPlots -b %s -s %s -o %s/BkgPlots_cat%d.root -d %s -c %d -l \"%s\"'%(options.bkgfilename,options.sigfilename,options.outDir,cat,options.outDir,cat,options.catLabels[cat])
 	execLine += " --sqrts %d "%options.sqrts
 	if options.doBands:
 		execLine += ' --doBands --massStep %5.3f --nllTolerance %5.3f'%(options.massStep,options.nllTolerance)

@@ -99,6 +99,7 @@ specOpts.add_option("--cvLow",type="float",default=None)
 specOpts.add_option("--cvHigh",type="float",default=None)
 specOpts.add_option("--cfLow",type="float",default=None)
 specOpts.add_option("--cfHigh",type="float",default=None)
+specOpts.add_option("--wspace",type="str",default=None)
 specOpts.add_option("--jobs",type="int",default=None)
 specOpts.add_option("--pointsperjob",type="int",default=1)
 specOpts.add_option("--expectSignal",type="float",default=None)
@@ -558,6 +559,7 @@ def run():
 			opts.datacard = opts.datacard.replace('.txt','MuMHScan_postfit.root')
 			if opts.expected:
 				opts.additionalOptions += " ---overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
+	if opts.wspace: opts.datacard=opts.wspace	
 	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
 	if opts.method=='Asymptotic':
@@ -575,7 +577,6 @@ def run():
 	else:
 		writeMultiDimFit()
 	opts.datacard = storecard
-		
 def resetDefaultConfig():
     global opts
     opts = copy(defaults)
@@ -613,6 +614,7 @@ def configure(config_line):
 		if option.startswith('cvHigh='): opts.cvHigh = float(option.split('=')[1])
 		if option.startswith('cfLow='): opts.cfLow = float(option.split('=')[1])
 		if option.startswith('cfHigh='): opts.cfHigh = float(option.split('=')[1])
+		if option.startswith('wspace='): opts.wspace = str(option.split('=')[1])
 		if option.startswith('opts='): 
 			addoptstr = option.split("=")[1:]
 			addoptstr = "=".join(addoptstr)
@@ -626,8 +628,10 @@ def configure(config_line):
 					mp += "[1,0,20]"
 				opts.catsMap += " --PO map=%s" % mp
 		if option == "skipWorkspace": opts.skipWorkspace = True
-		if option == "postFit": opts.postFit = True
+		if option == "postFit":  opts.postFit = True
+		if option == "expected": opts.expected = 1
         if opts.postFitAll: opts.postFit = True
+	if opts.wspace : opts.skipWorkspace=True
 	if opts.verbose: print opts
 	run()
 
