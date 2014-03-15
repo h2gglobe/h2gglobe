@@ -661,6 +661,7 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 	canv->Update();
 	canv->Print(Form("%s.pdf",name.c_str()));
 	canv->Print(Form("%s.png",name.c_str()));
+	canv->Print(Form("%s.C",name.c_str()));
 	delete canv;
 }
 
@@ -683,6 +684,7 @@ int main(int argc, char* argv[]){
 	int mhLow;
 	int mhHigh;
 	int sqrts;
+	double mhvalue_;
 
   po::options_description desc("Allowed options");
 	desc.add_options()
@@ -702,6 +704,7 @@ int main(int argc, char* argv[]){
 		("nllTolerance,n", po::value<double>(&nllTolerance)->default_value(0.05),			 			"Tolerance for nll calc in %")
 		("mhLow,L", po::value<int>(&mhLow)->default_value(100),															"Starting point for scan")
 		("mhHigh,H", po::value<int>(&mhHigh)->default_value(180),														"End point for scan")
+		("mhVal", po::value<double>(&mhvalue_)->default_value(125.),														"Choose the MH for the plots")
 		("sqrts,S", po::value<int>(&sqrts)->default_value(8),																"Which centre of mass is this data from?")
 		("verbose,v", 																																			"Verbose");
 	;
@@ -971,11 +974,11 @@ int main(int argc, char* argv[]){
 		else {
 			RooRealVar *MH = (RooRealVar*)w_sig->var("MH");
 			RooAbsPdf *sigPDF = (RooAbsPdf*)w_sig->pdf(Form("sigpdfrelcat%d_allProcs",cat));
-			MH->setVal(125);
+			MH->setVal(mhvalue_);
 			sigPDF->plotOn(plot,Normalization(1.0,RooAbsReal::RelativeExpected),LineColor(kBlue),LineWidth(3));
 			sigPDF->plotOn(plot,Normalization(1.0,RooAbsReal::RelativeExpected),LineColor(kBlue),LineWidth(3),FillColor(38),FillStyle(3001),DrawOption("F"));
 			TObject *sigLeg = (TObject*)plot->getObject(plot->numItems()-1);
-			leg->AddEntry(sigLeg,"Sig model m_{H}=125GeV","L");
+			leg->AddEntry(sigLeg,Form("Sig model m_{H}=%.1fGeV",MH->getVal()),"L");
 			outWS->import(*sigPDF);
 		}
 	}
@@ -1000,6 +1003,7 @@ int main(int argc, char* argv[]){
 	canv->Update();
 	canv->Print(Form("%s/bkgplot_cat%d.pdf",outDir.c_str(),cat));
 	canv->Print(Form("%s/bkgplot_cat%d.png",outDir.c_str(),cat));
+	canv->Print(Form("%s/bkgplot_cat%d.C",outDir.c_str(),cat));
 	canv->SetName(Form("bkgplot_cat%d",cat));
 
 	outFile->cd();

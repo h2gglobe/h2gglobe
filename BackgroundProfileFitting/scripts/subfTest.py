@@ -27,7 +27,7 @@ for cat in range(options.cats):
 	f.write('#!/bin/bash\n')
 	f.write('cd %s\n'%os.getcwd())
 	f.write('eval `scramv1 runtime -sh`\n')	
-	execLine = './bin/fTest -i %s -D %s --singleCat %d '%(options.inputfilename,options.outDir,cat)
+	execLine = '$CMSSW_BASE/src/h2gglobe/BackgroundProfileFitting/bin/fTest -i %s -D %s --singleCat %d '%(options.inputfilename,options.outDir,cat)
         execLine+=" %s "%options.Options
 	if options.unblind:
 		execLine += ' --unblind'
