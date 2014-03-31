@@ -103,15 +103,13 @@ bool FinalModelConstruction::isPerCatSyst(string name){
 float FinalModelConstruction::getRequiredAddtionalGlobalScaleFactor(string name){
 	float retVal=-999;
 	// check non correlated
-	if (globalScalesOpts.find(name)==globalScalesOpts.end()) return retVal;
-	else {
+	if (globalScalesOpts.find(name)!=globalScalesOpts.end()) {
 		for (vector<pair<int,float> >::iterator it=globalScalesOpts[name].begin(); it!=globalScalesOpts[name].end(); it++){
 			if (cat_==it->first) return it->second;
 		}
 	}
 	// check correlated
-	if (globalScalesCorrOpts.find(name)==globalScalesCorrOpts.end()) return retVal;
-	else {
+	if (globalScalesCorrOpts.find(name)!=globalScalesCorrOpts.end()) {
 		for (vector<pair<int,float> >::iterator it=globalScalesCorrOpts[name].begin(); it!=globalScalesCorrOpts[name].end(); it++){
 			if (cat_==it->first) return it->second;
 		}

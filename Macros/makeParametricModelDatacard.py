@@ -29,8 +29,9 @@ parser.add_option("--quadInterpolate",type="int",default=0,help="Do a quadratic 
 (options,args)=parser.parse_args()
 
 import ROOT as r
-r.gROOT.ProcessLine(".L quadInterpolate.C+g")
-from ROOT import quadInterpolate
+if options.quadInterpolate:
+	r.gROOT.ProcessLine(".L quadInterpolate.C+g")
+	from ROOT import quadInterpolate
 r.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
 r.gROOT.ProcessLine(".L ../libLoopAll.so")
 
@@ -472,26 +473,40 @@ def printObsProcBinLines():
 	outFile.write('\n')
 	outFile.write('\n')
 
+def printNuisParam(name,typ,sqrtS=None):
+	val="1.0"
+	if ":" in name:
+		name,val = name.split(":")
+	if sqrtS:
+		typ="%dTeV%s" % (sqrtS, typ)
+	outFile.write('%-40s param 0.0 %s\n'%('CMS_hgg_nuisance_%s_%s'%(name,typ),val))
+
 def printNuisParams():
 	if not options.isBinnedSignal:
 		print 'Nuisances...'
-		## outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltafracright'%sqrts,vtxSyst))
-		outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_deltafracright',vtxSyst))
+		## outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_%dTeVdeltafracright'%sqrts,vtxSyst))
+		outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_deltafracright',vtxSyst))
 		if options.isCutBased:
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9barrel'%sqrts,r9barrelSyst))
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%dTeVdeltar9mixed'%sqrts,r9mixedSyst))
+			outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_%dTeVdeltar9barrel'%sqrts,r9barrelSyst))
+			outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_%dTeVdeltar9mixed'%sqrts,r9mixedSyst))
 		for phoSyst in options.photonCatScales:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst,sqrts)))
+			printNuisParam(phoSyst,"scale",sqrts)
+			## outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst,sqrts)))
 		for phoSyst in options.photonCatScalesCorr:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst)))
-		for phoSyst in options.photonCatSmears:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVsmear'%(phoSyst,sqrts)))
-		for phoSyst in options.photonCatSmearsCorr:
-			outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_smear'%(phoSyst)))
+			printNuisParam(phoSyst,"scale")
+			## outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst)))
 		for phoSyst in options.globalScales:
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst.split(':')[0],sqrts),float(phoSyst.split(':')[1])))
+			printNuisParam(phoSyst,"scale",sqrts)			
+			## outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_%s_%dTeVscale'%(phoSyst.split(':')[0],sqrts),float(phoSyst.split(':')[1])))
 		for phoSyst in options.globalScalesCorr:
-			outFile.write('%-40s param 0.0 %6.4f\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst.split(':')[0]),float(phoSyst.split(':')[1])))
+			printNuisParam(phoSyst,"scale")
+			## outFile.write('%-40s param 0.0 %1.4g\n'%('CMS_hgg_nuisance_%s_scale'%(phoSyst.split(':')[0]),float(phoSyst.split(':')[1])))
+		for phoSyst in options.photonCatSmears:
+			printNuisParam(phoSyst,"smear",sqrts)
+			## outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_%dTeVsmear'%(phoSyst,sqrts)))
+		for phoSyst in options.photonCatSmearsCorr:
+			printNuisParam(phoSyst,"smear")
+			## outFile.write('%-40s param 0.0 1.0\n'%('CMS_hgg_nuisance_%s_smear'%(phoSyst)))
 		outFile.write('\n')
 
 def printTheorySysts():
@@ -678,9 +693,9 @@ def printVbfSysts():
 						outFile.write('- ')
 					else:
 						if c in vbfMigrateToCats[migIt]:
-							outFile.write('%6.4f '%((vbfMigrateToEvCount[p][migIt]-thisUncert*vbfMigrateFromEvCount[p][migIt])/vbfMigrateToEvCount[p][migIt]))
+							outFile.write('%1.4g '%((vbfMigrateToEvCount[p][migIt]-thisUncert*vbfMigrateFromEvCount[p][migIt])/vbfMigrateToEvCount[p][migIt]))
 						elif c in vbfMigrateFromCats[migIt]:
-							outFile.write('%6.4f '%(1.+thisUncert))
+							outFile.write('%1.4g '%(1.+thisUncert))
 						else:
 							outFile.write('- ')
 			outFile.write('\n')
