@@ -100,6 +100,10 @@ specOpts.add_option("--cvLow",type="float",default=None)
 specOpts.add_option("--cvHigh",type="float",default=None)
 specOpts.add_option("--cfLow",type="float",default=None)
 specOpts.add_option("--cfHigh",type="float",default=None)
+specOpts.add_option("--kgamLow",type="float",default=None)
+specOpts.add_option("--kgamHigh",type="float",default=None)
+specOpts.add_option("--kgluLow",type="float",default=None)
+specOpts.add_option("--kgluHigh",type="float",default=None)
 specOpts.add_option("--wspace",type="str",default=None)
 specOpts.add_option("--jobs",type="int",default=None)
 specOpts.add_option("--pointsperjob",type="int",default=1)
@@ -119,7 +123,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','MuScanMHProf','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly', 'RProcScan', 'RTopoScan', 'MuVsMHScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','MuScanMHProf','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly', 'RProcScan', 'RTopoScan', 'MuVsMHScan','CVCFScan','KGluKGamScan']
 
 if opts.parallel:
     parallel = Parallel(cpu_count())
@@ -447,14 +451,14 @@ def writeMultiDimFit(method=None,wsOnly=False):
 		"RFnpRVScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
 		"MuScan"	: "",
 		"MuScanMHProf"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
-		"CVCFScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
+		"CVCFScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:cVcF --PO higgsMassRange=122,128",
+		"KGluKGamScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:higgsLoops --PO higgsMassRange=122,128",
 		"MHScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
 		"MHScanStat" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
 		"MHScanNoGlob"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
 		"MuMHScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
-		"RProcScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=120,130",
 		"RTopoScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel %s --PO higgsMassRange=120,130" % opts.catsMap,
-		"RProcScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=120,130 --PO ggHRange=-1:10 --PO qqHRange=-2:20 --PO VHRange=-2:20 --PO ttHRange=-2:20 "
+		"RProcScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=124,126 --PO ggHRange=-1:10 --PO qqHRange=-2:20 --PO VHRange=-2:20 --PO ttHRange=-2:20 "
 	}
 
         setpois = {
@@ -466,6 +470,7 @@ def writeMultiDimFit(method=None,wsOnly=False):
             "MuScan": [ ],
             "MuScanMHProf": [ ],
             "CVCFScan": [ "CV", "CF" ],
+            "KGluKGamScan": [ "kgluon", "kgamma" ],
             "MHScan": [ ],
             "MHScanStat": [ ],
             "MHScanNoGlob": [ ],
@@ -475,14 +480,15 @@ def writeMultiDimFit(method=None,wsOnly=False):
             }
 	
 	combine_args = {
-		"RVRFScan" 	: "-P RV -P RF" ,
+		"RVRFScan" 	: "-P RV -P RF --floatOtherPOIs=1" , 
 		"RVScan"	: "--floatOtherPOIs=1 -P RV" ,
 		"RVnpRFScan"	: "--floatOtherPOIs=0 -P RV" ,
 		"RFScan"	: "--floatOtherPOIs=1 -P RF" ,
 		"RFnpRVScan"	: "--floatOtherPOIs=0 -P RF" ,
 		"MuScan"	: "-P r",
 		"MuScanMHProf"	: "-P r --floatOtherPOIs=1",
-		"CVCFScan"	: "-P CV -P CF",
+		"CVCFScan"	: "-P CV -P CF --floatOtherPOIs=1", 
+		"KGluKGamScan"	: "-P kgluon -P kgamma --floatOtherPOIs=1", 
 		"MHScan"	: "--floatOtherPOIs=1 -P MH",
 		"MHScanStat"	: "--floatOtherPOIs=1 -P MH",
 		"MHScanNoGlob"	: "--floatOtherPOIs=1 -P MH",
@@ -508,13 +514,14 @@ def writeMultiDimFit(method=None,wsOnly=False):
 		par_ranges["RTopoScan"]	  = "%s=%4.2f,%4.2f"%(opts.poix,opts.muLow,opts.muHigh)
 	if opts.cvLow!=None and opts.cvHigh!=None and opts.cfLow!=None and opts.cfHigh!=None:
 		par_ranges["CVCFScan"]	  = "CV=%4.2f,%4.2f:CF=%4.2f,%4.2f"%(opts.cvLow,opts.cvHigh,opts.cfLow,opts.cfHigh)
+	if opts.kgamLow!=None and opts.kgamHigh!=None and opts.kgluLow!=None and opts.kgluHigh!=None:
+		par_ranges["KGluKGamScan"] = "kgamma=%4.2f,%4.2f:kgluon=%4.2f,%4.2f"%(opts.kgamLow,opts.kgamHigh,opts.kgluLow,opts.kgluHigh)
 	if opts.mhLow!=None and opts.mhHigh!=None:
 		par_ranges["MHScan"]	  = "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
 		par_ranges["MHScanStat"]  = "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
 		par_ranges["MHScanNoGlob"]= "MH=%6.2f,%6.2f"%(opts.mhLow,opts.mhHigh)
 	if opts.muLow!=None and opts.muHigh!=None and opts.mhLow!=None and opts.mhHigh!=None:
 		par_ranges["MuMHScan"]	  = "r=%4.2f,%4.2f:MH=%6.2f,%6.2f"%(opts.muLow,opts.muHigh,opts.mhLow,opts.mhHigh)
-
 	# create specialised MultiDimFit workspace
 	if not method:
 		method = opts.method
@@ -556,7 +563,8 @@ def writeMultiDimFit(method=None,wsOnly=False):
 	for i in range(opts.jobs):
 		file = open('%s/sub_m%1.5g_job%d.sh'%(opts.outDir,getattr(opts,"mh",0.),i),'w')
 		writePreamble(file)
-		exec_line = 'combine %s -M MultiDimFit --cminDefaultMinimizerType Minuit2 --algo=grid --setPhysicsModelParameterRanges %s %s --points=%d --firstPoint=%d --lastPoint=%d -n %sJob%d'%(opts.datacard,par_ranges[method],combine_args[method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,method,i)
+		exec_line = 'combine %s -M MultiDimFit --cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerAlgo migrad --algo=grid  %s --points=%d --firstPoint=%d --lastPoint=%d -n %sJob%d'%(opts.datacard,combine_args[method],opts.pointsperjob*opts.jobs,i*opts.pointsperjob,(i+1)*opts.pointsperjob-1,method,i)
+		if method in par_ranges.keys(): exec_line+=" --setPhysicsModelParameterRanges %s "%(par_ranges[method])
 		if getattr(opts,"mh",None): exec_line += ' -m %6.2f'%opts.mh
 		if opts.expected: exec_line += ' -t -1'
 		if opts.expectSignal: exec_line += ' --expectSignal %4.2f'%opts.expectSignal
@@ -629,7 +637,11 @@ def configure(config_line):
 		if option.startswith('splitChannels='): opts.splitChannels = option.split('=')[1].split(',')
 		if option.startswith('toysFile='): opts.toysFile = option.split('=')[1]
 		if option.startswith('mh='): opts.mh = float(option.split('=')[1])
-		if option.startswith('poix='): opts.poix = option.split('=')[1]
+		if option.startswith('poix='): 
+			poiopt = option.split('=')[1]
+			if ',' in poiopt:
+				opts.poix = " -P ".join(poiopt.split(','))
+			else: opts.poix = option.split('=')[1]
 		if option.startswith('muLow='): opts.muLow = float(option.split('=')[1])
 		if option.startswith('muHigh='): opts.muHigh = float(option.split('=')[1])
 		if option.startswith('rvLow='): opts.rvLow = float(option.split('=')[1])
@@ -640,6 +652,10 @@ def configure(config_line):
 		if option.startswith('cvHigh='): opts.cvHigh = float(option.split('=')[1])
 		if option.startswith('cfLow='): opts.cfLow = float(option.split('=')[1])
 		if option.startswith('cfHigh='): opts.cfHigh = float(option.split('=')[1])
+		if option.startswith('kgamLow='): opts.kgamLow = float(option.split('=')[1])
+		if option.startswith('kgamHigh='): opts.kgamHigh = float(option.split('=')[1])
+		if option.startswith('kgluLow='): opts.kgluLow = float(option.split('=')[1])
+		if option.startswith('kgluHigh='): opts.kgluHigh = float(option.split('=')[1])
 		if option.startswith('wspace='): opts.wspace = str(option.split('=')[1])
 		if option.startswith('catRanges='): opts.catRanges = str(option.split('=')[1])
 		if option.startswith('opts='): 
@@ -661,6 +677,7 @@ def configure(config_line):
 		if option == "expected": opts.expected = 1
         if opts.postFitAll: opts.postFit = True
 	if opts.wspace : opts.skipWorkspace=True
+	if "-P" in opts.poix and (opts.muLow!=None or opts.muHigh!=None): sys.exit("Cannot specify muLow/muHigh with >1 POI. Remove the muLow/muHigh option and add use --setPhysicsModelParameterRanges in opts keyword") 
 	if opts.verbose: print opts
 	run()
 
