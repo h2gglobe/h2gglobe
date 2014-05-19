@@ -267,13 +267,16 @@ int main(int argc, char *argv[]){
   RooRealVar *intLumi = (RooRealVar*)inWS->var("IntLumi");
   RooRealVar *MH = new RooRealVar("MH","m_{H}",mhLow_,mhHigh_);
   MH->setUnit("GeV");
-
+  MH->setConstant(true);
   RooRealVar *MH_SM = new RooRealVar("MH_SM","m_{H} (SM)",mhLow_,mhHigh_);
+  MH_SM->setConstant(true);
   RooRealVar *DeltaM = new RooRealVar("DeltaM","#Delta m_{H}",0.,-10.,10.);
   DeltaM->setUnit("GeV");
+  DeltaM->setConstant(true);
   RooAddition *MH_2 = new RooAddition("MH_2","m_{H} (2)",RooArgList(*MH,*DeltaM));
   RooRealVar *higgsDecayWidth = new RooRealVar("HiggsDecayWidth","#Gamma m_{H}",0.,0.,10.);
- 
+  higgsDecayWidth->setConstant(true);
+  
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
   RooWorkspace *outWS;
   if (is2011_) outWS = new RooWorkspace("wsig_7TeV");
