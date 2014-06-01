@@ -157,6 +157,8 @@ class FinalModelConstruction {
 
 		// utility funcs
 		void addToSystematicsList(std::vector<std::string> systs);
+		void addToSystematicsList(vector<string>::iterator begin, vector<string>::iterator end);
+		
 		bool isGlobalSyst(std::string name);
 		bool isPerCatSyst(std::string name);
 		bool isHighR9cat();

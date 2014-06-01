@@ -5,6 +5,7 @@ import numpy
 import sys
 import fnmatch
 from copy import deepcopy as copy
+import re
 
 from optparse import OptionParser
 from optparse import OptionGroup
@@ -78,6 +79,8 @@ parser.add_option("--catsMap",default="")
 parser.add_option("--nBins",default=7)
 parser.add_option("--catRanges",default="")
 parser.add_option("--prefix",default="./")
+parser.add_option("--freezeAll",default=False,action="store_true",help="Freeze all nuisances")
+parser.add_option("--float",default="",action="store",help="Freeze all nuisances")
 parser.add_option("--postFitAll",default=False,action="store_true",help="Use post-fit nuisances for all methods")
 #parser.add_option("--blindStd",default=False,action="store_true",help="Run standard suite of blind plots")
 #parser.add_option("--unblindSimple",default=False,action="store_true",help="Run simple set of unblind plots (limit, pval, best fit mu)")
@@ -581,6 +584,32 @@ def writeMultiDimFit(method=None,wsOnly=False):
 	if wsOnly:
 		return
 
+        if opts.freezeAll:
+            dcard=open(opts.datacard)
+            nsec = 0
+            nuis = ""
+            toFloat = None
+            if opts.float != "":
+                toFloat = re.compile(opts.float)
+            for line in dcard.read().split("\n"):
+                if line.startswith("#"):
+                    continue
+                if line.startswith("--"):
+                    nsec += 1
+                    continue
+                if nsec == 4:
+                    nu = line.split(" ",1)[0]
+                    if toFloat and toFloat.match(nu):
+                        print "Floating ", nu
+                        continue
+                    if nu != "" and not "pdfindex" in nu:
+                        if nuis != "":
+                            nuis += ","
+                        nuis+=nu
+            if nuis != "":
+                opts.additionalOptions += " --freezeNuisances %s" % nuis
+            print opts.additionalOptions
+
 	if opts.postFit:
             opts.datacard = opts.datacard.replace('.txt',method+'_postFit.root')
             if opts.expected and method in setpois and opts.expectSignal:
@@ -594,6 +623,9 @@ def writeMultiDimFit(method=None,wsOnly=False):
 
 	else:
 		opts.datacard = opts.datacard.replace('.txt',method+'.root')
+        
+            
+            
 	# make job scripts
 	for i in range(opts.jobs):
 		file = open('%s/sub_m%1.5g_job%d.sh'%(opts.outDir,getattr(opts,"mh",0.),i),'w')
@@ -627,7 +659,7 @@ def run():
 			writeMultiDimFit("MuMHScan",True)
 			opts.datacard = opts.datacard.replace('.txt','MuMHScan_postfit.root')
 			if opts.expected:
-				opts.additionalOptions += " ---overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
+				opts.additionalOptions += " --overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
 	if opts.wspace: opts.datacard=opts.wspace	
 	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
@@ -694,6 +726,8 @@ def configure(config_line):
 		if option.startswith('wspace='): opts.wspace = str(option.split('=')[1])
 		if option.startswith('catRanges='): opts.catRanges = str(option.split('=')[1])
 		if option.startswith('nBins='): opts.nBins = int(option.split('=')[1])
+                if option.startswith('freezeAll='): opts.freezeAll = int(option.split('=')[1])
+                if option.startswith('float='): opts.float = str(option.split('=')[1])
 		if option.startswith('opts='): 
 			addoptstr = option.split("=")[1:]
 			addoptstr = "=".join(addoptstr)
