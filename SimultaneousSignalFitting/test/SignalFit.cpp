@@ -326,7 +326,7 @@ int main(int argc, char *argv[]){
     vector<string> els;
     split(els,line,boost::is_any_of(" "));
     if( els.size()!=4 && els.size()!=6 ) {
-	    cerr << line << " " << els.size() <<endl;
+	    cerr << "Malformed line " << line << " " << els.size() <<endl;
 	    assert(0);
     }
     string proc = els[0];

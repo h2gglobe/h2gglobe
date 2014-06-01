@@ -5,6 +5,7 @@ import numpy
 import sys
 import fnmatch
 from copy import deepcopy as copy
+import re
 
 from optparse import OptionParser
 from optparse import OptionGroup
@@ -75,8 +76,11 @@ parser.add_option("--hadd",help="Trawl passed directory and hadd files. To be us
 parser.add_option("-v","--verbose",default=False,action="store_true")
 parser.add_option("--poix",default="r")
 parser.add_option("--catsMap",default="")
+parser.add_option("--nBins",default=7)
 parser.add_option("--catRanges",default="")
 parser.add_option("--prefix",default="./")
+parser.add_option("--freezeAll",default=False,action="store_true",help="Freeze all nuisances")
+parser.add_option("--float",default="",action="store",help="Freeze all nuisances")
 parser.add_option("--postFitAll",default=False,action="store_true",help="Use post-fit nuisances for all methods")
 #parser.add_option("--blindStd",default=False,action="store_true",help="Run standard suite of blind plots")
 #parser.add_option("--unblindSimple",default=False,action="store_true",help="Run simple set of unblind plots (limit, pval, best fit mu)")
@@ -110,6 +114,7 @@ specOpts.add_option("--pointsperjob",type="int",default=1)
 specOpts.add_option("--expectSignal",type="float",default=None)
 specOpts.add_option("--expectSignalMass",type="float",default=None)
 specOpts.add_option("--splitChannels",default=None)
+specOpts.add_option("--profileMH",default=True)
 specOpts.add_option("--toysFile",default=None)
 specOpts.add_option("--additionalOptions",default="",type="string")
 specOpts.add_option("--postFit",default=False,action="store_true",help="Use post-fit nuisances")
@@ -123,7 +128,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','MuScanMHProf','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly', 'RProcScan', 'RTopoScan', 'MuVsMHScan','CVCFScan','KGluKGamScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MHScanStat','MHScanNoGlob','MuScan','MuScanMHProf','RVScan','RFScan','RVRFScan','MuMHScan','GenerateOnly', 'RProcScan', 'RTopoScan', 'RBinScan', 'MuVsMHScan','CVCFScan','KGluKGamScan']
 
 if opts.parallel:
     parallel = Parallel(cpu_count())
@@ -279,9 +284,11 @@ def writePostamble(sub_file, exec_line):
 		system('bsub -q %s -o %s.log %s'%(opts.queue,os.path.abspath(sub_file.name),os.path.abspath(sub_file.name)))
 	if opts.runLocal:
 		if opts.parallel:
-			parallel.run(system,['bash %s'%os.path.abspath(sub_file.name)])
-		else:
-			system('bash %s'%os.path.abspath(sub_file.name))
+                    tmpdir = "/tmp/%s/combineHarvester%d_%d" % ( os.getlogin(), os.getpid(), parallel.njobs )
+                    system('mkdir %s'%tmpdir)
+                    parallel.run(system,['cd %s; bash %s' % ( tmpdir, os.path.abspath(sub_file.name))])
+                else:
+                    system('bash %s'%os.path.abspath(sub_file.name))
 
 def writeAsymptotic():
 	print 'Writing Asymptotic'
@@ -443,21 +450,48 @@ def writeMultiPdfChannelCompatibility():
 	
 def writeMultiDimFit(method=None,wsOnly=False):
 
+        globe_name = "h2gglobe"
+        mypath = os.path.abspath(os.getcwd())
+        while mypath != "":
+            if "h2gglobe" in os.path.basename(mypath):
+                globe_name = os.path.basename(mypath)
+                break
+            mypath = os.path.dirname(mypath)
+        if opts.profileMH:
+            profMH = "--PO higgsMassRange=122,128"
+        else:
+            profMH = ""
+        catsMap = opts.catsMap
+	if not method:
+            method = opts.method            
+        if method == "RBinScan" and catsMap == "":
+            for ibin in range(opts.nBins):
+                binstr = " --PO map='.*cat"
+                comma = "("
+                for icat in range(30):
+                    if icat % opts.nBins == ibin:
+                        binstr += "%s%d" % (comma,icat)
+                        comma ="|"
+                binstr += ").*TeV/.*Bin.*:r_Bin%d[1,0,20]'" % ibin
+                catsMap += binstr
+        
 	print 'Writing MultiDim Scan'
-	ws_args = { "RVRFScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
-		"RVScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
-		"RVnpRFScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
-		"RFScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
-		"RFnpRVScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130" ,
+	ws_args = { "RVRFScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs " ,
+		"RVScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs %s" % profMH,
+		"RVnpRFScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs %s" % profMH,
+		"RFScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs %s" % profMH,
+		"RFnpRVScan" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs %s" % profMH,
 		"MuScan"	: "",
 		"MuScanMHProf"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
-		"CVCFScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:cVcF --PO higgsMassRange=122,128",
-		"KGluKGamScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:higgsLoops --PO higgsMassRange=122,128",
-		"MHScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
-		"MHScanStat" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
-		"MHScanNoGlob"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
+		"CVCFScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:cVcF       %s" % profMH,
+		"KGluKGamScan"	: "-P HiggsAnalysis.CombinedLimit.HiggsCouplings:higgsLoops %s" % profMH,
+		"MHScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs  %s" % profMH,
+		"MHScanStat" 	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs  %s" % profMH,
+		"MHScanNoGlob"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs  %s" % profMH,
 		"MuMHScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
-		"RTopoScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel %s --PO higgsMassRange=120,130" % opts.catsMap,
+		"RTopoScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel %s %s" % ( catsMap, profMH ),
+		"RBinScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel %s %s" % ( catsMap, profMH ),
+                "RDiffXsScan"	: "-P %s.AnalysisScripts.UnfoldModel:unfoldModel %s" % ( globe_name, profMH ),
 		"RProcScan"	: "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH,VH,ttH --PO higgsMassRange=124,126 --PO ggHRange=-1:10 --PO qqHRange=-2:20 --PO VHRange=-2:20 --PO ttHRange=-2:20 "
 	}
 
@@ -477,6 +511,8 @@ def writeMultiDimFit(method=None,wsOnly=False):
             "MuMHScan": [ ],
             "RProcScan": [ "r_ggH","r_qqH","r_VH","r_ttH" ],
             "RTopoScan": [ "r_untag","r_qqHtag","r_VHtag","r_ttHtag" ],
+            "RBinScan": [ "r_Bin%d" % i for i in range(opts.nBins) ],
+            "RDiffXsScan": [ "r_Bin%d" % i for i in range(opts.nBins) ],
             }
 	
 	combine_args = {
@@ -494,7 +530,9 @@ def writeMultiDimFit(method=None,wsOnly=False):
 		"MHScanNoGlob"	: "--floatOtherPOIs=1 -P MH",
 		"MuMHScan"	: "-P r -P MH",
 		"RProcScan"	: "--floatOtherPOIs=1 -P %s"%(opts.poix), # need to add option to run specific process
-		"RTopoScan"	: "--floatOtherPOIs=1 -P %s"%(opts.poix) # need to add option to run specific topologic categories
+		"RTopoScan"	: "--floatOtherPOIs=1 -P %s"%(opts.poix), # need to add option to run specific topologic categories
+		"RBinScan"	: "--floatOtherPOIs=1 -P %s"%(opts.poix), # need to add option to run specific topologic categories
+		"RDiffXsScan"	: "--floatOtherPOIs=1 -P %s"%(opts.poix), # need to add option to run specific topologic categories
 		}
 	par_ranges = {}
 	if opts.rvLow!=None and opts.rvHigh!=None and opts.rfLow!=None and opts.rfHigh!=None:
@@ -512,6 +550,8 @@ def writeMultiDimFit(method=None,wsOnly=False):
 		par_ranges["MuScanMHProf"]= "r=%4.2f,%4.2f"%(opts.muLow,opts.muHigh) 
 		par_ranges["RProcScan"]	  = "%s=%4.2f,%4.2f"%(opts.poix,opts.muLow,opts.muHigh)
 		par_ranges["RTopoScan"]	  = "%s=%4.2f,%4.2f"%(opts.poix,opts.muLow,opts.muHigh)
+		par_ranges["RBinScan"]	  = "%s=%4.2f,%4.2f"%(opts.poix,opts.muLow,opts.muHigh)
+		par_ranges["RDiffXsScan"] = "%s=%4.2f,%4.2f"%(opts.poix,opts.muLow,opts.muHigh)
 	if opts.cvLow!=None and opts.cvHigh!=None and opts.cfLow!=None and opts.cfHigh!=None:
 		par_ranges["CVCFScan"]	  = "CV=%4.2f,%4.2f:CF=%4.2f,%4.2f"%(opts.cvLow,opts.cvHigh,opts.cfLow,opts.cfHigh)
 	if opts.kgamLow!=None and opts.kgamHigh!=None and opts.kgluLow!=None and opts.kgluHigh!=None:
@@ -523,8 +563,6 @@ def writeMultiDimFit(method=None,wsOnly=False):
 	if opts.muLow!=None and opts.muHigh!=None and opts.mhLow!=None and opts.mhHigh!=None:
 		par_ranges["MuMHScan"]	  = "r=%4.2f,%4.2f:MH=%6.2f,%6.2f"%(opts.muLow,opts.muHigh,opts.mhLow,opts.mhHigh)
 	# create specialised MultiDimFit workspace
-	if not method:
-		method = opts.method
 	backupcard = opts.datacard
 	if method=='MHScanStat':
 		makeStatOnlyCard()
@@ -546,6 +584,32 @@ def writeMultiDimFit(method=None,wsOnly=False):
 	if wsOnly:
 		return
 
+        if opts.freezeAll:
+            dcard=open(opts.datacard)
+            nsec = 0
+            nuis = ""
+            toFloat = None
+            if opts.float != "":
+                toFloat = re.compile(opts.float)
+            for line in dcard.read().split("\n"):
+                if line.startswith("#"):
+                    continue
+                if line.startswith("--"):
+                    nsec += 1
+                    continue
+                if nsec == 4:
+                    nu = line.split(" ",1)[0]
+                    if toFloat and toFloat.match(nu):
+                        print "Floating ", nu
+                        continue
+                    if nu != "" and not "pdfindex" in nu:
+                        if nuis != "":
+                            nuis += ","
+                        nuis+=nu
+            if nuis != "":
+                opts.additionalOptions += " --freezeNuisances %s" % nuis
+            print opts.additionalOptions
+
 	if opts.postFit:
             opts.datacard = opts.datacard.replace('.txt',method+'_postFit.root')
             if opts.expected and method in setpois and opts.expectSignal:
@@ -559,6 +623,9 @@ def writeMultiDimFit(method=None,wsOnly=False):
 
 	else:
 		opts.datacard = opts.datacard.replace('.txt',method+'.root')
+        
+            
+            
 	# make job scripts
 	for i in range(opts.jobs):
 		file = open('%s/sub_m%1.5g_job%d.sh'%(opts.outDir,getattr(opts,"mh",0.),i),'w')
@@ -592,7 +659,7 @@ def run():
 			writeMultiDimFit("MuMHScan",True)
 			opts.datacard = opts.datacard.replace('.txt','MuMHScan_postfit.root')
 			if opts.expected:
-				opts.additionalOptions += " ---overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
+				opts.additionalOptions += " --overrideSnapshotMass --redefineSignalPOIs r --freezeNuisances MH"
 	if opts.wspace: opts.datacard=opts.wspace	
 	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
@@ -658,6 +725,9 @@ def configure(config_line):
 		if option.startswith('kgluHigh='): opts.kgluHigh = float(option.split('=')[1])
 		if option.startswith('wspace='): opts.wspace = str(option.split('=')[1])
 		if option.startswith('catRanges='): opts.catRanges = str(option.split('=')[1])
+		if option.startswith('nBins='): opts.nBins = int(option.split('=')[1])
+                if option.startswith('freezeAll='): opts.freezeAll = int(option.split('=')[1])
+                if option.startswith('float='): opts.float = str(option.split('=')[1])
 		if option.startswith('opts='): 
 			addoptstr = option.split("=")[1:]
 			addoptstr = "=".join(addoptstr)
