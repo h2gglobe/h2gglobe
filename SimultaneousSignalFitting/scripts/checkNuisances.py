@@ -158,7 +158,8 @@ def main(options,args):
             v = ws.var(isyst)
             if v:
                 roonuis[ isyst ] = v
-
+        print roonuis
+        
         perproc = None
         if dat != "":
             perproc = readDatFile(dat)
@@ -166,7 +167,7 @@ def main(options,args):
             
         for icat in range(ncat):
             pdf = getPdf(icat, sqrts, ws)
-            pdf.Print()
+            pdf.Print("V")
             vars = {}
             expect = {}
             diff = {}

@@ -146,13 +146,15 @@ class FinalModelConstruction {
 		std::map<std::string,std::vector<std::pair<int,float> > > globalScalesOpts;
 		std::map<std::string,std::vector<std::pair<int,float> > > globalScalesCorrOpts;
 		std::vector<std::string> systematicsList;
-
+		std::vector<float> systematicsCorr;
+		std::vector<int> systematicsIdx;
+		
 		std::vector<std::string> photonCats;
 		std::map<std::string,std::map<int,std::map<std::string,double> > > meanSysts;
 		std::map<std::string,std::map<int,std::map<std::string,double> > > sigmaSysts;
 		std::map<std::string,std::map<int,std::map<std::string,double> > > rateSysts;
 
-		std::map<string,RooRealVar*> photonSystematics;
+		std::map<string,RooAbsReal*> photonSystematics;
 		std::map<string,RooConstVar*> photonSystematicConsts;
 
 		// utility funcs

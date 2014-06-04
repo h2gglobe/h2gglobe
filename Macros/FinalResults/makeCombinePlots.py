@@ -735,7 +735,7 @@ def plot1DNLL(returnErrors=False,xvar="", ext=""):
     eplus2 = h2-m
     eminus2 = m-l2
 
-    print "%15s : %4.3f +%4.3g -%4.3g" % ( ntitle+" "+ext, xmin, eplus , eminus )
+    print "%15s : %4.4f +%4.4g -%4.4g" % ( ntitle+" "+ext, xmin, eplus , eminus )
 
     if returnErrors:
       return [xmin,eplus,eminus,eplus2,eminus2]
