@@ -2247,8 +2247,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection,
                               tmvaPerVtxReader_, tmvaPerVtxMethod);
 
-            TLorentzVector lead_p4 = l.get_pho_p4( ipho2, vtxs[0], &corrected_pho_energy[0] ).Pt();
-            TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, vtxs[0], &corrected_pho_energy[0] ).Pt();
+            TLorentzVector lead_p4 = l.get_pho_p4( ipho2, vtxs[0], &corrected_pho_energy[0] );
+            TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, vtxs[0], &corrected_pho_energy[0] );
 
             if(sublead_p4.Pt()  > lead_p4.Pt() ) {
                 std::swap( diphotons[id].first,  diphotons[id].second );

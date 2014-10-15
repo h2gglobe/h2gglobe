@@ -6,11 +6,11 @@
 //#ifndef noexcept
 //#define noexcept
 //#endif
-#ifndef __slc5_amd64_gcc472__
-#ifndef noexcept
-#define noexcept
-#endif
-#endif
+//// #ifndef __slc5_amd64_gcc472__
+//// #ifndef noexcept
+//// #define noexcept
+//// #endif
+//// #endif
 
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
