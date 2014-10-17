@@ -49,17 +49,25 @@ get_git()
 	packs="$packs $dst"
 }
 
+eval $(scram ru -sh)
+
 cd $CMSSW_BASE/src
 
 ## Jet ID
 get_git V00-02-10 https://github.com/h2gglobe/External.git CMGTools/External 
 
 ## Combine
-get_git f5cf561  https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+if [[ $CMSSW_VERSION == CMSSW_7_* ]]; then
+    get_git slc6-root5.34.17  https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+else
+    get_git slc5-legacy-pre1  https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+fi
 
 # Energy regression
 if [[ $CMSSW_VERSION == CMSSW_6_* ]]; then 
     get_git hggpapertraining_regV6_7_8_tag0 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+elif [[ $CMSSW_VERSION == CMSSW_7_* ]]; then
+    get_git hggpaperV8 https://github.com/bendavid/GBRLikelihood HiggsAnalysis/GBRLikelihood
 else 
     get_git hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
 fi

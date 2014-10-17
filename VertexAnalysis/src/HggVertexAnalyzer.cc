@@ -805,7 +805,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		nch_.resize(ipair_+1); nch_[ipair_].resize(nvtx,0.);
 		nchpho1_.resize(ipair_+1); nchpho1_[ipair_].resize(nvtx,0.);
 		nchpho2_.resize(ipair_+1); nchpho2_[ipair_].resize(nvtx,0.);
-		vtxP_.resize(ipair_+1); vtxP_[ipair_].resize(nvtx,0.);
+		vtxP_.resize(ipair_+1); vtxP_[ipair_].resize(nvtx,TVector3(0.,0.,0.));
 		tksPt_.resize(ipair_+1); tksPt_[ipair_].resize(nvtx, vector<float>(1));
 		sphers_.resize(ipair_+1); sphers_[ipair_].resize(nvtx,TMatrixDSym(3));
 		sumpr_.resize(ipair_+1); sumpr_[ipair_].resize(nvtx,0.);
