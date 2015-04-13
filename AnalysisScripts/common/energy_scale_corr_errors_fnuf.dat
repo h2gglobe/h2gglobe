@@ -1,0 +1,8 @@
+# This file has two purposes:
+# - defines the uncorrelated energy scale nuisances
+# - defines the magnitude of the correlated energy scale nuisances
+
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
+
+LightColl   	0    0.0	3.0	-999. 999	-999999	999999	0.0	0.e-2
+
